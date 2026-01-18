@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Format Dockerfile
-        uses: reteps/dockerfmt@v4
+        uses: reteps/dockerfmt@v0.3.9
         with:
           path: Dockerfile
       - name: Commit changes
