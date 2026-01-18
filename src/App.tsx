@@ -1,4 +1,4 @@
-import { useState } from 'react'
+
 import { useKV } from '@github/spark/hooks'
 import { LandingPage } from '@/components/LandingPage'
 import { AppView } from '@/components/AppView'

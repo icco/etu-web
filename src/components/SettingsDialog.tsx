@@ -82,7 +82,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       setCopiedKey(key)
       toast.success('API key copied to clipboard')
       setTimeout(() => setCopiedKey(null), 2000)
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy API key')
     }
   }
@@ -190,7 +190,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   {newlyCreatedKey && (
                     <div className="bg-accent/10 border-2 border-accent rounded-lg p-4 space-y-2">
                       <p className="text-sm font-semibold text-accent-foreground">
-                        Save this key! It won't be shown again.
+                        Save this key! It won&apos;t be shown again.
                       </p>
                       <div className="flex items-center gap-2 bg-background rounded p-2 font-mono text-sm break-all">
                         <code className="flex-1">{newlyCreatedKey}</code>
