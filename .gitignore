@@ -45,6 +45,7 @@ next-env.d.ts
 # Prisma
 prisma/*.db
 prisma/*.db-journal
+src/generated
 
 # Other
 .spark-workbench-id

@@ -4,6 +4,7 @@ import { z } from "zod"
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
+import { Prisma } from "@/src/generated/prisma/client"
 
 const createNoteSchema = z.object({
   content: z.string().min(1, "Content is required"),
@@ -129,7 +130,7 @@ export async function getNotes(options?: {
 }) {
   const userId = await requireUser()
 
-  const where: Parameters<typeof db.note.findMany>[0]["where"] = { userId }
+  const where: Prisma.NoteWhereInput = { userId }
 
   // Search filter (simple content search)
   if (options?.search) {
