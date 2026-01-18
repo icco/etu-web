@@ -1,98 +1,58 @@
 # =============================================================================
-# Etu Server Dockerfile
-# Builds both the frontend (React) and backend (Node.js API)
+# Etu Server - Next.js Full Stack Application
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# Stage 1: Build the frontend
-# -----------------------------------------------------------------------------
-FROM node:22-alpine AS frontend-builder
+FROM node:25-alpine AS base
 
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
-COPY package.json yarn.lock ./
+# Install dependencies
+COPY package.json yarn.lock* ./
 RUN yarn install --frozen-lockfile
 
-# Copy frontend source and build
-COPY index.html tsconfig.json vite.config.ts tailwind.config.js components.json ./
-COPY src ./src
-COPY public ./public 2>/dev/null || true
+# Generate Prisma client
+COPY prisma ./prisma
+RUN yarn db:generate
 
-# Set API URL for production build
-ARG VITE_API_URL=/api
-ENV VITE_API_URL=$VITE_API_URL
-
-RUN yarn build
-
-# -----------------------------------------------------------------------------
-# Stage 2: Build the API server
-# -----------------------------------------------------------------------------
-FROM node:22-alpine AS api-builder
-
-WORKDIR /app/server
-
-# Copy server package files
-COPY server/package.json ./
-RUN npm install --production=false
-
-# Copy server source and build
-COPY server/tsconfig.json ./
-COPY server/src ./src
-
-RUN npm run build
-
-# Prune dev dependencies
-RUN npm prune --production
-
-# -----------------------------------------------------------------------------
-# Stage 3: Production image with both frontend and API
-# -----------------------------------------------------------------------------
-FROM node:22-alpine AS production
-
+# Rebuild the source code only when needed
+FROM base AS builder
 WORKDIR /app
 
-# Install nginx for serving frontend
-RUN apk add --no-cache nginx supervisor
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# Copy built frontend
-COPY --from=frontend-builder /app/dist /usr/share/nginx/html
+# Generate Prisma client again (needed for build)
+RUN yarn db:generate
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/http.d/default.conf
+# Build the application
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN yarn build
 
-# Copy built API server
-COPY --from=api-builder /app/server/dist ./server/dist
-COPY --from=api-builder /app/server/node_modules ./server/node_modules
-COPY --from=api-builder /app/server/package.json ./server/
+# Production image
+FROM base AS runner
+WORKDIR /app
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data && chown -R node:node /app/data
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Create supervisord config
-RUN echo '[supervisord]' > /etc/supervisord.conf && \
-    echo 'nodaemon=true' >> /etc/supervisord.conf && \
-    echo 'user=root' >> /etc/supervisord.conf && \
-    echo '' >> /etc/supervisord.conf && \
-    echo '[program:nginx]' >> /etc/supervisord.conf && \
-    echo 'command=nginx -g "daemon off;"' >> /etc/supervisord.conf && \
-    echo 'autostart=true' >> /etc/supervisord.conf && \
-    echo 'autorestart=true' >> /etc/supervisord.conf && \
-    echo '' >> /etc/supervisord.conf && \
-    echo '[program:api]' >> /etc/supervisord.conf && \
-    echo 'command=node /app/server/dist/index.js' >> /etc/supervisord.conf && \
-    echo 'directory=/app/server' >> /etc/supervisord.conf && \
-    echo 'autostart=true' >> /etc/supervisord.conf && \
-    echo 'autorestart=true' >> /etc/supervisord.conf && \
-    echo 'user=node' >> /etc/supervisord.conf && \
-    echo 'environment=NODE_ENV="production",DATABASE_URL="/app/data/etu.db",PORT="3001",FRONTEND_URL="http://localhost"' >> /etc/supervisord.conf
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Expose ports
-EXPOSE 80 3001
+# Copy built application
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/prisma ./prisma
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget -q --spider http://localhost/health || exit 1
+USER nextjs
 
-# Start both services
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Run database migrations and start the server
+CMD ["node", "server.js"]
