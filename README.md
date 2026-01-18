@@ -6,18 +6,21 @@ Read more about the concept at https://writing.natwelch.com/post/765
 
 ## Features
 
-### 🎨 Landing Page
+### Landing Page
 A modern marketing page that introduces Etu, explains interstitial journaling, and showcases features with honest pricing ($5/year).
 
-### 📝 Web Client
+### Web Client
 A full-featured journaling application with:
-- **Quick Capture**: Write notes in Markdown with live preview
-- **Tag System**: Organize notes with custom tags
-- **Search & Filter**: Find notes by content, tags, or date
+- **Quick Capture**: Write notes in Markdown with live preview (Cmd+Enter to save)
+- **Tag System**: Organize notes with custom tags (autocomplete from existing tags)
+- **Search & Filter**: Find notes by content, tags, or date range
 - **Timeline View**: Browse notes chronologically with date grouping
-- **Settings**: Manage account, subscription, and API keys
+- **Full Note View**: Click any note to see rendered markdown
+- **Settings**: Manage account, view stats, export data, and manage API keys
+- **Keyboard Shortcuts**: Press `n` for new note, `/` to search, `Esc` to clear filters
+- **Mobile Support**: Bottom navigation bar on mobile devices
 
-### 🔌 API Server
+### API Server
 _(Coming in a separate PR)_
 
 The backend API server will provide:
@@ -30,35 +33,39 @@ The backend API server will provide:
 ## Technology Stack
 
 - **Frontend**: React 19 + TypeScript
-- **Build Tool**: Vite
+- **Build Tool**: Vite 7
 - **UI Framework**: Radix UI + Tailwind CSS 4
 - **Icons**: Phosphor Icons
-- **Markdown**: marked library
+- **Markdown**: marked + DOMPurify
 - **State Management**: GitHub Spark KV (browser storage)
+- **Animations**: tw-animate-css + custom keyframes
 
 ## Development
 
 ### Prerequisites
-- Node.js 18+ 
-- npm
+- Node.js 18+ (see `.nvmrc`)
+- Yarn or npm
 
 ### Setup
 
 ```bash
 # Install dependencies
-npm install
+yarn install
 
 # Start development server
-npm run dev
+yarn dev
 
 # Build for production
-npm run build
+yarn build
 
 # Preview production build
-npm run preview
+yarn preview
+
+# Lint code
+yarn lint
 ```
 
-The development server will start at http://localhost:5000
+The development server runs at http://localhost:5000
 
 ## Project Structure
 
@@ -66,69 +73,104 @@ The development server will start at http://localhost:5000
 src/
 ├── components/
 │   ├── LandingPage.tsx      # Marketing landing page
-│   ├── AppView.tsx           # Main application view
-│   ├── NoteCard.tsx          # Individual note display
-│   ├── NoteDialog.tsx        # Note creation/editing modal
-│   ├── SettingsDialog.tsx    # User settings
-│   └── ui/                   # Reusable UI components
+│   ├── AppView.tsx          # Main application view with notes timeline
+│   ├── NoteCard.tsx         # Individual note display with full view dialog
+│   ├── NoteDialog.tsx       # Note creation/editing modal with markdown preview
+│   ├── SettingsDialog.tsx   # User settings (account, stats, subscription, API keys)
+│   └── ui/                  # Reusable UI components (shadcn/ui)
 ├── lib/
-│   ├── types.ts              # TypeScript type definitions
-│   ├── note-utils.ts         # Note manipulation utilities
-│   └── utils.ts              # General utilities
-├── App.tsx                   # Root application component
-└── main.tsx                  # Application entry point
+│   ├── types.ts             # TypeScript type definitions
+│   ├── note-utils.ts        # Note filtering, grouping, tag utilities
+│   └── utils.ts             # General utilities (cn helper)
+├── styles/
+│   └── theme.css            # Tailwind theme configuration
+├── index.css                # Global styles, CSS variables, animations
+├── App.tsx                  # Root component with auth state
+└── main.tsx                 # Application entry point
 ```
+
+## Key Components
+
+### AppView
+The main application view featuring:
+- Header with search and new note button
+- Tag and date range filtering
+- Grouped notes timeline
+- Mobile bottom navigation
+
+### NoteDialog
+Modal for creating/editing notes with:
+- Markdown textarea with live preview toggle
+- Tag input with autocomplete from existing tags
+- Keyboard shortcuts (Cmd+Enter to save)
+
+### NoteCard
+Individual note display with:
+- Markdown preview (stripped for card view)
+- Full rendered markdown view on click
+- Edit/delete actions via dropdown menu
+- Search term highlighting
+
+### SettingsDialog
+Settings with tabs for:
+- **Account**: User info
+- **Stats**: Usage statistics (notes, tags, words, activity chart) + data export
+- **Subscription**: Billing management
+- **API Keys**: Create and manage API keys for CLI/mobile access
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `n` | Create new blip |
+| `/` | Focus search |
+| `Esc` | Clear filters |
+| `Cmd+Enter` | Save note (in dialog) |
+
+## Design System
+
+### Colors
+- **Primary**: Deep ink blue `oklch(0.25 0.08 250)` - Headers, text
+- **Accent**: Amber highlight `oklch(0.75 0.15 75)` - CTAs, buttons
+- **Background**: Warm paper `oklch(0.95 0.015 85)` - Main background
+- **Secondary**: Sage green `oklch(0.70 0.08 150)` - Success states
+
+### Typography
+- **Headings**: Newsreader (serif)
+- **Body**: Space Grotesk (sans-serif)
+- **Code**: JetBrains Mono (monospace)
+
+Fonts are loaded from Google Fonts in `index.html`.
+
+### Animations
+- Modal: Scale-in on open (200ms ease-out)
+- Buttons: Scale down on press (0.98)
+- Cards: Hover lift effect, stagger fade-in
+- Tags: Zoom-in animation on add
 
 ## Current Limitations
 
-This implementation currently uses browser-based local storage. For production use, it requires:
+This implementation uses browser-based local storage via GitHub Spark KV. For production use:
 
 1. **Backend API Server** - RESTful/gRPC API for data persistence
-2. **Authentication** - Proper user authentication system
+2. **Authentication** - Proper user authentication (currently just a toggle)
 3. **Payment Integration** - Stripe integration for subscriptions
-4. **Database** - Persistent storage (PostgreSQL recommended)
-
-See the [API Server Roadmap](#api-server-roadmap) section below.
+4. **Database** - PostgreSQL for persistent storage
+5. **Sync** - Real-time sync across devices
 
 ## Related Projects
 
 - **CLI Client**: https://github.com/icco/etu
 - **Mobile App**: https://github.com/icco/etu-mobile
 
-## API Server Roadmap
+## Docker
 
-The API server will be implemented in a separate PR with:
+Build and run with Docker:
 
-### Core Features
-- [ ] Protocol Buffer definitions based on icco/etu
-- [ ] gRPC server implementation
-- [ ] HTTP/JSON gateway
-- [ ] JWT + API key authentication
-- [ ] PostgreSQL database integration
-- [ ] Note CRUD operations
-- [ ] Full-text search
-- [ ] Tag management
-
-### Payment & Users
-- [ ] Stripe subscription integration
-- [ ] User registration and management
-- [ ] Subscription status tracking
-- [ ] Payment webhook handling
-
-### DevOps
-- [ ] Docker containerization
-- [ ] Database migrations
-- [ ] API documentation (OpenAPI/Swagger)
-- [ ] Integration tests
-- [ ] CI/CD pipeline
-
-## Design Philosophy
-
-Etu follows these experience qualities:
-
-1. **Effortless** - Capturing thoughts should be friction-free
-2. **Purposeful** - Every element serves quick capture and easy retrieval
-3. **Trustworthy** - Stable, secure, and respectful of user content
+```bash
+docker build -t etu-server .
+docker run -p 80:80 etu-server
+```
 
 ## License
 
