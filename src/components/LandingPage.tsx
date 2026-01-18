@@ -24,7 +24,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       <section className="container mx-auto px-6 py-20 md:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-            Capture Life's Moments,<br />One Blip at a Time
+            Capture Life&apos;s Moments,<br />One Blip at a Time
           </h2>
           <p className="text-xl text-muted-foreground mb-8 leading-relaxed max-w-2xl mx-auto">
             Etu is your interstitial journaling companion. Quick notes, powerful search, 
@@ -56,7 +56,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               brevity and spontaneity.
             </p>
             <p className="text-lg text-foreground leading-relaxed">
-              Each entry (we call them "blips") is a snapshot: a thought, a task, an observation, 
+              Each entry (we call them &quot;blips&quot;) is a snapshot: a thought, a task, an observation, 
               or a moment worth remembering. Over time, these small captures create a rich, 
               searchable history of your life and thinking.
             </p>
