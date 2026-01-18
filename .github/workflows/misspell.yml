@@ -4,7 +4,11 @@ on:
     branches:
       - main
   pull_request:
-    types: [assigned, opened, synchronize, reopened]
+    types:
+      - assigned
+      - opened
+      - synchronize
+      - reopened
 jobs:
   misspell:
     name: runner / misspell
@@ -15,6 +19,6 @@ jobs:
       - name: misspell
         uses: reviewdog/action-misspell@v1
         with:
-          locale: "US"
-          ignore: "Colour,colour"
-          exclude: "yarn.lock"
+          locale: US
+          ignore: Colour,colour
+          exclude: yarn.lock
