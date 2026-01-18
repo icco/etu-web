@@ -21,102 +21,205 @@ A full-featured journaling application with:
 - **Mobile Support**: Bottom navigation bar on mobile devices
 
 ### API Server
-_(Coming in a separate PR)_
-
-The backend API server will provide:
-- gRPC and HTTP/JSON APIs
-- Authentication with API keys
-- Persistent storage
-- Stripe payment integration
-- Multi-client support (web, CLI, mobile)
+A complete REST API backend with:
+- **Authentication**: JWT tokens and API keys for CLI/mobile access
+- **Notes CRUD**: Create, read, update, delete notes with full-text search
+- **Tags**: Tag management with rename, delete, and merge operations
+- **User Management**: Registration, login, account stats
+- **Stripe Integration**: Subscription payments and billing portal
+- **SQLite Database**: Local persistent storage (PostgreSQL-ready schema)
 
 ## Technology Stack
 
-- **Frontend**: React 19 + TypeScript
+### Frontend
+- **Framework**: React 19 + TypeScript
 - **Build Tool**: Vite 7
 - **UI Framework**: Radix UI + Tailwind CSS 4
 - **Icons**: Phosphor Icons
 - **Markdown**: marked + DOMPurify
-- **State Management**: GitHub Spark KV (browser storage)
 - **Animations**: tw-animate-css + custom keyframes
 
-## Development
+### Backend
+- **Runtime**: Node.js 22 + TypeScript
+- **Framework**: Express.js
+- **Database**: SQLite (better-sqlite3) with FTS5 full-text search
+- **Auth**: JWT + bcrypt for password hashing
+- **Validation**: Zod schemas
+- **Payments**: Stripe SDK
 
-### Prerequisites
-- Node.js 18+ (see `.nvmrc`)
-- Yarn or npm
+## Quick Start
 
-### Setup
+### Development (Frontend Only)
 
 ```bash
 # Install dependencies
 yarn install
 
-# Start development server
+# Start development server (uses local storage)
 yarn dev
-
-# Build for production
-yarn build
-
-# Preview production build
-yarn preview
-
-# Lint code
-yarn lint
 ```
 
-The development server runs at http://localhost:5000
+The frontend runs at http://localhost:5000 and works offline with browser storage.
+
+### Development (Full Stack)
+
+```bash
+# Install frontend dependencies
+yarn install
+
+# Install API server dependencies
+cd server && npm install && cd ..
+
+# Start API server (in one terminal)
+cd server && npm run dev
+
+# Start frontend (in another terminal)
+yarn dev
+```
+
+The API server runs at http://localhost:3001, frontend at http://localhost:5000.
+
+### Production (Docker)
+
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Or build manually
+docker build -t etu-server .
+docker run -p 8080:80 -v etu-data:/app/data etu-server
+```
+
+Access at http://localhost:8080
 
 ## Project Structure
 
 ```
-src/
-├── components/
-│   ├── LandingPage.tsx      # Marketing landing page
-│   ├── AppView.tsx          # Main application view with notes timeline
-│   ├── NoteCard.tsx         # Individual note display with full view dialog
-│   ├── NoteDialog.tsx       # Note creation/editing modal with markdown preview
-│   ├── SettingsDialog.tsx   # User settings (account, stats, subscription, API keys)
-│   └── ui/                  # Reusable UI components (shadcn/ui)
-├── lib/
-│   ├── types.ts             # TypeScript type definitions
-│   ├── note-utils.ts        # Note filtering, grouping, tag utilities
-│   └── utils.ts             # General utilities (cn helper)
-├── styles/
-│   └── theme.css            # Tailwind theme configuration
-├── index.css                # Global styles, CSS variables, animations
-├── App.tsx                  # Root component with auth state
-└── main.tsx                 # Application entry point
+├── src/                    # Frontend source
+│   ├── components/         # React components
+│   │   ├── AppView.tsx     # Main app with notes timeline
+│   │   ├── AuthDialog.tsx  # Login/register modal
+│   │   ├── NoteCard.tsx    # Note display with view dialog
+│   │   ├── NoteDialog.tsx  # Note creation/editing
+│   │   ├── SettingsDialog.tsx # Settings with stats & export
+│   │   └── ui/             # shadcn/ui components
+│   ├── lib/
+│   │   ├── api.ts          # API client
+│   │   ├── types.ts        # TypeScript types
+│   │   └── note-utils.ts   # Note utilities
+│   └── index.css           # Global styles
+│
+├── server/                 # API server source
+│   ├── src/
+│   │   ├── index.ts        # Express app entry
+│   │   ├── routes/         # API route handlers
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── notes.routes.ts
+│   │   │   ├── tags.routes.ts
+│   │   │   ├── apikeys.routes.ts
+│   │   │   └── stripe.routes.ts
+│   │   ├── services/       # Business logic
+│   │   ├── middleware/     # Auth, validation, errors
+│   │   ├── db/             # Database schema & setup
+│   │   └── types/          # TypeScript types
+│   └── package.json
+│
+├── Dockerfile              # Multi-stage build
+├── docker-compose.yml      # Easy deployment
+└── nginx.conf              # Reverse proxy config
 ```
 
-## Key Components
+## API Endpoints
 
-### AppView
-The main application view featuring:
-- Header with search and new note button
-- Tag and date range filtering
-- Grouped notes timeline
-- Mobile bottom navigation
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create account |
+| POST | `/api/auth/login` | Login, returns JWT |
+| GET | `/api/auth/me` | Get current user + stats |
+| POST | `/api/auth/refresh` | Refresh JWT token |
 
-### NoteDialog
-Modal for creating/editing notes with:
-- Markdown textarea with live preview toggle
-- Tag input with autocomplete from existing tags
-- Keyboard shortcuts (Cmd+Enter to save)
+### Notes
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/notes` | List notes (with search, tags, date filters) |
+| POST | `/api/notes` | Create note |
+| GET | `/api/notes/:id` | Get single note |
+| PUT | `/api/notes/:id` | Update note |
+| DELETE | `/api/notes/:id` | Delete note |
 
-### NoteCard
-Individual note display with:
-- Markdown preview (stripped for card view)
-- Full rendered markdown view on click
-- Edit/delete actions via dropdown menu
-- Search term highlighting
+### Tags
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/tags` | List all tags with note counts |
+| PUT | `/api/tags/:id` | Rename tag |
+| DELETE | `/api/tags/:id` | Delete tag |
+| POST | `/api/tags/:id/merge` | Merge into another tag |
 
-### SettingsDialog
-Settings with tabs for:
-- **Account**: User info
-- **Stats**: Usage statistics (notes, tags, words, activity chart) + data export
-- **Subscription**: Billing management
-- **API Keys**: Create and manage API keys for CLI/mobile access
+### API Keys
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/api-keys` | List API keys |
+| POST | `/api/api-keys` | Create API key (returns key once) |
+| DELETE | `/api/api-keys/:id` | Revoke API key |
+
+### Stripe (Subscriptions)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/stripe/create-checkout` | Create checkout session |
+| POST | `/api/stripe/create-portal` | Create billing portal session |
+| POST | `/api/stripe/webhook` | Handle Stripe webhooks |
+
+## Authentication
+
+The API supports two authentication methods:
+
+### JWT Token (Web)
+```bash
+curl -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password123"}'
+
+# Use the token
+curl http://localhost:3001/api/notes \
+  -H "Authorization: Bearer <token>"
+```
+
+### API Key (CLI/Mobile)
+```bash
+# Create an API key in settings, then use it:
+curl http://localhost:3001/api/notes \
+  -H "Authorization: ApiKey etu_abc123..."
+
+# Or directly:
+curl http://localhost:3001/api/notes \
+  -H "Authorization: etu_abc123..."
+```
+
+## Environment Variables
+
+Create a `.env` file in the `server/` directory:
+
+```env
+# Server
+PORT=3001
+NODE_ENV=development
+
+# Database
+DATABASE_URL=./data/etu.db
+
+# Auth
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRES_IN=7d
+
+# Stripe (optional)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_ID=price_...
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:5000
+```
 
 ## Keyboard Shortcuts
 
@@ -130,50 +233,21 @@ Settings with tabs for:
 ## Design System
 
 ### Colors
-- **Primary**: Deep ink blue `oklch(0.25 0.08 250)` - Headers, text
-- **Accent**: Amber highlight `oklch(0.75 0.15 75)` - CTAs, buttons
-- **Background**: Warm paper `oklch(0.95 0.015 85)` - Main background
-- **Secondary**: Sage green `oklch(0.70 0.08 150)` - Success states
+- **Primary**: Deep ink blue `oklch(0.25 0.08 250)`
+- **Accent**: Amber highlight `oklch(0.75 0.15 75)`
+- **Background**: Warm paper `oklch(0.95 0.015 85)`
+- **Secondary**: Sage green `oklch(0.70 0.08 150)`
 
 ### Typography
 - **Headings**: Newsreader (serif)
 - **Body**: Space Grotesk (sans-serif)
 - **Code**: JetBrains Mono (monospace)
 
-Fonts are loaded from Google Fonts in `index.html`.
-
-### Animations
-- Modal: Scale-in on open (200ms ease-out)
-- Buttons: Scale down on press (0.98)
-- Cards: Hover lift effect, stagger fade-in
-- Tags: Zoom-in animation on add
-
-## Current Limitations
-
-This implementation uses browser-based local storage via GitHub Spark KV. For production use:
-
-1. **Backend API Server** - RESTful/gRPC API for data persistence
-2. **Authentication** - Proper user authentication (currently just a toggle)
-3. **Payment Integration** - Stripe integration for subscriptions
-4. **Database** - PostgreSQL for persistent storage
-5. **Sync** - Real-time sync across devices
-
 ## Related Projects
 
 - **CLI Client**: https://github.com/icco/etu
 - **Mobile App**: https://github.com/icco/etu-mobile
 
-## Docker
-
-Build and run with Docker:
-
-```bash
-docker build -t etu-server .
-docker run -p 80:80 etu-server
-```
-
 ## License
 
 MIT License - Copyright (c) 2024 Etu
-
-GitHub Spark Template resources are licensed under the MIT license, Copyright GitHub, Inc.

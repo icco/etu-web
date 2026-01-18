@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -12,6 +12,7 @@ import { Key, CreditCard, Trash, Copy, Check, Download, ChartBar, Tag, NotePenci
 import { toast } from 'sonner'
 import { APIKey, Note } from '@/lib/types'
 import { generateId, getAllTags } from '@/lib/note-utils'
+import { api, APIKeyResponse } from '@/lib/api'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,11 +27,25 @@ import {
 interface SettingsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  isApiMode?: boolean
 }
 
-export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
-  const [apiKeys, setApiKeys] = useKV<APIKey[]>('etu-api-keys', [])
+export function SettingsDialog({ open, onOpenChange, isApiMode = false }: SettingsDialogProps) {
+  const [localApiKeys, setLocalApiKeys] = useKV<APIKey[]>('etu-api-keys', [])
+  const [apiApiKeys, setApiApiKeys] = useState<APIKeyResponse[]>([])
   const [notes] = useKV<Note[]>('etu-notes', [])
+  
+  // Use appropriate API keys based on mode
+  const apiKeys = isApiMode 
+    ? apiApiKeys.map(k => ({ id: k.id, name: k.name, createdAt: k.createdAt, lastUsed: k.lastUsed }))
+    : (localApiKeys || [])
+
+  // Fetch API keys when in API mode
+  useEffect(() => {
+    if (isApiMode && open) {
+      api.getAPIKeys().then(setApiApiKeys).catch(console.error)
+    }
+  }, [isApiMode, open])
   const [newKeyName, setNewKeyName] = useState('')
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
@@ -115,30 +130,43 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     toast.success('Data exported as Markdown')
   }
 
-  const generateAPIKey = () => {
+  const generateLocalAPIKey = () => {
     return 'etu_' + Array.from(crypto.getRandomValues(new Uint8Array(32)))
       .map(b => b.toString(16).padStart(2, '0'))
       .join('')
   }
 
-  const handleCreateKey = () => {
+  const handleCreateKey = async () => {
     if (!newKeyName.trim()) {
       toast.error('Please enter a name for the API key')
       return
     }
 
-    const newKey = generateAPIKey()
-    const apiKey: APIKey = {
-      id: generateId(),
-      name: newKeyName.trim(),
-      key: newKey,
-      createdAt: new Date().toISOString(),
-    }
+    if (isApiMode) {
+      try {
+        const result = await api.createAPIKey(newKeyName.trim())
+        setApiApiKeys(prev => [...prev, result])
+        setNewlyCreatedKey(result.key || null)
+        setNewKeyName('')
+        toast.success('API key created')
+      } catch (error) {
+        console.error('Failed to create API key:', error)
+        toast.error('Failed to create API key')
+      }
+    } else {
+      const newKey = generateLocalAPIKey()
+      const apiKey: APIKey = {
+        id: generateId(),
+        name: newKeyName.trim(),
+        key: newKey,
+        createdAt: new Date().toISOString(),
+      }
 
-    setApiKeys((currentKeys) => [...(currentKeys || []), apiKey])
-    setNewlyCreatedKey(newKey)
-    setNewKeyName('')
-    toast.success('API key created')
+      setLocalApiKeys((currentKeys) => [...(currentKeys || []), apiKey])
+      setNewlyCreatedKey(newKey)
+      setNewKeyName('')
+      toast.success('API key created')
+    }
   }
 
   const confirmDeleteKey = (keyId: string) => {
@@ -146,13 +174,25 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     setDeleteDialogOpen(true)
   }
 
-  const handleDeleteKey = () => {
-    if (keyToDelete) {
-      setApiKeys((currentKeys) => (currentKeys || []).filter((key) => key.id !== keyToDelete))
+  const handleDeleteKey = async () => {
+    if (!keyToDelete) return
+
+    if (isApiMode) {
+      try {
+        await api.deleteAPIKey(keyToDelete)
+        setApiApiKeys(prev => prev.filter(k => k.id !== keyToDelete))
+        toast.success('API key revoked')
+      } catch (error) {
+        console.error('Failed to delete API key:', error)
+        toast.error('Failed to revoke API key')
+      }
+    } else {
+      setLocalApiKeys((currentKeys) => (currentKeys || []).filter((key) => key.id !== keyToDelete))
       toast.success('API key revoked')
-      setKeyToDelete(null)
-      setDeleteDialogOpen(false)
     }
+    
+    setKeyToDelete(null)
+    setDeleteDialogOpen(false)
   }
 
   const handleCopyKey = async (key: string) => {

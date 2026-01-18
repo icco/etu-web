@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Note } from '@/lib/types'
 import { filterNotes, groupNotesByDate, getAllTags, generateId } from '@/lib/note-utils'
+import { api, NoteWithTags } from '@/lib/api'
 import { NoteDialog } from '@/components/NoteDialog'
 import { NoteCard } from '@/components/NoteCard'
 import { Button } from '@/components/ui/button'
@@ -18,7 +19,9 @@ import {
   Gear,
   X,
   CalendarBlank,
-  House
+  House,
+  CloudSlash,
+  Cloud
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { SettingsDialog } from '@/components/SettingsDialog'
@@ -37,10 +40,20 @@ import { DateRange } from 'react-day-picker'
 
 interface AppViewProps {
   onLogout: () => void
+  isApiMode?: boolean
 }
 
-export function AppView({ onLogout }: AppViewProps) {
-  const [notes, setNotes] = useKV<Note[]>('etu-notes', [])
+export function AppView({ onLogout, isApiMode = false }: AppViewProps) {
+  // Local storage for offline/demo mode
+  const [localNotes, setLocalNotes] = useKV<Note[]>('etu-notes', [])
+  
+  // API mode state
+  const [apiNotes, setApiNotes] = useState<Note[]>([])
+  const [isLoadingNotes, setIsLoadingNotes] = useState(isApiMode)
+  
+  // Use appropriate notes based on mode
+  const notes = isApiMode ? apiNotes : (localNotes || [])
+  
   const [dialogOpen, setDialogOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -50,6 +63,34 @@ export function AppView({ onLogout }: AppViewProps) {
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
   const [datePopoverOpen, setDatePopoverOpen] = useState(false)
+
+  // Fetch notes from API on mount
+  useEffect(() => {
+    if (isApiMode) {
+      fetchNotes()
+    }
+  }, [isApiMode])
+
+  const fetchNotes = async () => {
+    setIsLoadingNotes(true)
+    try {
+      const response = await api.getNotes({ limit: 100 })
+      // Convert API response to Note format
+      const notes: Note[] = response.notes.map((n: NoteWithTags) => ({
+        id: n.id,
+        content: n.content,
+        tags: n.tags,
+        createdAt: n.createdAt,
+        updatedAt: n.updatedAt,
+      }))
+      setApiNotes(notes)
+    } catch (error) {
+      console.error('Failed to fetch notes:', error)
+      toast.error('Failed to load notes')
+    } finally {
+      setIsLoadingNotes(false)
+    }
+  }
 
   const allTags = useMemo(() => getAllTags(notes || []), [notes])
 
@@ -106,28 +147,45 @@ export function AppView({ onLogout }: AppViewProps) {
     return groupNotesByDate(filteredNotes)
   }, [filteredNotes])
 
-  const handleSaveNote = (content: string, tags: string[]) => {
-    if (editingNote) {
-      setNotes((currentNotes) =>
-        (currentNotes || []).map((note) =>
-          note.id === editingNote.id
-            ? { ...note, content, tags, updatedAt: new Date().toISOString() }
-            : note
-        )
-      )
-      toast.success('Blip updated')
-      setEditingNote(null)
-    } else {
-      const newNote: Note = {
-        id: generateId(),
-        content,
-        tags,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+  const handleSaveNote = async (content: string, tags: string[]) => {
+    if (isApiMode) {
+      try {
+        if (editingNote) {
+          const updated = await api.updateNote(editingNote.id, { content, tags })
+          setApiNotes(prev => prev.map(n => n.id === editingNote.id ? { ...updated } : n))
+          toast.success('Blip updated')
+        } else {
+          const created = await api.createNote(content, tags)
+          setApiNotes(prev => [{ ...created }, ...prev])
+          toast.success('Blip saved')
+        }
+      } catch (error) {
+        console.error('Failed to save note:', error)
+        toast.error('Failed to save blip')
       }
-      setNotes((currentNotes) => [newNote, ...(currentNotes || [])])
-      toast.success('Blip saved')
+    } else {
+      if (editingNote) {
+        setLocalNotes((currentNotes) =>
+          (currentNotes || []).map((note) =>
+            note.id === editingNote.id
+              ? { ...note, content, tags, updatedAt: new Date().toISOString() }
+              : note
+          )
+        )
+        toast.success('Blip updated')
+      } else {
+        const newNote: Note = {
+          id: generateId(),
+          content,
+          tags,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+        setLocalNotes((currentNotes) => [newNote, ...(currentNotes || [])])
+        toast.success('Blip saved')
+      }
     }
+    setEditingNote(null)
   }
 
   const handleEditNote = (note: Note) => {
@@ -140,13 +198,25 @@ export function AppView({ onLogout }: AppViewProps) {
     setDeleteDialogOpen(true)
   }
 
-  const handleDeleteNote = () => {
-    if (noteToDelete) {
-      setNotes((currentNotes) => (currentNotes || []).filter((note) => note.id !== noteToDelete))
+  const handleDeleteNote = async () => {
+    if (!noteToDelete) return
+
+    if (isApiMode) {
+      try {
+        await api.deleteNote(noteToDelete)
+        setApiNotes(prev => prev.filter(n => n.id !== noteToDelete))
+        toast.success('Blip deleted')
+      } catch (error) {
+        console.error('Failed to delete note:', error)
+        toast.error('Failed to delete blip')
+      }
+    } else {
+      setLocalNotes((currentNotes) => (currentNotes || []).filter((note) => note.id !== noteToDelete))
       toast.success('Blip deleted')
-      setNoteToDelete(null)
-      setDeleteDialogOpen(false)
     }
+    
+    setNoteToDelete(null)
+    setDeleteDialogOpen(false)
   }
 
   const toggleTag = (tag: string) => {
@@ -173,6 +243,11 @@ export function AppView({ onLogout }: AppViewProps) {
             <div className="flex items-center gap-2">
               <NotePencil size={28} weight="duotone" className="text-primary" />
               <h1 className="text-xl font-bold text-primary hidden sm:block">Etu</h1>
+              {isApiMode ? (
+                <Cloud size={16} className="text-secondary" title="Synced to cloud" />
+              ) : (
+                <CloudSlash size={16} className="text-muted-foreground" title="Local only" />
+              )}
             </div>
             
             <div className="flex-1 max-w-md">
@@ -305,7 +380,12 @@ export function AppView({ onLogout }: AppViewProps) {
         </header>
 
         <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
-          {!notes || notes.length === 0 ? (
+          {isLoadingNotes ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mb-4"></div>
+              <p className="text-muted-foreground">Loading your blips...</p>
+            </div>
+          ) : !notes || notes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <NotePencil size={64} weight="duotone" className="text-muted-foreground mb-4" />
               <h2 className="text-2xl font-semibold text-foreground mb-2">
@@ -382,6 +462,7 @@ export function AppView({ onLogout }: AppViewProps) {
       <SettingsDialog
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
+        isApiMode={isApiMode}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
