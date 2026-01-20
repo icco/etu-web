@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { verifyApiKey } from "@/lib/actions/api-keys"
-
-async function authenticateRequest(req: NextRequest): Promise<string | null> {
-  const authHeader = req.headers.get("Authorization")
-  
-  if (!authHeader || !authHeader.startsWith("etu_")) {
-    return null
-  }
-
-  const apiKey = authHeader.trim()
-  return await verifyApiKey(apiKey)
-}
+import { authenticateRequest } from "@/lib/api/auth"
 
 export async function GET(req: NextRequest) {
   try {

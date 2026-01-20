@@ -1,18 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { verifyApiKey } from "@/lib/actions/api-keys"
+import { authenticateRequest, API_CONSTANTS } from "@/lib/api/auth"
 import type { Prisma } from "@prisma/client"
-
-async function authenticateRequest(req: NextRequest): Promise<string | null> {
-  const authHeader = req.headers.get("Authorization")
-  
-  if (!authHeader || !authHeader.startsWith("etu_")) {
-    return null
-  }
-
-  const apiKey = authHeader.trim()
-  return await verifyApiKey(apiKey)
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -29,7 +18,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get("search") || undefined
     const tags = searchParams.get("tags")?.split(",").filter(Boolean) || undefined
-    const limit = parseInt(searchParams.get("limit") || "50", 10)
+    const limit = parseInt(searchParams.get("limit") || String(API_CONSTANTS.DEFAULT_NOTES_LIMIT), 10)
     const offset = parseInt(searchParams.get("offset") || "0", 10)
     const startDate = searchParams.get("start_date")
       ? new Date(searchParams.get("start_date")!)
@@ -72,7 +61,7 @@ export async function GET(req: NextRequest) {
           },
         },
         orderBy: { createdAt: "desc" },
-        take: Math.min(limit, 100),
+        take: Math.min(limit, API_CONSTANTS.MAX_NOTES_LIMIT),
         skip: offset,
       }),
       db.note.count({ where }),
@@ -164,13 +153,20 @@ export async function POST(req: NextRequest) {
       })
     })
 
+    if (!note) {
+      return NextResponse.json(
+        { error: "Failed to create note" },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json(
       {
-        id: note!.id,
-        content: note!.content,
-        createdAt: note!.createdAt,
-        updatedAt: note!.updatedAt,
-        tags: note!.tags.map((t: { tag: { name: string } }) => t.tag.name),
+        id: note.id,
+        content: note.content,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
+        tags: note.tags.map((t: { tag: { name: string } }) => t.tag.name),
       },
       { status: 201 }
     )

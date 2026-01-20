@@ -1,18 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { verifyApiKey } from "@/lib/actions/api-keys"
+import { authenticateRequest } from "@/lib/api/auth"
 import type { Prisma } from "@prisma/client"
-
-async function authenticateRequest(req: NextRequest): Promise<string | null> {
-  const authHeader = req.headers.get("Authorization")
-  
-  if (!authHeader || !authHeader.startsWith("etu_")) {
-    return null
-  }
-
-  const apiKey = authHeader.trim()
-  return await verifyApiKey(apiKey)
-}
 
 export async function GET(
   req: NextRequest,
@@ -140,12 +129,19 @@ export async function PUT(
       },
     })
 
+    if (!note) {
+      return NextResponse.json(
+        { error: "Failed to fetch updated note" },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json({
-      id: note!.id,
-      content: note!.content,
-      createdAt: note!.createdAt,
-      updatedAt: note!.updatedAt,
-      tags: note!.tags.map((t: { tag: { name: string } }) => t.tag.name),
+      id: note.id,
+      content: note.content,
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt,
+      tags: note.tags.map((t: { tag: { name: string } }) => t.tag.name),
     })
   } catch (error) {
     console.error("PUT /api/v1/notes/[id] error:", error)
