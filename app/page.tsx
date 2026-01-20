@@ -35,9 +35,6 @@ export default async function LandingPage() {
           <Link href={session ? "/notes" : "/register"} className="btn btn-primary btn-lg">
             Start Capturing Ideas
           </Link>
-          <p className="text-sm text-base-content/60 mt-4">
-            $5/year • Open source • Self-hostable
-          </p>
         </div>
       </section>
 
