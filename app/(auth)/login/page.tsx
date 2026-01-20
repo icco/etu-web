@@ -44,33 +44,33 @@ export default function LoginPage() {
           </p>
 
           <form action={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email
-              </label>
+            <label className="form-control w-full">
+              <div className="label">
+                <span className="label-text">Email</span>
+              </div>
               <input
                 id="email"
                 name="email"
                 type="email"
                 required
-                className="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                className="input input-bordered w-full"
                 placeholder="you@example.com"
               />
-            </div>
+            </label>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2">
-                Password
-              </label>
+            <label className="form-control w-full">
+              <div className="label">
+                <span className="label-text">Password</span>
+              </div>
               <input
                 id="password"
                 name="password"
                 type="password"
                 required
-                className="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                className="input input-bordered w-full"
                 placeholder="••••••••"
               />
-            </div>
+            </label>
 
             {error && (
               <p className="text-sm text-destructive">{error}</p>
