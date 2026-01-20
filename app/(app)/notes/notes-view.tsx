@@ -287,42 +287,32 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
         </main>
 
         {/* Mobile bottom nav */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border md:hidden z-50 pb-safe">
-          <div className="flex items-center justify-around py-2">
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="flex flex-col items-center gap-1 p-2"
-            >
-              <HomeIcon className="h-6 w-6" />
-              <span className="text-xs">Home</span>
-            </button>
-            <button
-              onClick={() => document.getElementById("search-notes")?.focus()}
-              className="flex flex-col items-center gap-1 p-2"
-            >
-              <MagnifyingGlassIcon className="h-6 w-6" />
-              <span className="text-xs">Search</span>
-            </button>
-            <button
-              onClick={() => setDialogOpen(true)}
-              className="bg-accent text-accent-foreground rounded-full w-14 h-14 flex items-center justify-center shadow-lg -mt-6"
-            >
-              <PencilSquareIcon className="h-7 w-7" />
-            </button>
-            <Link href="/settings" className="flex flex-col items-center gap-1 p-2">
-              <Cog6ToothIcon className="h-6 w-6" />
-              <span className="text-xs">Settings</span>
-            </Link>
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="flex flex-col items-center gap-1 p-2"
-            >
-              <ArrowRightStartOnRectangleIcon className="h-6 w-6" />
-              <span className="text-xs">Logout</span>
-            </button>
-          </div>
-        </nav>
-        <div className="h-20 md:hidden" />
+        <div className="btm-nav btm-nav-sm md:hidden z-50">
+          <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            <HomeIcon className="h-5 w-5" />
+            <span className="btm-nav-label">Home</span>
+          </button>
+          <button onClick={() => document.getElementById("search-notes")?.focus()}>
+            <MagnifyingGlassIcon className="h-5 w-5" />
+            <span className="btm-nav-label">Search</span>
+          </button>
+          <button
+            onClick={() => setDialogOpen(true)}
+            className="active bg-primary text-primary-content"
+          >
+            <PencilSquareIcon className="h-6 w-6" />
+            <span className="btm-nav-label">New</span>
+          </button>
+          <Link href="/settings">
+            <Cog6ToothIcon className="h-5 w-5" />
+            <span className="btm-nav-label">Settings</span>
+          </Link>
+          <button onClick={() => signOut({ callbackUrl: "/" })}>
+            <ArrowRightStartOnRectangleIcon className="h-5 w-5" />
+            <span className="btm-nav-label">Logout</span>
+          </button>
+        </div>
+        <div className="h-16 md:hidden" />
       </div>
 
       <NoteDialog
