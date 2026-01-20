@@ -208,18 +208,16 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
 
           {/* Tags filter */}
           {allTags.length > 0 && (
-            <div className="border-t border-border">
+            <div className="border-t border-base-300">
               <div className="container mx-auto px-4 md:px-6 py-3">
                 <div className="flex gap-2 items-center overflow-x-auto">
-                  <span className="text-sm text-muted-foreground shrink-0">Tags:</span>
+                  <span className="text-sm text-base-content/60 shrink-0">Tags:</span>
                   {allTags.map((tag) => (
                     <button
                       key={tag}
                       onClick={() => toggleTag(tag)}
-                      className={`px-3 py-1 rounded-full text-sm transition-colors shrink-0 ${
-                        selectedTags.includes(tag)
-                          ? "bg-accent text-accent-foreground"
-                          : "bg-muted hover:bg-muted/80 text-foreground"
+                      className={`badge badge-lg cursor-pointer transition-colors shrink-0 ${
+                        selectedTags.includes(tag) ? "badge-primary" : "badge-ghost hover:badge-neutral"
                       }`}
                     >
                       {tag}
@@ -228,7 +226,7 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
                   {hasFilters && (
                     <button
                       onClick={clearFilters}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground ml-2"
+                      className="btn btn-ghost btn-xs gap-1 ml-2"
                     >
                       <XMarkIcon className="h-3.5 w-3.5" />
                       Clear

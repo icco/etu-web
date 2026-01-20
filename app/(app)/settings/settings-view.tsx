@@ -112,7 +112,7 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
 
       <main className="container mx-auto px-4 md:px-6 py-8 max-w-4xl">
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+        <div role="tablist" className="tabs tabs-boxed mb-8">
           {[
             { id: "account", label: "Account", icon: UserIcon },
             { id: "stats", label: "Stats", icon: ChartBarIcon },
@@ -121,12 +121,9 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
+              role="tab"
               onClick={() => setActiveTab(id as typeof activeTab)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap ${
-                activeTab === id
-                  ? "bg-accent text-accent-foreground"
-                  : "bg-muted hover:bg-muted/80"
-              }`}
+              className={`tab gap-2 ${activeTab === id ? "tab-active" : ""}`}
             >
               <Icon className="h-4.5 w-4.5" />
               {label}
