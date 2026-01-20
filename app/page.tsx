@@ -6,13 +6,15 @@ export default async function LandingPage() {
   const session = await auth()
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-base-200">
+      <header className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
+        <div className="navbar-start">
           <div className="flex items-center gap-2">
             <PencilSquareIcon className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">Etu</h1>
+            <span className="text-2xl font-bold text-primary">Etu</span>
           </div>
+        </div>
+        <div className="navbar-end">
           <Link href={session ? "/notes" : "/login"} className="btn btn-primary">
             {session ? "Open App" : "Get Started"}
           </Link>
@@ -150,31 +152,29 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-border bg-card/50">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <PencilSquareIcon className="h-6 w-6 text-primary" />
-              <span className="text-sm text-muted-foreground">&copy; 2026 Nat Welch.</span>
-            </div>
-            <div className="flex gap-6 text-sm">
-              <a
-                href="https://github.com/icco/etu"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-accent transition-colors"
-              >
-                GitHub
-              </a>
-              <a
-                href="https://writing.natwelch.com/post/765"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-accent transition-colors"
-              >
-                Blog Post
-              </a>
-            </div>
+      <footer className="footer footer-center bg-base-100 text-base-content p-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full max-w-6xl">
+          <div className="flex items-center gap-2">
+            <PencilSquareIcon className="h-6 w-6 text-primary" />
+            <span className="text-sm opacity-60">&copy; 2026 Nat Welch.</span>
+          </div>
+          <div className="flex gap-6 text-sm">
+            <a
+              href="https://github.com/icco/etu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link link-hover"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://writing.natwelch.com/post/765"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link link-hover"
+            >
+              Blog Post
+            </a>
           </div>
         </div>
       </footer>

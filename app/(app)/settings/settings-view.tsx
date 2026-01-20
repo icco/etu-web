@@ -100,13 +100,13 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 md:px-6 py-4 flex items-center gap-4">
+    <div className="min-h-screen bg-base-200">
+      <header className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
+        <div className="navbar-start">
           <Link href="/notes" className="btn btn-ghost btn-square">
             <ArrowLeftIcon className="h-6 w-6" />
           </Link>
-          <h1 className="text-xl font-bold">Settings</h1>
+          <span className="text-xl font-bold">Settings</span>
         </div>
       </header>
 

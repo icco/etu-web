@@ -160,83 +160,83 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
 
   return (
     <>
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-base-200 flex flex-col">
         {/* Header */}
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
+        <header className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
+          <div className="navbar-start">
             <div className="flex items-center gap-2">
               <PencilSquareIcon className="h-7 w-7 text-primary" />
-              <h1 className="text-xl font-bold text-primary hidden sm:block">Etu</h1>
-            </div>
-
-            <div className="flex-1 max-w-md">
-              <label className="input input-bordered flex items-center gap-2">
-                <MagnifyingGlassIcon className="h-5 w-5 text-muted-foreground" />
-                <input
-                  id="search-notes"
-                  type="search"
-                  placeholder="Search blips... (press /)"
-                  value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="grow"
-                />
-              </label>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setEditingNote(null)
-                  setDialogOpen(true)
-                }}
-                className="btn btn-primary gap-2"
-              >
-                <PencilSquareIcon className="h-5 w-5" />
-                <span className="hidden sm:inline">New Blip</span>
-              </button>
-              <Link href="/settings" className="btn btn-ghost btn-square">
-                <Cog6ToothIcon className="h-6 w-6" />
-              </Link>
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="btn btn-ghost btn-square"
-              >
-                <ArrowRightStartOnRectangleIcon className="h-6 w-6" />
-              </button>
+              <span className="text-xl font-bold text-primary hidden sm:block">Etu</span>
             </div>
           </div>
 
-          {/* Tags filter */}
-          {allTags.length > 0 && (
-            <div className="border-t border-base-300">
-              <div className="container mx-auto px-4 md:px-6 py-3">
-                <div className="flex gap-2 items-center overflow-x-auto">
-                  <span className="text-sm text-base-content/60 shrink-0">Tags:</span>
-                  {allTags.map((tag) => (
-                    <button
-                      key={tag}
-                      onClick={() => toggleTag(tag)}
-                      className={`badge badge-lg cursor-pointer transition-colors shrink-0 ${
-                        selectedTags.includes(tag) ? "badge-primary" : "badge-ghost hover:badge-neutral"
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                  {hasFilters && (
-                    <button
-                      onClick={clearFilters}
-                      className="btn btn-ghost btn-xs gap-1 ml-2"
-                    >
-                      <XMarkIcon className="h-3.5 w-3.5" />
-                      Clear
-                    </button>
-                  )}
-                </div>
+          <div className="navbar-center flex-1 max-w-md px-4">
+            <label className="input input-bordered flex items-center gap-2 w-full">
+              <MagnifyingGlassIcon className="h-5 w-5 opacity-50" />
+              <input
+                id="search-notes"
+                type="search"
+                placeholder="Search blips... (press /)"
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="grow"
+              />
+            </label>
+          </div>
+
+          <div className="navbar-end gap-1">
+            <button
+              onClick={() => {
+                setEditingNote(null)
+                setDialogOpen(true)
+              }}
+              className="btn btn-primary gap-2"
+            >
+              <PencilSquareIcon className="h-5 w-5" />
+              <span className="hidden sm:inline">New Blip</span>
+            </button>
+            <Link href="/settings" className="btn btn-ghost btn-square">
+              <Cog6ToothIcon className="h-6 w-6" />
+            </Link>
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="btn btn-ghost btn-square"
+            >
+              <ArrowRightStartOnRectangleIcon className="h-6 w-6" />
+            </button>
+          </div>
+        </header>
+
+        {/* Tags filter */}
+        {allTags.length > 0 && (
+          <div className="bg-base-100 border-b border-base-300">
+            <div className="container mx-auto px-4 md:px-6 py-3">
+              <div className="flex gap-2 items-center overflow-x-auto">
+                <span className="text-sm text-base-content/60 shrink-0">Tags:</span>
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`badge badge-lg cursor-pointer transition-colors shrink-0 ${
+                      selectedTags.includes(tag) ? "badge-primary" : "badge-ghost hover:badge-neutral"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+                {hasFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="btn btn-ghost btn-xs gap-1 ml-2"
+                  >
+                    <XMarkIcon className="h-3.5 w-3.5" />
+                    Clear
+                  </button>
+                )}
               </div>
             </div>
-          )}
-        </header>
+          </div>
+        )}
 
         {/* Main content */}
         <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
