@@ -24,16 +24,16 @@ export default async function LandingPage() {
       <section className="container mx-auto px-6 py-20 md:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Capture Life&apos;s Moments,
+            Your Thoughts,
             <br />
-            One Blip at a Time
+            Resurfaced at the Right Time
           </h2>
           <p className="text-xl text-base-content/60 mb-8 leading-relaxed max-w-2xl mx-auto">
-            Etu is your interstitial journaling companion. Quick notes, powerful search, and seamless
-            access across all your devices.
+            Capture fleeting ideas as blips. Let the system bring them back when you need them.
+            Turn scattered thoughts into finished work.
           </p>
           <Link href={session ? "/notes" : "/register"} className="btn btn-primary btn-lg">
-            Start Journaling Today
+            Start Capturing Ideas
           </Link>
           <p className="text-sm text-base-content/60 mt-4">
             $5/year • Open source • Self-hostable
@@ -44,20 +44,23 @@ export default async function LandingPage() {
       <section className="container mx-auto px-6 py-20 border-t border-base-300">
         <div className="max-w-5xl mx-auto">
           <h3 className="text-3xl md:text-4xl font-semibold text-center mb-12">
-            What is Interstitial Journaling?
+            What Are Blips?
           </h3>
           <div className="card bg-base-100 shadow-xl mb-12">
             <div className="card-body">
               <p className="text-lg leading-relaxed mb-4">
-                Interstitial journaling is the practice of capturing quick thoughts and observations
-                throughout your day—in the moments <em>between</em> activities. Unlike traditional
-                journaling that requires dedicated time and reflection, interstitial journaling embraces
-                brevity and spontaneity.
+                A blip is more than just a note—it&apos;s a <strong>unit of attention managed by software</strong>.
+                When you capture a fleeting thought, Etu doesn&apos;t just store it away to be forgotten.
+                Instead, the system brings it back to you at the right moments.
+              </p>
+              <p className="text-lg leading-relaxed mb-4">
+                Whether it&apos;s a seed for an article, a creative insight, or a pattern you&apos;re tracking,
+                blips resurface over time. Each time you see an old blip, you can refine it, connect it to other
+                ideas, or let it naturally evolve into something bigger.
               </p>
               <p className="text-lg leading-relaxed">
-                Each entry (we call them &quot;blips&quot;) is a snapshot: a thought, a task, an
-                observation, or a moment worth remembering. Over time, these small captures create a
-                rich, searchable history of your life and thinking.
+                This is <strong>programmable attention</strong>—using software not just to remember, but to help
+                you think. Your scattered thoughts become a system for creative synthesis.
               </p>
             </div>
           </div>
@@ -67,15 +70,15 @@ export default async function LandingPage() {
       <section className="container mx-auto px-6 py-20 bg-base-300/30">
         <div className="max-w-6xl mx-auto">
           <h3 className="text-3xl md:text-4xl font-semibold text-center mb-16">
-            Powerful Features
+            How It Works
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
               <div className="card-body">
                 <PencilSquareIcon className="h-10 w-10 text-primary" />
-                <h4 className="card-title">Quick Capture</h4>
+                <h4 className="card-title">Capture Instantly</h4>
                 <p className="text-base-content/60">
-                  Write in Markdown. Add tags. Save instantly. No friction between thought and capture.
+                  Jot down fleeting thoughts as blips. Write in Markdown, add tags, no friction between idea and capture.
                 </p>
               </div>
             </div>
@@ -83,9 +86,9 @@ export default async function LandingPage() {
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
               <div className="card-body">
                 <MagnifyingGlassIcon className="h-10 w-10 text-primary" />
-                <h4 className="card-title">Powerful Search</h4>
+                <h4 className="card-title">Resurface & Refine</h4>
                 <p className="text-base-content/60">
-                  Find anything instantly. Search by content, tags, or date. Your thoughts, rediscovered.
+                  Old blips come back to find you. Review, connect ideas, and watch patterns emerge over time.
                 </p>
               </div>
             </div>
@@ -93,9 +96,9 @@ export default async function LandingPage() {
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
               <div className="card-body">
                 <DevicePhoneMobileIcon className="h-10 w-10 text-primary" />
-                <h4 className="card-title">Everywhere</h4>
+                <h4 className="card-title">Access Everywhere</h4>
                 <p className="text-base-content/60">
-                  Web, CLI, and mobile apps. Capture from wherever you are, sync automatically.
+                  Web, CLI, and mobile apps. Capture from wherever inspiration strikes, sync automatically.
                 </p>
               </div>
             </div>
@@ -103,9 +106,9 @@ export default async function LandingPage() {
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
               <div className="card-body">
                 <CodeBracketIcon className="h-10 w-10 text-primary" />
-                <h4 className="card-title">Open Source</h4>
+                <h4 className="card-title">Your Data, Your Rules</h4>
                 <p className="text-base-content/60">
-                  Built in the open. Contribute on GitHub. Self-host if you want full control.
+                  Open source and self-hostable. Export anytime. Built in the open on GitHub.
                 </p>
               </div>
             </div>
@@ -125,11 +128,11 @@ export default async function LandingPage() {
               <ul className="text-left space-y-3 mb-8 max-w-md mx-auto">
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">✓</span>
-                  <span>Unlimited blips and tags</span>
+                  <span>Unlimited blips with resurfacing</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">✓</span>
-                  <span>Full-text search across all notes</span>
+                  <span>Intelligent search and tagging</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">✓</span>
@@ -141,11 +144,11 @@ export default async function LandingPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">✓</span>
-                  <span>Data export anytime</span>
+                  <span>Full data export anytime</span>
                 </li>
               </ul>
               <Link href="/register" className="btn btn-primary w-full">
-                Subscribe Now
+                Start Using Etu
               </Link>
             </div>
           </div>
