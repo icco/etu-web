@@ -270,7 +270,7 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
                     onChange={(e) => setNewKeyName(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleCreateKey()}
                     placeholder="e.g., My Laptop CLI"
-                    className="input input-bordered flex-1"
+                    className="input input-bordered flex-1 bg-base-100 text-base-content placeholder:text-base-content/50"
                   />
                   <button
                     onClick={handleCreateKey}

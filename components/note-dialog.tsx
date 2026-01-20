@@ -121,7 +121,7 @@ export function NoteDialog({
               onChange={(e) => setContent(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Write your thoughts in Markdown... (Cmd+Enter to save)"
-              className="textarea textarea-bordered w-full h-[300px] font-mono text-sm resize-none"
+              className="textarea textarea-bordered w-full h-[300px] font-mono text-sm resize-none bg-base-100 text-base-content placeholder:text-base-content/50"
             />
           ) : (
             <div className="min-h-[300px] p-4 bg-base-200 rounded-lg">
@@ -159,7 +159,7 @@ export function NoteDialog({
                 }}
                 onFocus={() => tagInput && setShowSuggestions(true)}
                 placeholder="Add a tag..."
-                className="input input-bordered w-full"
+                className="input input-bordered w-full bg-base-100 text-base-content placeholder:text-base-content/50"
               />
               {showSuggestions && filteredSuggestions.length > 0 && (
                 <ul className="dropdown-content menu bg-base-100 rounded-box z-10 w-full p-2 shadow-lg max-h-40 overflow-auto">
