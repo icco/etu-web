@@ -49,6 +49,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./
 
+# Copy prisma CLI for running db push at startup
+COPY --from=deps /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
+COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
+
+# Copy startup script
+COPY --chmod=755 start.sh ./
+
 USER nextjs
 
 EXPOSE 8080
@@ -56,5 +64,5 @@ EXPOSE 8080
 ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
 
-# Run database migrations and start the server
-CMD ["node", "server.js"]
+# Run database schema push and start the server
+CMD ["/app/start.sh"]

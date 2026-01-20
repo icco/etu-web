@@ -33,52 +33,54 @@ export default function LoginPage() {
     <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
+          <div className="card-body p-8 sm:p-10">
             <div className="flex items-center gap-2 mb-4 justify-center">
               <PencilSquareIcon className="h-8 w-8 text-primary" />
               <h1 className="text-2xl font-bold text-primary">Etu</h1>
             </div>
 
             <h2 className="card-title justify-center">Welcome back</h2>
-            <p className="text-base-content/60 text-center mb-4">
+            <p className="text-base-content/70 text-center mb-4">
               Sign in to access your blips
             </p>
 
             <form action={handleSubmit} className="space-y-4">
               <label className="form-control w-full">
                 <div className="label">
-                  <span className="label-text">Email</span>
+                  <span className="label-text text-base-content/90 font-medium">Email</span>
                 </div>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   required
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full bg-base-200 text-base-content placeholder:text-base-content/50"
                   placeholder="you@example.com"
                 />
               </label>
 
               <label className="form-control w-full">
                 <div className="label">
-                  <span className="label-text">Password</span>
+                  <span className="label-text text-base-content/90 font-medium">Password</span>
                 </div>
                 <input
                   id="password"
                   name="password"
                   type="password"
                   required
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full bg-base-200 text-base-content placeholder:text-base-content/50"
                   placeholder="••••••••"
                 />
               </label>
 
               {error && <p className="text-sm text-error">{error}</p>}
 
-              <SubmitButton />
+              <div className="pt-2">
+                <SubmitButton />
+              </div>
             </form>
 
-            <p className="text-center text-sm text-base-content/60 mt-4">
+            <p className="text-center text-sm text-base-content/70 mt-4">
               Don&apos;t have an account?{" "}
               <Link href="/register" className="link link-primary">
                 Create one
