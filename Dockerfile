@@ -46,11 +46,11 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy prisma files and full node_modules for db push at startup
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./
-
-# Install prisma CLI globally for running db push at startup
-RUN yarn global add prisma@7.2.0
+COPY --from=deps /app/node_modules ./node_modules
 
 # Copy startup script
 COPY --chmod=755 start.sh ./
