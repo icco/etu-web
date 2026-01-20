@@ -1,9 +1,17 @@
 # Etu Server API Documentation
 
-This document provides comprehensive documentation for the Etu Server REST API. The API allows you to programmatically create, read, update, and delete notes and tags.
+This document provides comprehensive documentation for the Etu Server API. The API is available in two formats:
 
-## Base URL
+1. **REST API (JSON+HTTP)** - Standard HTTP REST API with JSON payloads
+2. **gRPC API** - High-performance RPC using Protocol Buffers
 
+Both APIs provide the same functionality and use the same authentication mechanism.
+
+## API Formats
+
+### REST API (JSON+HTTP)
+
+**Base URL:**
 ```
 https://your-etu-server.com/api/v1
 ```
@@ -12,6 +20,21 @@ For local development:
 ```
 http://localhost:3000/api/v1
 ```
+
+### gRPC API
+
+**Server Address:**
+```
+your-etu-server.com:50051
+```
+
+For local development:
+```
+localhost:50051
+```
+
+**Protocol Buffer Definitions:**
+See `proto/etu.proto` for complete message and service definitions.
 
 ## Authentication
 
@@ -613,3 +636,123 @@ For issues, questions, or feature requests:
 - Notes CRUD operations
 - Tags listing
 - API key authentication
+
+---
+
+## Using gRPC
+
+### gRPC Authentication
+
+For gRPC, include your API key in the metadata:
+
+**Python Example:**
+```python
+import grpc
+
+# Create channel
+channel = grpc.insecure_channel('localhost:50051')
+
+# Add API key to metadata
+metadata = [('authorization', 'etu_your_api_key_here')]
+
+# Make calls with metadata
+response = stub.ListNotes(request, metadata=metadata)
+```
+
+**Node.js Example:**
+```javascript
+const grpc = require('@grpc/grpc-js');
+const protoLoader = require('@grpc/proto-loader');
+
+// Load proto
+const packageDefinition = protoLoader.loadSync('proto/etu.proto');
+const proto = grpc.loadPackageDefinition(packageDefinition).etu;
+
+// Create client
+const client = new proto.NotesService('localhost:50051', 
+  grpc.credentials.createInsecure());
+
+// Add API key to metadata
+const metadata = new grpc.Metadata();
+metadata.add('authorization', 'etu_your_api_key_here');
+
+// Make call
+client.listNotes(request, metadata, (err, response) => {
+  console.log(response);
+});
+```
+
+### gRPC Service Definitions
+
+The gRPC API provides two services:
+
+1. **NotesService**
+   - `ListNotes(ListNotesRequest) returns (ListNotesResponse)`
+   - `CreateNote(CreateNoteRequest) returns (CreateNoteResponse)`
+   - `GetNote(GetNoteRequest) returns (GetNoteResponse)`
+   - `UpdateNote(UpdateNoteRequest) returns (UpdateNoteResponse)`
+   - `DeleteNote(DeleteNoteRequest) returns (DeleteNoteResponse)`
+
+2. **TagsService**
+   - `ListTags(ListTagsRequest) returns (ListTagsResponse)`
+
+### Protocol Buffer Messages
+
+See `proto/etu.proto` for complete definitions. Key messages:
+
+```protobuf
+message Note {
+  string id = 1;
+  string content = 2;
+  repeated string tags = 3;
+  Timestamp created_at = 4;
+  Timestamp updated_at = 5;
+}
+
+message ListNotesRequest {
+  string search = 1;
+  repeated string tags = 2;
+  string start_date = 3;
+  string end_date = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+}
+```
+
+### Running the gRPC Server
+
+Start the gRPC server separately from the web server:
+
+```bash
+# Development
+yarn grpc
+
+# Production
+node grpc-server.js
+```
+
+The gRPC server runs on port 50051 by default. Configure with:
+
+```env
+GRPC_PORT=50051
+```
+
+---
+
+## Choosing Between REST and gRPC
+
+**Use REST (JSON+HTTP) when:**
+- Building web applications
+- Need browser compatibility
+- Want simple curl/HTTP client testing
+- Prefer human-readable JSON
+
+**Use gRPC when:**
+- Building high-performance services
+- Need type safety with Protocol Buffers
+- Want streaming support (future feature)
+- Building microservices
+- Using languages with strong Protobuf support
+
+Both APIs provide identical functionality and authentication.
+
