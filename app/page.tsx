@@ -44,18 +44,20 @@ export default async function LandingPage() {
           <h3 className="text-3xl md:text-4xl font-semibold text-center mb-12 text-foreground">
             What is Interstitial Journaling?
           </h3>
-          <div className="bg-card border border-border rounded-lg p-8 mb-12">
-            <p className="text-lg text-foreground leading-relaxed mb-4">
-              Interstitial journaling is the practice of capturing quick thoughts and observations
-              throughout your day—in the moments <em>between</em> activities. Unlike traditional
-              journaling that requires dedicated time and reflection, interstitial journaling embraces
-              brevity and spontaneity.
-            </p>
-            <p className="text-lg text-foreground leading-relaxed">
-              Each entry (we call them &quot;blips&quot;) is a snapshot: a thought, a task, an
-              observation, or a moment worth remembering. Over time, these small captures create a
-              rich, searchable history of your life and thinking.
-            </p>
+          <div className="card bg-base-100 shadow-xl mb-12">
+            <div className="card-body">
+              <p className="text-lg leading-relaxed mb-4">
+                Interstitial journaling is the practice of capturing quick thoughts and observations
+                throughout your day—in the moments <em>between</em> activities. Unlike traditional
+                journaling that requires dedicated time and reflection, interstitial journaling embraces
+                brevity and spontaneity.
+              </p>
+              <p className="text-lg leading-relaxed">
+                Each entry (we call them &quot;blips&quot;) is a snapshot: a thought, a task, an
+                observation, or a moment worth remembering. Over time, these small captures create a
+                rich, searchable history of your life and thinking.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -66,36 +68,44 @@ export default async function LandingPage() {
             Powerful Features
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
-              <PencilSquareIcon className="h-10 w-10 text-accent mb-4" />
-              <h4 className="text-xl font-semibold mb-2 text-foreground">Quick Capture</h4>
-              <p className="text-muted-foreground">
-                Write in Markdown. Add tags. Save instantly. No friction between thought and capture.
-              </p>
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+              <div className="card-body">
+                <PencilSquareIcon className="h-10 w-10 text-primary" />
+                <h4 className="card-title">Quick Capture</h4>
+                <p className="text-base-content/60">
+                  Write in Markdown. Add tags. Save instantly. No friction between thought and capture.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
-              <MagnifyingGlassIcon className="h-10 w-10 text-accent mb-4" />
-              <h4 className="text-xl font-semibold mb-2 text-foreground">Powerful Search</h4>
-              <p className="text-muted-foreground">
-                Find anything instantly. Search by content, tags, or date. Your thoughts, rediscovered.
-              </p>
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+              <div className="card-body">
+                <MagnifyingGlassIcon className="h-10 w-10 text-primary" />
+                <h4 className="card-title">Powerful Search</h4>
+                <p className="text-base-content/60">
+                  Find anything instantly. Search by content, tags, or date. Your thoughts, rediscovered.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
-              <DevicePhoneMobileIcon className="h-10 w-10 text-accent mb-4" />
-              <h4 className="text-xl font-semibold mb-2 text-foreground">Everywhere</h4>
-              <p className="text-muted-foreground">
-                Web, CLI, and mobile apps. Capture from wherever you are, sync automatically.
-              </p>
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+              <div className="card-body">
+                <DevicePhoneMobileIcon className="h-10 w-10 text-primary" />
+                <h4 className="card-title">Everywhere</h4>
+                <p className="text-base-content/60">
+                  Web, CLI, and mobile apps. Capture from wherever you are, sync automatically.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
-              <CodeBracketIcon className="h-10 w-10 text-accent mb-4" />
-              <h4 className="text-xl font-semibold mb-2 text-foreground">Open Source</h4>
-              <p className="text-muted-foreground">
-                Built in the open. Contribute on GitHub. Self-host if you want full control.
-              </p>
+            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+              <div className="card-body">
+                <CodeBracketIcon className="h-10 w-10 text-primary" />
+                <h4 className="card-title">Open Source</h4>
+                <p className="text-base-content/60">
+                  Built in the open. Contribute on GitHub. Self-host if you want full control.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -106,34 +116,36 @@ export default async function LandingPage() {
           <h3 className="text-3xl md:text-4xl font-semibold text-center mb-12 text-foreground">
             Simple, Honest Pricing
           </h3>
-          <div className="bg-card border-2 border-accent rounded-lg p-8 text-center">
-            <div className="text-5xl font-bold text-foreground mb-2">$5</div>
-            <div className="text-xl text-muted-foreground mb-6">per year</div>
-            <ul className="text-left space-y-3 mb-8 max-w-md mx-auto">
-              <li className="flex items-start gap-2">
-                <span className="text-accent mt-1">✓</span>
-                <span className="text-foreground">Unlimited blips and tags</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent mt-1">✓</span>
-                <span className="text-foreground">Full-text search across all notes</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent mt-1">✓</span>
-                <span className="text-foreground">Web, CLI, and mobile access</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent mt-1">✓</span>
-                <span className="text-foreground">API keys for custom integrations</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent mt-1">✓</span>
-                <span className="text-foreground">Data export anytime</span>
-              </li>
-            </ul>
-            <Link href="/register" className="btn btn-primary w-full">
-              Subscribe Now
-            </Link>
+          <div className="card bg-base-100 shadow-xl border-2 border-primary">
+            <div className="card-body text-center">
+              <div className="text-5xl font-bold mb-2">$5</div>
+              <div className="text-xl text-base-content/60 mb-6">per year</div>
+              <ul className="text-left space-y-3 mb-8 max-w-md mx-auto">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-1">✓</span>
+                  <span>Unlimited blips and tags</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-1">✓</span>
+                  <span>Full-text search across all notes</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-1">✓</span>
+                  <span>Web, CLI, and mobile access</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-1">✓</span>
+                  <span>API keys for custom integrations</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-1">✓</span>
+                  <span>Data export anytime</span>
+                </li>
+              </ul>
+              <Link href="/register" className="btn btn-primary w-full">
+                Subscribe Now
+              </Link>
+            </div>
           </div>
         </div>
       </section>

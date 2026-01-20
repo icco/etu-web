@@ -76,78 +76,81 @@ export function NoteCard({ note, onEdit, onDelete, searchQuery }: NoteCardProps)
   return (
     <>
       <div
-        className="bg-card border border-border rounded-lg p-4 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group"
+        className="card bg-base-100 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer group"
         onClick={() => setViewOpen(true)}
       >
-        <div className="flex items-start justify-between gap-4 mb-3">
-          <div className="flex-1">
-            <div className="text-sm text-muted-foreground mb-2">{formatTime(note.createdAt)}</div>
-            {note.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {note.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-0.5 bg-muted rounded-full text-xs text-foreground"
-                  >
-                    {highlightText(tag)}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                setMenuOpen(!menuOpen)
-              }}
-              className="btn btn-ghost btn-sm btn-square opacity-0 group-hover:opacity-100"
-            >
-              <EllipsisHorizontalIcon className="h-5 w-5" />
-            </button>
-            {menuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setMenuOpen(false)
-                  }}
-                />
-                <div className="absolute right-0 top-8 z-50 bg-popover border border-border rounded-md shadow-lg py-1 min-w-[120px]">
-                  <button
+        <div className="card-body p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="text-sm text-base-content/60 mb-2">{formatTime(note.createdAt)}</div>
+              {note.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {note.tags.map((tag) => (
+                    <span key={tag} className="badge badge-ghost badge-sm">
+                      {highlightText(tag)}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="dropdown dropdown-end">
+              <button
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setMenuOpen(!menuOpen)
+                }}
+                className="btn btn-ghost btn-sm btn-square opacity-0 group-hover:opacity-100"
+              >
+                <EllipsisHorizontalIcon className="h-5 w-5" />
+              </button>
+              {menuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
                     onClick={(e) => {
                       e.stopPropagation()
                       setMenuOpen(false)
-                      onEdit(note)
                     }}
-                    className="btn btn-ghost btn-sm justify-start gap-2 w-full"
-                  >
-                    <PencilIcon className="h-4 w-4" />
-                    Edit
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleDelete()
-                    }}
-                    disabled={isDeleting}
-                    className="btn btn-ghost btn-sm justify-start gap-2 w-full text-error"
-                  >
-                    {isDeleting ? (
-                      <span className="loading loading-spinner loading-xs"></span>
-                    ) : (
-                      <TrashIcon className="h-4 w-4" />
-                    )}
-                    {isDeleting ? "Deleting..." : "Delete"}
-                  </button>
-                </div>
-              </>
-            )}
+                  />
+                  <ul className="dropdown-content menu bg-base-100 rounded-box z-50 w-32 p-2 shadow-lg">
+                    <li>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setMenuOpen(false)
+                          onEdit(note)
+                        }}
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                        Edit
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDelete()
+                        }}
+                        disabled={isDeleting}
+                        className="text-error"
+                      >
+                        {isDeleting ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : (
+                          <TrashIcon className="h-4 w-4" />
+                        )}
+                        {isDeleting ? "Deleting..." : "Delete"}
+                      </button>
+                    </li>
+                  </ul>
+                </>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="text-foreground leading-relaxed">{highlightText(getPreview(note.content))}</div>
+          <p className="leading-relaxed">{highlightText(getPreview(note.content))}</p>
+        </div>
       </div>
 
       {/* Full view dialog */}
