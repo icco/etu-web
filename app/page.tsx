@@ -153,29 +153,9 @@ export default async function LandingPage() {
       </section>
 
       <footer className="footer footer-center bg-base-100 text-base-content p-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full max-w-6xl">
-          <div className="flex items-center gap-2">
-            <PencilSquareIcon className="h-6 w-6 text-primary" />
-            <span className="text-sm opacity-60">&copy; 2026 Nat Welch.</span>
-          </div>
-          <div className="flex gap-6 text-sm">
-            <a
-              href="https://github.com/icco/etu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link link-hover"
-            >
-              GitHub
-            </a>
-            <a
-              href="https://writing.natwelch.com/post/765"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link link-hover"
-            >
-              Blog Post
-            </a>
-          </div>
+        <div className="flex items-center gap-2">
+          <PencilSquareIcon className="h-6 w-6 text-primary" />
+          <span className="text-sm opacity-60">&copy; 2026 Nat Welch.</span>
         </div>
       </footer>
     </div>
