@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useTransition } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect, useCallback, useTransition, useRef } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
 import {
@@ -54,8 +54,8 @@ function groupNotesByDate(notes: Note[]): Map<string, Note[]> {
 
 export function NotesView({ initialNotes, initialTags, searchParams }: NotesViewProps) {
   const router = useRouter()
-  const _urlParams = useSearchParams()
   const [_isPending, startTransition] = useTransition()
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingNote, setEditingNote] = useState<Note | null>(null)
@@ -104,10 +104,12 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
   const handleSearch = (value: string) => {
     setSearchQuery(value)
     // Debounce the URL update
-    const timeout = setTimeout(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+    searchTimeoutRef.current = setTimeout(() => {
       updateFilters(value, selectedTags)
     }, 300)
-    return () => clearTimeout(timeout)
   }
 
   const toggleTag = (tag: string) => {
