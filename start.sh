@@ -2,7 +2,7 @@
 set -e
 
 echo "Pushing database schema..."
-node_modules/.bin/prisma db push --skip-generate
+prisma db push --skip-generate
 
 echo "Starting server..."
 exec node server.js

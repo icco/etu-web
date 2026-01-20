@@ -49,10 +49,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./
 
-# Copy prisma CLI for running db push at startup
-COPY --from=deps /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
-COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
-COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
+# Install prisma CLI globally for running db push at startup
+RUN yarn global add prisma@7.2.0
 
 # Copy startup script
 COPY --chmod=755 start.sh ./
