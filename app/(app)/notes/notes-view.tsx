@@ -172,18 +172,18 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
             </div>
           </div>
 
-          <div className="navbar-center flex-1 max-w-md px-4">
-            <label className="input input-bordered flex items-center gap-2 w-full">
-              <MagnifyingGlassIcon className="h-5 w-5 opacity-50" />
+          <div className="navbar-center flex-1 max-w-xl px-4">
+            <div className="relative w-full">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 opacity-50 pointer-events-none" />
               <input
                 id="search-notes"
                 type="search"
                 placeholder="Search blips... (press /)"
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="grow"
+                className="input input-bordered w-full pl-10"
               />
-            </label>
+            </div>
           </div>
 
           <div className="navbar-end gap-1">

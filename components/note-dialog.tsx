@@ -32,14 +32,18 @@ export function NoteDialog({
   const [showSuggestions, setShowSuggestions] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
+  // Only reset form when dialog opens, not on every render
+  const prevOpenRef = useRef(false)
   useEffect(() => {
-    if (open) {
+    if (open && !prevOpenRef.current) {
+      // Dialog just opened
       setContent(initialContent)
       setTags(initialTags)
       setTagInput("")
       setActiveTab("write")
       setTimeout(() => textareaRef.current?.focus(), 100)
     }
+    prevOpenRef.current = open
   }, [open, initialContent, initialTags])
 
   const filteredSuggestions = existingTags.filter(
