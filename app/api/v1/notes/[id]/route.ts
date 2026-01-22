@@ -87,6 +87,9 @@ export async function PUT(
         if (typeof content !== "string") {
           throw new Error("Content must be a string")
         }
+        if (content.trim().length === 0) {
+          throw new Error("Content cannot be empty")
+        }
         await tx.note.update({
           where: { id },
           data: { content },

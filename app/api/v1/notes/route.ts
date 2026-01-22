@@ -18,14 +18,44 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get("search") || undefined
     const tags = searchParams.get("tags")?.split(",").filter(Boolean) || undefined
-    const limit = parseInt(searchParams.get("limit") || String(API_CONSTANTS.DEFAULT_NOTES_LIMIT), 10)
-    const offset = parseInt(searchParams.get("offset") || "0", 10)
-    const startDate = searchParams.get("start_date")
-      ? new Date(searchParams.get("start_date")!)
-      : undefined
-    const endDate = searchParams.get("end_date")
-      ? new Date(searchParams.get("end_date")!)
-      : undefined
+    let limit = parseInt(searchParams.get("limit") || String(API_CONSTANTS.DEFAULT_NOTES_LIMIT), 10)
+    let offset = parseInt(searchParams.get("offset") || "0", 10)
+
+    // Validate limit and offset
+    if (Number.isNaN(limit) || limit < 0) {
+      limit = API_CONSTANTS.DEFAULT_NOTES_LIMIT
+    }
+    if (Number.isNaN(offset) || offset < 0) {
+      offset = 0
+    }
+
+    // Parse and validate date parameters
+    let startDate: Date | undefined
+    let endDate: Date | undefined
+    
+    const startDateParam = searchParams.get("start_date")
+    if (startDateParam) {
+      const parsedStartDate = new Date(startDateParam)
+      if (isNaN(parsedStartDate.getTime())) {
+        return NextResponse.json(
+          { error: "Invalid start_date parameter. Expected an ISO 8601 date string." },
+          { status: 400 }
+        )
+      }
+      startDate = parsedStartDate
+    }
+
+    const endDateParam = searchParams.get("end_date")
+    if (endDateParam) {
+      const parsedEndDate = new Date(endDateParam)
+      if (isNaN(parsedEndDate.getTime())) {
+        return NextResponse.json(
+          { error: "Invalid end_date parameter. Expected an ISO 8601 date string." },
+          { status: 400 }
+        )
+      }
+      endDate = parsedEndDate
+    }
 
     const where: Prisma.NoteWhereInput = { userId }
 

@@ -5,7 +5,6 @@ Demonstrates how to interact with the Etu Server REST API using Python.
 """
 
 import requests
-import json
 from typing import Optional, Dict, List, Any
 
 # Configuration

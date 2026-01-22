@@ -5,8 +5,6 @@
  * This replaces server actions with direct API calls
  */
 
-import { getSession } from "next-auth/react"
-
 interface Note {
   id: string
   content: string
@@ -38,14 +36,6 @@ class ApiClient {
 
   constructor(baseUrl = "/api/v1") {
     this.baseUrl = baseUrl
-  }
-
-  private async getAuthHeader(): Promise<string> {
-    const _session = await getSession()
-    // For client-side web UI, we rely on session cookie authentication
-    // API key auth is used for external clients (CLI, mobile)
-    // We could also fetch an API key from session if needed
-    return ""
   }
 
   private async fetch(

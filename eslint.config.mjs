@@ -5,7 +5,7 @@ import pluginReact from "eslint-plugin-react";
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", ".next/**", "src/generated/**", "grpc-server.js"]
+    ignores: ["dist/**", "node_modules/**", ".next/**", "src/generated/**"]
   },
   {languageOptions: { globals: globals.browser }},
   ...tseslint.configs.recommended,

@@ -9,13 +9,25 @@ export const metadata = {
 }
 
 export default async function DocsPage() {
-  // Read the API.md file
-  const apiMdPath = join(process.cwd(), "API.md")
-  const content = await readFile(apiMdPath, "utf-8")
-  
-  // Convert markdown to HTML
-  const rawHtml = await marked(content)
-  const sanitizedHtml = DOMPurify.sanitize(rawHtml)
+  let sanitizedHtml: string
+
+  try {
+    // Read the API.md file
+    const apiMdPath = join(process.cwd(), "API.md")
+    const content = await readFile(apiMdPath, "utf-8")
+    
+    // Convert markdown to HTML
+    const rawHtml = await marked(content)
+    sanitizedHtml = DOMPurify.sanitize(rawHtml)
+  } catch (error) {
+    console.error("Failed to load API.md documentation file:", error)
+    // Fallback: user-friendly error message when documentation cannot be loaded
+    sanitizedHtml = DOMPurify.sanitize(`
+      <h1>API Documentation Unavailable</h1>
+      <p>We were unable to load the API documentation at this time.</p>
+      <p>Please try again later or contact support if the problem persists.</p>
+    `)
+  }
 
   return (
     <div className="min-h-screen bg-base-200">
