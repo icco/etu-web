@@ -62,8 +62,8 @@ export async function getCurrentUser() {
     return {
       id: response.user.id,
       email: response.user.email,
-      name: response.user.name,
-      image: response.user.image,
+      name: response.user.name ?? null,
+      image: response.user.image ?? null,
       subscriptionStatus: response.user.subscriptionStatus,
       subscriptionEnd: response.user.subscriptionEnd
         ? timestampToDate(response.user.subscriptionEnd)

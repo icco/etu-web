@@ -292,7 +292,7 @@ function promisify<TRequest, TResponse>(
   metadata: grpc.Metadata
 ): Promise<TResponse> {
   return new Promise((resolve, reject) => {
-    const fn = (client as unknown as Record<string, Function>)[method]
+    const fn = (client as unknown as Record<string, (...args: unknown[]) => void>)[method]
     if (!fn) {
       reject(new Error(`Method ${method} not found on client`))
       return
