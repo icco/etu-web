@@ -13,30 +13,30 @@ test.describe("Notes Page", () => {
   })
 
   test("displays notes list with mocked data", async ({ page }) => {
-    // Wait for notes to load (mock data includes "ideas" tag)
-    await expect(page.locator("text=ideas")).toBeVisible({ timeout: 10000 })
+    // Wait for notes to load - use first() since "ideas" appears multiple times
+    await expect(page.locator("text=ideas").first()).toBeVisible({ timeout: 10000 })
 
     // Verify mock notes are displayed
-    await expect(page.locator("text=projects")).toBeVisible()
-    await expect(page.locator("text=work")).toBeVisible()
+    await expect(page.locator("text=projects").first()).toBeVisible()
+    await expect(page.locator("text=work").first()).toBeVisible()
     await expect(page).toHaveScreenshot("notes-list.png")
   })
 
   test("displays note content", async ({ page }) => {
-    await expect(page.locator("text=ideas")).toBeVisible({ timeout: 10000 })
+    await expect(page.locator("text=ideas").first()).toBeVisible({ timeout: 10000 })
 
     // Check for actual note content from mock data
-    await expect(page.locator("text=building")).toBeVisible()
+    await expect(page.locator("text=building").first()).toBeVisible()
     await expect(page).toHaveScreenshot("notes-content.png")
   })
 
   test("search filters notes", async ({ page }) => {
-    await expect(page.locator("text=ideas")).toBeVisible({ timeout: 10000 })
+    await expect(page.locator("text=ideas").first()).toBeVisible({ timeout: 10000 })
 
     // Look for search input (may be in a toggle)
     const searchToggle = page.locator("[aria-label*='search' i], button:has-text('Search')")
-    if (await searchToggle.isVisible()) {
-      await searchToggle.click()
+    if (await searchToggle.first().isVisible()) {
+      await searchToggle.first().click()
     }
 
     const searchInput = page.getByPlaceholder(/search/i)
@@ -50,10 +50,10 @@ test.describe("Notes Page", () => {
   })
 
   test("new note dialog opens", async ({ page }) => {
-    await expect(page.locator("text=ideas")).toBeVisible({ timeout: 10000 })
+    await expect(page.locator("text=ideas").first()).toBeVisible({ timeout: 10000 })
 
     // Find and click the new note button
-    const newNoteButton = page.getByRole("button", { name: /new|add|create|\+/i })
+    const newNoteButton = page.getByRole("button", { name: /new|add|create|\+/i }).first()
     await expect(newNoteButton).toBeVisible()
     await newNoteButton.click()
 
