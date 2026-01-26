@@ -1,101 +1,58 @@
-import * as grpc from "@grpc/grpc-js"
-import * as protoLoader from "@grpc/proto-loader"
-import path from "path"
-
-// Load proto file
-const PROTO_PATH = path.join(process.cwd(), "proto", "etu.proto")
-
-const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-  keepCase: false,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-})
-
-const protoDescriptor = grpc.loadPackageDefinition(packageDefinition) as unknown as {
-  etu: {
-    NotesService: typeof grpc.Client
-    TagsService: typeof grpc.Client
-    AuthService: typeof grpc.Client
-    ApiKeysService: typeof grpc.Client
-  }
-}
+import { createClient } from "@connectrpc/connect"
+import { createGrpcTransport } from "@connectrpc/connect-node"
+import { Code, ConnectError } from "@connectrpc/connect"
+import {
+  NotesService,
+  TagsService,
+  AuthService,
+  ApiKeysService,
+  type Timestamp as ProtoTimestamp,
+  type Note as ProtoNote,
+  type Tag as ProtoTag,
+  type User as ProtoUser,
+  type ApiKey as ProtoApiKey,
+} from "@icco/etu-proto"
 
 // Get backend URL from environment
-const GRPC_URL = process.env.GRPC_BACKEND_URL || "localhost:50051"
+const GRPC_URL = process.env.GRPC_BACKEND_URL || "http://localhost:50051"
 
-// Use TLS in production, insecure credentials for local development
-function getGrpcCredentials(): grpc.ChannelCredentials {
-  if (process.env.NODE_ENV === "production") {
-    return grpc.credentials.createSsl()
+// Create gRPC transport (uses HTTP/2 by default)
+function createTransport() {
+  return createGrpcTransport({
+    baseUrl: GRPC_URL,
+  })
+}
+
+// Lazy-initialized transport
+let transport: ReturnType<typeof createGrpcTransport> | null = null
+
+function getTransport() {
+  if (!transport) {
+    transport = createTransport()
   }
-  return grpc.credentials.createInsecure()
+  return transport
 }
 
-// Check if a client connection is still usable
-function isClientUsable(client: grpc.Client | null): boolean {
-  if (!client) {
-    return false
-  }
-  const state = client.getChannel().getConnectivityState(false)
-  return state !== grpc.connectivityState.SHUTDOWN
+// Create service clients
+function getNotesClient() {
+  return createClient(NotesService, getTransport())
 }
 
-// Create clients
-function createNotesClient() {
-  return new protoDescriptor.etu.NotesService(GRPC_URL, getGrpcCredentials())
+function getTagsClient() {
+  return createClient(TagsService, getTransport())
 }
 
-function createTagsClient() {
-  return new protoDescriptor.etu.TagsService(GRPC_URL, getGrpcCredentials())
+function getAuthClient() {
+  return createClient(AuthService, getTransport())
 }
 
-function createAuthClient() {
-  return new protoDescriptor.etu.AuthService(GRPC_URL, getGrpcCredentials())
+function getApiKeysClient() {
+  return createClient(ApiKeysService, getTransport())
 }
 
-function createApiKeysClient() {
-  return new protoDescriptor.etu.ApiKeysService(GRPC_URL, getGrpcCredentials())
-}
-
-// Singleton clients
-let notesClient: InstanceType<typeof protoDescriptor.etu.NotesService> | null = null
-let tagsClient: InstanceType<typeof protoDescriptor.etu.TagsService> | null = null
-let authClient: InstanceType<typeof protoDescriptor.etu.AuthService> | null = null
-let apiKeysClient: InstanceType<typeof protoDescriptor.etu.ApiKeysService> | null = null
-
-function getNotesClient(): InstanceType<typeof protoDescriptor.etu.NotesService> {
-  if (!isClientUsable(notesClient)) {
-    notesClient = createNotesClient()
-  }
-  return notesClient!
-}
-
-function getTagsClient(): InstanceType<typeof protoDescriptor.etu.TagsService> {
-  if (!isClientUsable(tagsClient)) {
-    tagsClient = createTagsClient()
-  }
-  return tagsClient!
-}
-
-function getAuthClient(): InstanceType<typeof protoDescriptor.etu.AuthService> {
-  if (!isClientUsable(authClient)) {
-    authClient = createAuthClient()
-  }
-  return authClient!
-}
-
-function getApiKeysClient(): InstanceType<typeof protoDescriptor.etu.ApiKeysService> {
-  if (!isClientUsable(apiKeysClient)) {
-    apiKeysClient = createApiKeysClient()
-  }
-  return apiKeysClient!
-}
-
-// Types
+// Re-export types for compatibility
 export interface Timestamp {
-  seconds: string
+  seconds: string | bigint
   nanos: number
 }
 
@@ -103,15 +60,15 @@ export interface Note {
   id: string
   content: string
   tags: string[]
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt?: Timestamp
+  updatedAt?: Timestamp
 }
 
 export interface Tag {
   id: string
   name: string
   count: number
-  createdAt: Timestamp
+  createdAt?: Timestamp
 }
 
 export interface User {
@@ -121,7 +78,7 @@ export interface User {
   image?: string
   subscriptionStatus: string
   subscriptionEnd?: Timestamp
-  createdAt: Timestamp
+  createdAt?: Timestamp
   stripeCustomerId?: string
 }
 
@@ -129,10 +86,11 @@ export interface ApiKey {
   id: string
   name: string
   keyPrefix: string
-  createdAt: Timestamp
+  createdAt?: Timestamp
   lastUsed?: Timestamp
 }
 
+// Request/Response types
 export interface ListNotesRequest {
   userId: string
   search?: string
@@ -198,7 +156,6 @@ export interface ListTagsResponse {
   tags: Tag[]
 }
 
-// Auth types
 export interface RegisterRequest {
   email: string
   password: string
@@ -245,7 +202,6 @@ export interface UpdateUserSubscriptionResponse {
   user: User
 }
 
-// API Keys types
 export interface CreateApiKeyRequest {
   userId: string
   name: string
@@ -282,141 +238,324 @@ export interface VerifyApiKeyResponse {
   userId?: string
 }
 
-// Helper to create metadata with API key
-function createMetadata(apiKey: string): grpc.Metadata {
-  const metadata = new grpc.Metadata()
-  metadata.set("authorization", apiKey)
-  return metadata
+// Helper to create headers with API key
+function createHeaders(apiKey: string): HeadersInit {
+  return {
+    authorization: apiKey,
+  }
 }
 
-// Promisified gRPC calls with user-friendly error handling
-function promisify<TRequest, TResponse>(
-  client: grpc.Client,
-  method: string,
-  request: TRequest,
-  metadata: grpc.Metadata
-): Promise<TResponse> {
-  return new Promise((resolve, reject) => {
-    const fn = (client as unknown as Record<string, (...args: unknown[]) => void>)[method]
-    if (!fn) {
-      reject(new Error(`Method ${method} not found on client`))
-      return
+// Convert proto types to our interface types
+function convertNote(note: ProtoNote | undefined): Note {
+  if (!note) {
+    return { id: "", content: "", tags: [] }
+  }
+  return {
+    id: note.id,
+    content: note.content,
+    tags: [...note.tags],
+    createdAt: note.createdAt ? convertTimestamp(note.createdAt) : undefined,
+    updatedAt: note.updatedAt ? convertTimestamp(note.updatedAt) : undefined,
+  }
+}
+
+function convertTag(tag: ProtoTag): Tag {
+  return {
+    id: tag.id,
+    name: tag.name,
+    count: tag.count,
+    createdAt: tag.createdAt ? convertTimestamp(tag.createdAt) : undefined,
+  }
+}
+
+function convertUser(user: ProtoUser | undefined): User {
+  if (!user) {
+    return { id: "", email: "", subscriptionStatus: "" }
+  }
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    image: user.image,
+    subscriptionStatus: user.subscriptionStatus,
+    subscriptionEnd: user.subscriptionEnd ? convertTimestamp(user.subscriptionEnd) : undefined,
+    createdAt: user.createdAt ? convertTimestamp(user.createdAt) : undefined,
+    stripeCustomerId: user.stripeCustomerId,
+  }
+}
+
+function convertApiKey(key: ProtoApiKey | undefined): ApiKey {
+  if (!key) {
+    return { id: "", name: "", keyPrefix: "" }
+  }
+  return {
+    id: key.id,
+    name: key.name,
+    keyPrefix: key.keyPrefix,
+    createdAt: key.createdAt ? convertTimestamp(key.createdAt) : undefined,
+    lastUsed: key.lastUsed ? convertTimestamp(key.lastUsed) : undefined,
+  }
+}
+
+function convertTimestamp(ts: ProtoTimestamp): Timestamp {
+  return {
+    seconds: ts.seconds.toString(),
+    nanos: ts.nanos,
+  }
+}
+
+// Wrap calls with error handling
+async function withErrorHandling<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn()
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      throw new GrpcError(error)
     }
-    fn.call(client, request, metadata, (error: grpc.ServiceError | null, response: TResponse) => {
-      if (error) {
-        reject(new GrpcError(error))
-      } else {
-        resolve(response)
-      }
-    })
-  })
+    throw error
+  }
 }
 
 // Notes Service
 export const notesService = {
   async listNotes(request: ListNotesRequest, apiKey: string): Promise<ListNotesResponse> {
-    const client = getNotesClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "listNotes", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getNotesClient()
+      const response = await client.listNotes(
+        {
+          userId: request.userId,
+          search: request.search ?? "",
+          tags: request.tags ?? [],
+          startDate: request.startDate ?? "",
+          endDate: request.endDate ?? "",
+          limit: request.limit ?? 50,
+          offset: request.offset ?? 0,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return {
+        notes: response.notes.map(convertNote),
+        total: response.total,
+        limit: response.limit,
+        offset: response.offset,
+      }
+    })
   },
 
   async createNote(request: CreateNoteRequest, apiKey: string): Promise<CreateNoteResponse> {
-    const client = getNotesClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "createNote", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getNotesClient()
+      const response = await client.createNote(
+        {
+          userId: request.userId,
+          content: request.content,
+          tags: request.tags ?? [],
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { note: convertNote(response.note) }
+    })
   },
 
   async getNote(request: GetNoteRequest, apiKey: string): Promise<GetNoteResponse> {
-    const client = getNotesClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "getNote", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getNotesClient()
+      const response = await client.getNote(
+        {
+          userId: request.userId,
+          id: request.id,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { note: convertNote(response.note) }
+    })
   },
 
   async updateNote(request: UpdateNoteRequest, apiKey: string): Promise<UpdateNoteResponse> {
-    const client = getNotesClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "updateNote", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getNotesClient()
+      const response = await client.updateNote(
+        {
+          userId: request.userId,
+          id: request.id,
+          content: request.content,
+          tags: request.tags ?? [],
+          updateTags: request.updateTags ?? false,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { note: convertNote(response.note) }
+    })
   },
 
   async deleteNote(request: DeleteNoteRequest, apiKey: string): Promise<DeleteNoteResponse> {
-    const client = getNotesClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "deleteNote", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getNotesClient()
+      const response = await client.deleteNote(
+        {
+          userId: request.userId,
+          id: request.id,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { success: response.success }
+    })
   },
 }
 
 // Tags Service
 export const tagsService = {
   async listTags(request: ListTagsRequest, apiKey: string): Promise<ListTagsResponse> {
-    const client = getTagsClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "listTags", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getTagsClient()
+      const response = await client.listTags(
+        { userId: request.userId },
+        { headers: createHeaders(apiKey) }
+      )
+      return { tags: response.tags.map(convertTag) }
+    })
   },
 }
 
 // Auth Service
 export const authService = {
   async register(request: RegisterRequest, apiKey: string): Promise<RegisterResponse> {
-    const client = getAuthClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "register", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getAuthClient()
+      const response = await client.register(
+        {
+          email: request.email,
+          password: request.password,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { user: convertUser(response.user) }
+    })
   },
 
   async authenticate(request: AuthenticateRequest, apiKey: string): Promise<AuthenticateResponse> {
-    const client = getAuthClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "authenticate", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getAuthClient()
+      const response = await client.authenticate(
+        {
+          email: request.email,
+          password: request.password,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return {
+        success: response.success,
+        user: response.user ? convertUser(response.user) : undefined,
+      }
+    })
   },
 
   async getUser(request: GetUserRequest, apiKey: string): Promise<GetUserResponse> {
-    const client = getAuthClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "getUser", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getAuthClient()
+      const response = await client.getUser(
+        { userId: request.userId },
+        { headers: createHeaders(apiKey) }
+      )
+      return { user: convertUser(response.user) }
+    })
   },
 
   async getUserByStripeCustomerId(
     request: GetUserByStripeCustomerIdRequest,
     apiKey: string
   ): Promise<GetUserByStripeCustomerIdResponse> {
-    const client = getAuthClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "getUserByStripeCustomerId", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getAuthClient()
+      const response = await client.getUserByStripeCustomerId(
+        { stripeCustomerId: request.stripeCustomerId },
+        { headers: createHeaders(apiKey) }
+      )
+      return { user: response.user ? convertUser(response.user) : undefined }
+    })
   },
 
   async updateUserSubscription(
     request: UpdateUserSubscriptionRequest,
     apiKey: string
   ): Promise<UpdateUserSubscriptionResponse> {
-    const client = getAuthClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "updateUserSubscription", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getAuthClient()
+      const response = await client.updateUserSubscription(
+        {
+          userId: request.userId,
+          subscriptionStatus: request.subscriptionStatus,
+          stripeCustomerId: request.stripeCustomerId,
+          subscriptionEnd: request.subscriptionEnd
+            ? {
+                seconds: BigInt(request.subscriptionEnd.seconds.toString()),
+                nanos: request.subscriptionEnd.nanos,
+              }
+            : undefined,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { user: convertUser(response.user) }
+    })
   },
 }
 
 // API Keys Service
 export const apiKeysService = {
   async createApiKey(request: CreateApiKeyRequest, apiKey: string): Promise<CreateApiKeyResponse> {
-    const client = getApiKeysClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "createApiKey", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getApiKeysClient()
+      const response = await client.createApiKey(
+        {
+          userId: request.userId,
+          name: request.name,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return {
+        apiKey: convertApiKey(response.apiKey),
+        rawKey: response.rawKey,
+      }
+    })
   },
 
   async listApiKeys(request: ListApiKeysRequest, apiKey: string): Promise<ListApiKeysResponse> {
-    const client = getApiKeysClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "listApiKeys", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getApiKeysClient()
+      const response = await client.listApiKeys(
+        { userId: request.userId },
+        { headers: createHeaders(apiKey) }
+      )
+      return { apiKeys: response.apiKeys.map(convertApiKey) }
+    })
   },
 
   async deleteApiKey(request: DeleteApiKeyRequest, apiKey: string): Promise<DeleteApiKeyResponse> {
-    const client = getApiKeysClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "deleteApiKey", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getApiKeysClient()
+      const response = await client.deleteApiKey(
+        {
+          userId: request.userId,
+          keyId: request.keyId,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { success: response.success }
+    })
   },
 
   async verifyApiKey(request: VerifyApiKeyRequest, apiKey: string): Promise<VerifyApiKeyResponse> {
-    const client = getApiKeysClient()
-    const metadata = createMetadata(apiKey)
-    return promisify(client, "verifyApiKey", request, metadata)
+    return withErrorHandling(async () => {
+      const client = getApiKeysClient()
+      const response = await client.verifyApiKey(
+        { rawKey: request.rawKey },
+        { headers: createHeaders(apiKey) }
+      )
+      return {
+        valid: response.valid,
+        userId: response.userId,
+      }
+    })
   },
 }
 
@@ -424,9 +563,12 @@ export const apiKeysService = {
 export function timestampToDate(ts: Timestamp | undefined): Date {
   if (!ts) return new Date()
 
-  // Handle both string and number types for seconds/nanos
   const seconds =
-    typeof ts.seconds === "string" ? parseInt(ts.seconds, 10) : Number(ts.seconds)
+    typeof ts.seconds === "bigint"
+      ? Number(ts.seconds)
+      : typeof ts.seconds === "string"
+        ? parseInt(ts.seconds, 10)
+        : Number(ts.seconds)
   const nanos = typeof ts.nanos === "string" ? parseInt(ts.nanos, 10) : Number(ts.nanos ?? 0)
 
   if (!Number.isFinite(seconds) || !Number.isFinite(nanos)) {
@@ -438,33 +580,33 @@ export function timestampToDate(ts: Timestamp | undefined): Date {
 
 // Custom error class for gRPC errors with user-friendly messages
 export class GrpcError extends Error {
-  public readonly code: grpc.status
+  public readonly code: Code
   public readonly details: string
 
-  constructor(error: grpc.ServiceError) {
-    const message = grpcStatusToMessage(error.code, error.details)
+  constructor(error: ConnectError) {
+    const message = grpcStatusToMessage(error.code, error.message)
     super(message)
     this.name = "GrpcError"
     this.code = error.code
-    this.details = error.details
+    this.details = error.message
   }
 }
 
-function grpcStatusToMessage(code: grpc.status, details: string): string {
+function grpcStatusToMessage(code: Code, details: string): string {
   switch (code) {
-    case grpc.status.UNAUTHENTICATED:
+    case Code.Unauthenticated:
       return "Authentication required"
-    case grpc.status.PERMISSION_DENIED:
+    case Code.PermissionDenied:
       return "Permission denied"
-    case grpc.status.NOT_FOUND:
+    case Code.NotFound:
       return "Resource not found"
-    case grpc.status.ALREADY_EXISTS:
+    case Code.AlreadyExists:
       return "Resource already exists"
-    case grpc.status.INVALID_ARGUMENT:
+    case Code.InvalidArgument:
       return details || "Invalid request"
-    case grpc.status.UNAVAILABLE:
+    case Code.Unavailable:
       return "Service temporarily unavailable"
-    case grpc.status.DEADLINE_EXCEEDED:
+    case Code.DeadlineExceeded:
       return "Request timed out"
     default:
       return details || "An unexpected error occurred"

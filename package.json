@@ -9,9 +9,10 @@
     "lint": "eslint --fix ."
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.14.3",
-    "@grpc/proto-loader": "^0.8.0",
+    "@connectrpc/connect": "^2.1.1",
+    "@connectrpc/connect-node": "^2.1.1",
     "@heroicons/react": "^2.2.0",
+    "@icco/etu-proto": "^0.0.0-20260126041046.b81be7a",
     "@tanstack/react-query": "^5.83.1",
     "bcryptjs": "3.0.3",
     "clsx": "^2.1.1",
