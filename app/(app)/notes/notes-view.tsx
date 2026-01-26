@@ -165,11 +165,11 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
         {/* Header */}
         <header className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
           <div className="flex-1">
-            <span className="text-xl font-bold px-2">Blips</span>
+            <span className="text-xl font-bold px-2">Etu</span>
           </div>
-          <div className="flex gap-2">
-            <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-base-content/60 pointer-events-none" />
+          <div className="flex items-center gap-2">
+            <div className="relative flex items-center">
+              <MagnifyingGlassIcon className="absolute left-3 h-4 w-4 text-base-content/60 pointer-events-none" />
               <input
                 id="search-notes"
                 type="text"
@@ -190,19 +190,17 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
               <span className="hidden sm:inline">New</span>
             </button>
             <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                <UserCircleIcon className="h-8 w-8" />
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-square">
+                <UserCircleIcon className="h-6 w-6" />
               </div>
               <ul
                 tabIndex={0}
                 className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
               >
                 <li>
-                  <a href="/settings" className="justify-between">
-                    <span className="flex items-center gap-2">
-                      <Cog6ToothIcon className="h-4 w-4" />
-                      Settings
-                    </span>
+                  <a href="/settings">
+                    <Cog6ToothIcon className="h-4 w-4" />
+                    Settings
                   </a>
                 </li>
                 <li>
