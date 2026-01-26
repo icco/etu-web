@@ -20,6 +20,10 @@ import type {
   AuthenticateResponse,
   GetUserRequest,
   GetUserResponse,
+  UpdateUserSubscriptionRequest,
+  UpdateUserSubscriptionResponse,
+  GetUserByStripeCustomerIdRequest,
+  GetUserByStripeCustomerIdResponse,
   Note,
   Tag,
   User,
@@ -195,6 +199,27 @@ export const mockAuthService = {
 
   async getUser(_request: GetUserRequest, _apiKey: string): Promise<GetUserResponse> {
     return { user: mockUser }
+  },
+
+  async getUserByStripeCustomerId(
+    _request: GetUserByStripeCustomerIdRequest,
+    _apiKey: string
+  ): Promise<GetUserByStripeCustomerIdResponse> {
+    return { user: mockUser }
+  },
+
+  async updateUserSubscription(
+    request: UpdateUserSubscriptionRequest,
+    _apiKey: string
+  ): Promise<UpdateUserSubscriptionResponse> {
+    // Update mock user subscription status
+    const updatedUser = {
+      ...mockUser,
+      subscriptionStatus: request.subscriptionStatus || mockUser.subscriptionStatus,
+      stripeCustomerId: request.stripeCustomerId,
+      subscriptionEnd: request.subscriptionEnd,
+    }
+    return { user: updatedUser }
   },
 }
 
