@@ -31,6 +31,9 @@ jobs:
         run: yarn test:e2e --update-snapshots
         env:
           CI: true
+          E2E_MOCK: "true"
+          GRPC_API_KEY: "test-api-key"
+          NEXTAUTH_SECRET: "test-secret-for-e2e"
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4

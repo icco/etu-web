@@ -12,6 +12,12 @@ import {
   type User as ProtoUser,
   type ApiKey as ProtoApiKey,
 } from "@icco/etu-proto"
+import {
+  mockNotesService,
+  mockTagsService,
+  mockAuthService,
+  isMockMode,
+} from "./mock"
 
 // Get backend URL from environment
 const GRPC_URL = process.env.GRPC_BACKEND_URL || "http://localhost:50051"
@@ -317,7 +323,7 @@ async function withErrorHandling<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 // Notes Service
-export const notesService = {
+const realNotesService = {
   async listNotes(request: ListNotesRequest, apiKey: string): Promise<ListNotesResponse> {
     return withErrorHandling(async () => {
       const client = getNotesClient()
@@ -404,7 +410,7 @@ export const notesService = {
 }
 
 // Tags Service
-export const tagsService = {
+const realTagsService = {
   async listTags(request: ListTagsRequest, apiKey: string): Promise<ListTagsResponse> {
     return withErrorHandling(async () => {
       const client = getTagsClient()
@@ -418,7 +424,7 @@ export const tagsService = {
 }
 
 // Auth Service
-export const authService = {
+const realAuthService = {
   async register(request: RegisterRequest, apiKey: string): Promise<RegisterResponse> {
     return withErrorHandling(async () => {
       const client = getAuthClient()
@@ -612,3 +618,8 @@ function grpcStatusToMessage(code: Code, details: string): string {
       return details || "An unexpected error occurred"
   }
 }
+
+// Export services - use mock in E2E test mode
+export const notesService = isMockMode() ? mockNotesService : realNotesService
+export const tagsService = isMockMode() ? mockTagsService : realTagsService
+export const authService = isMockMode() ? mockAuthService : realAuthService

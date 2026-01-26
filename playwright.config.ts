@@ -22,8 +22,13 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "yarn dev",
+    command: "E2E_MOCK=true yarn dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
+    env: {
+      E2E_MOCK: "true",
+      GRPC_API_KEY: "test-api-key",
+      NEXTAUTH_SECRET: "test-secret-for-e2e",
+    },
   },
 })
