@@ -10,8 +10,12 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies
-COPY package.json yarn.lock* ./
-RUN yarn install --frozen-lockfile
+# NPM_TOKEN is required for @icco/etu-proto from GitHub Packages
+ARG NPM_TOKEN
+COPY package.json yarn.lock* .npmrc ./
+RUN echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc && \
+    yarn install --frozen-lockfile && \
+    rm -f .npmrc
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -38,9 +42,6 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy proto file for gRPC client
-COPY --from=builder /app/proto ./proto
 
 USER nextjs
 
