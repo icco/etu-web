@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useCallback, useTransition, useRef } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { format } from "date-fns"
 import {
   DocumentTextIcon,
   PlusIcon,
   MagnifyingGlassIcon,
   XMarkIcon,
+  TagIcon,
 } from "@heroicons/react/24/outline"
 import { toast } from "sonner"
 import { createNote, updateNote, deleteNote } from "@/lib/actions/notes"
@@ -61,9 +63,7 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingNote, setEditingNote] = useState<Note | null>(null)
   const [searchQuery, setSearchQuery] = useState(searchParams.search || "")
-  const [selectedTags, setSelectedTags] = useState<string[]>(
-    searchParams.tags?.split(",").filter(Boolean) || []
-  )
+  const selectedTags = searchParams.tags?.split(",").filter(Boolean) || []
 
   const notes = initialNotes
   const allTags = initialTags.map(t => t.name)
@@ -113,17 +113,8 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
     }, 300)
   }
 
-  const toggleTag = (tag: string) => {
-    const newTags = selectedTags.includes(tag)
-      ? selectedTags.filter(t => t !== tag)
-      : [...selectedTags, tag]
-    setSelectedTags(newTags)
-    updateFilters(searchQuery, newTags)
-  }
-
   const clearFilters = () => {
     setSearchQuery("")
-    setSelectedTags([])
     router.push("/notes")
   }
 
@@ -176,31 +167,28 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
           <UserMenu />
         </Header>
 
-        {/* Tags filter */}
-        {allTags.length > 0 && (
+        {/* Active tag filters */}
+        {selectedTags.length > 0 && (
           <div className="bg-base-100 border-b border-base-300">
             <div className="container mx-auto px-4 md:px-6 py-3">
-              <div className="flex gap-2 items-center overflow-x-auto">
-                <span className="text-sm text-base-content/60 shrink-0">Tags:</span>
-                {allTags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => toggleTag(tag)}
-                    className={`badge badge-lg cursor-pointer transition-colors shrink-0 ${selectedTags.includes(tag) ? "badge-primary" : "badge-ghost hover:badge-neutral"
-                      }`}
-                  >
+              <div className="flex gap-2 items-center flex-wrap">
+                <span className="text-sm text-base-content/60 shrink-0">Filtering by:</span>
+                {selectedTags.map((tag) => (
+                  <span key={tag} className="badge badge-primary badge-lg">
                     {tag}
-                  </button>
+                  </span>
                 ))}
-                {hasFilters && (
-                  <button
-                    onClick={clearFilters}
-                    className="btn btn-ghost btn-xs gap-1 ml-2"
-                  >
-                    <XMarkIcon className="h-3.5 w-3.5" />
-                    Clear
-                  </button>
-                )}
+                <button
+                  onClick={clearFilters}
+                  className="btn btn-ghost btn-xs gap-1 ml-2"
+                >
+                  <XMarkIcon className="h-3.5 w-3.5" />
+                  Clear
+                </button>
+                <Link href="/tags" className="btn btn-ghost btn-xs gap-1 ml-auto">
+                  <TagIcon className="h-3.5 w-3.5" />
+                  All Tags
+                </Link>
               </div>
             </div>
           </div>

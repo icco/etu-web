@@ -4,6 +4,7 @@ import {
   UserCircleIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
+  TagIcon,
 } from "@heroicons/react/24/outline"
 import { signOut } from "next-auth/react"
 
@@ -17,6 +18,12 @@ export function UserMenu() {
         tabIndex={0}
         className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
       >
+        <li>
+          <a href="/tags">
+            <TagIcon className="h-4 w-4" />
+            Tags
+          </a>
+        </li>
         <li>
           <a href="/settings">
             <Cog6ToothIcon className="h-4 w-4" />

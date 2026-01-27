@@ -21,25 +21,13 @@ interface NoteCardProps {
   searchQuery?: string
 }
 
-export function NoteCard({ note, onEdit, onDelete, searchQuery }: NoteCardProps) {
+export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
   const [viewOpen, setViewOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const formatTime = (date: Date) => format(new Date(date), "h:mm a")
   const formatFullDate = (date: Date) => format(new Date(date), "EEEE, MMMM d, yyyy 'at' h:mm a")
-
-  const getPreview = (content: string, maxLength = 200) => {
-    const stripped = content
-      .replace(/^#{1,6}\s+/gm, "")
-      .replace(/\*\*([^*]+)\*\*/g, "$1")
-      .replace(/\*([^*]+)\*/g, "$1")
-      .replace(/`([^`]+)`/g, "$1")
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-      .trim()
-
-    return stripped.length <= maxLength ? stripped : stripped.substring(0, maxLength) + "..."
-  }
 
   const renderMarkdown = (content: string) => {
     return DOMPurify.sanitize(marked.parse(content) as string)
