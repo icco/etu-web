@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { format } from "date-fns"
 import { marked } from "marked"
-import DOMPurify from "dompurify"
+import DOMPurify from "isomorphic-dompurify"
 import { EllipsisHorizontalIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline"
 
 interface Note {
@@ -82,7 +82,7 @@ export function NoteCard({ note, onEdit, onDelete, searchQuery }: NoteCardProps)
         <div className="card-body p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <div className="text-sm text-base-content/60 mb-2">{formatTime(note.createdAt)}</div>
+              <div className="text-sm text-base-content/60 mb-2" suppressHydrationWarning>{formatTime(note.createdAt)}</div>
               {note.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {note.tags.map((tag) => (
@@ -157,7 +157,7 @@ export function NoteCard({ note, onEdit, onDelete, searchQuery }: NoteCardProps)
       <dialog className={`modal ${viewOpen ? "modal-open" : ""}`}>
         <div className="modal-box w-11/12 max-w-2xl max-h-[85vh] flex flex-col p-0">
           <div className="p-6 border-b border-base-300">
-            <h3 className="font-medium text-base-content/60">
+            <h3 className="font-medium text-base-content/60" suppressHydrationWarning>
               {formatFullDate(note.createdAt)}
             </h3>
           </div>

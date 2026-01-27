@@ -41,7 +41,9 @@ function groupNotesByDate(notes: Note[]): Map<string, Note[]> {
   const grouped = new Map<string, Note[]>()
 
   notes.forEach((note) => {
-    const dateKey = format(new Date(note.createdAt), "MMMM d, yyyy")
+    // Use UTC date string as key for consistent server/client grouping
+    const d = new Date(note.createdAt)
+    const dateKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`
     if (!grouped.has(dateKey)) {
       grouped.set(dateKey, [])
     }
@@ -229,10 +231,12 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
             </div>
           ) : (
             <div className="max-w-3xl mx-auto space-y-8">
-              {Array.from(groupedNotes.entries()).map(([date, dateNotes]) => (
-                <div key={date}>
+              {Array.from(groupedNotes.entries()).map(([dateKey, dateNotes]) => (
+                <div key={dateKey}>
                   <div className="sticky top-16 bg-base-200/95 backdrop-blur-sm py-2 mb-4 z-10">
-                    <h3 className="text-lg font-semibold">{date}</h3>
+                    <h3 className="text-lg font-semibold" suppressHydrationWarning>
+                      {format(new Date(dateNotes[0].createdAt), "MMMM d, yyyy")}
+                    </h3>
                     <div className="divider my-0" />
                   </div>
                   <div className="space-y-4">
