@@ -134,6 +134,10 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
               <h2 className="card-title">Account Information</h2>
               <div className="space-y-3">
                 <div>
+                  <label className="text-sm text-base-content/60">User ID</label>
+                  <p className="font-mono text-sm">{user.id}</p>
+                </div>
+                <div>
                   <label className="text-sm text-base-content/60">Email</label>
                   <p>{user.email}</p>
                 </div>
@@ -210,10 +214,10 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
               <div className="flex items-center gap-4">
                 <span
                   className={`badge ${user.subscriptionStatus === "active"
-                      ? "badge-success"
-                      : user.subscriptionStatus === "trial"
-                        ? "bg-warning text-black"
-                        : "badge-ghost"
+                    ? "badge-success"
+                    : user.subscriptionStatus === "trial"
+                      ? "bg-warning text-black"
+                      : "badge-ghost"
                     }`}
                 >
                   {user.subscriptionStatus.charAt(0).toUpperCase() + user.subscriptionStatus.slice(1)}
