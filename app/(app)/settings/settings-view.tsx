@@ -139,7 +139,7 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
                 </div>
                 <div>
                   <label className="text-sm text-base-content/60">Account Created</label>
-                  <p>{format(new Date(user.createdAt), "MMMM d, yyyy")}</p>
+                  <p suppressHydrationWarning>{format(new Date(user.createdAt), "MMMM d, yyyy")}</p>
                 </div>
               </div>
             </div>
@@ -176,7 +176,7 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
                 </div>
                 <div className="stat">
                   <div className="stat-title">First Blip</div>
-                  <div className="stat-value text-2xl">
+                  <div className="stat-value text-2xl" suppressHydrationWarning>
                     {stats.firstNoteDate
                       ? format(new Date(stats.firstNoteDate), "MMM yyyy")
                       : "—"}
@@ -219,7 +219,7 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
                   {user.subscriptionStatus.charAt(0).toUpperCase() + user.subscriptionStatus.slice(1)}
                 </span>
                 {user.subscriptionEnd && (
-                  <span className="text-sm text-base-content/60">
+                  <span className="text-sm text-base-content/60" suppressHydrationWarning>
                     {user.subscriptionStatus === "active" ? "Renews" : "Ends"}{" "}
                     {format(new Date(user.subscriptionEnd), "MMMM d, yyyy")}
                   </span>
@@ -321,7 +321,7 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
                     >
                       <div>
                         <p className="font-medium text-sm">{key.name}</p>
-                        <p className="text-xs text-base-content/60">
+                        <p className="text-xs text-base-content/60" suppressHydrationWarning>
                           {key.keyPrefix}... • Created{" "}
                           {format(new Date(key.createdAt), "MMM d, yyyy")}
                           {key.lastUsed &&
