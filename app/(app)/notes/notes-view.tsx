@@ -174,14 +174,13 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
           </div>
           <div className="flex items-center gap-2">
             <div className="relative flex items-center">
-              <MagnifyingGlassIcon className="absolute left-3 h-4 w-4 text-base-content/60 pointer-events-none" />
               <input
                 id="search-notes"
                 type="text"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="input input-bordered input-sm w-28 md:w-64 pl-9"
+                className="input input-bordered w-24 md:w-auto"
               />
             </div>
             <div className="dropdown dropdown-end">
