@@ -23,9 +23,11 @@ export function Header({ backHref, logoHref = "/", children }: HeaderProps) {
           Etu
         </Link>
       </div>
-      <div className="navbar-end gap-4">
-        {children}
-      </div>
+      {children && (
+        <div className="navbar-end gap-2">
+          {children}
+        </div>
+      )}
     </header>
   )
 }

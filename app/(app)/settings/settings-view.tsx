@@ -17,6 +17,7 @@ import {
 } from "@heroicons/react/24/outline"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { UserMenu } from "@/components/user-menu"
 import { toast } from "sonner"
 import { createApiKey, deleteApiKey } from "@/lib/actions/api-keys"
 
@@ -102,7 +103,7 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
   return (
     <div className="min-h-screen bg-base-200 flex flex-col">
       <Header backHref="/notes" logoHref="/notes">
-        <span className="text-base-content/60 text-sm hidden sm:inline">Settings</span>
+        <UserMenu />
       </Header>
 
       <main className="container mx-auto px-4 md:px-6 py-8 max-w-4xl">

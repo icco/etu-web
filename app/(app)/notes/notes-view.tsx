@@ -7,18 +7,15 @@ import {
   DocumentTextIcon,
   PlusIcon,
   MagnifyingGlassIcon,
-  ArrowRightOnRectangleIcon,
-  Cog6ToothIcon,
   XMarkIcon,
-  UserCircleIcon,
 } from "@heroicons/react/24/outline"
-import { signOut } from "next-auth/react"
 import { toast } from "sonner"
 import { createNote, updateNote, deleteNote } from "@/lib/actions/notes"
 import { NoteCard } from "@/components/note-card"
 import { NoteDialog } from "@/components/note-dialog"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { UserMenu } from "@/components/user-menu"
 
 interface Note {
   id: string
@@ -166,38 +163,15 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
     <>
       <div className="min-h-screen bg-base-200 flex flex-col">
         <Header logoHref="/notes">
-          <div className="relative flex items-center">
-            <input
-              id="search-notes"
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="input input-bordered w-24 md:w-auto"
-            />
-          </div>
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-square">
-              <UserCircleIcon className="h-6 w-6" />
-            </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-            >
-              <li>
-                <a href="/settings">
-                  <Cog6ToothIcon className="h-4 w-4" />
-                  Settings
-                </a>
-              </li>
-              <li>
-                <button onClick={() => signOut({ callbackUrl: "/" })}>
-                  <ArrowRightOnRectangleIcon className="h-4 w-4" />
-                  Logout
-                </button>
-              </li>
-            </ul>
-          </div>
+          <input
+            id="search-notes"
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="input input-bordered"
+          />
+          <UserMenu />
         </Header>
 
         {/* Tags filter */}
