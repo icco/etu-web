@@ -11,15 +11,14 @@ import {
   Cog6ToothIcon,
   XMarkIcon,
   UserCircleIcon,
-  SunIcon,
-  MoonIcon,
 } from "@heroicons/react/24/outline"
 import { signOut } from "next-auth/react"
-import { useTheme } from "next-themes"
 import { toast } from "sonner"
 import { createNote, updateNote, deleteNote } from "@/lib/actions/notes"
 import { NoteCard } from "@/components/note-card"
 import { NoteDialog } from "@/components/note-dialog"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 interface Note {
   id: string
@@ -59,7 +58,6 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
   const router = useRouter()
   const [_isPending, startTransition] = useTransition()
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const { resolvedTheme, setTheme } = useTheme()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingNote, setEditingNote] = useState<Note | null>(null)
@@ -167,56 +165,40 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
   return (
     <>
       <div className="min-h-screen bg-base-200 flex flex-col">
-        {/* Header */}
-        <header className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
-          <div className="flex-1">
-            <span className="text-xl font-bold px-2">Etu</span>
+        <Header logoHref="/notes">
+          <div className="relative flex items-center">
+            <input
+              id="search-notes"
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="input input-bordered w-24 md:w-auto"
+            />
           </div>
-          <div className="flex items-center gap-2">
-            <div className="relative flex items-center">
-              <input
-                id="search-notes"
-                type="text"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="input input-bordered w-24 md:w-auto"
-              />
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-square">
+              <UserCircleIcon className="h-6 w-6" />
             </div>
-            <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-square">
-                <UserCircleIcon className="h-6 w-6" />
-              </div>
-              <ul
-                tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-              >
-                <li>
-                  <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
-                    {resolvedTheme === "dark" ? (
-                      <SunIcon className="h-4 w-4" />
-                    ) : (
-                      <MoonIcon className="h-4 w-4" />
-                    )}
-                    {resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
-                  </button>
-                </li>
-                <li>
-                  <a href="/settings">
-                    <Cog6ToothIcon className="h-4 w-4" />
-                    Settings
-                  </a>
-                </li>
-                <li>
-                  <button onClick={() => signOut({ callbackUrl: "/" })}>
-                    <ArrowRightOnRectangleIcon className="h-4 w-4" />
-                    Logout
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            >
+              <li>
+                <a href="/settings">
+                  <Cog6ToothIcon className="h-4 w-4" />
+                  Settings
+                </a>
+              </li>
+              <li>
+                <button onClick={() => signOut({ callbackUrl: "/" })}>
+                  <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                  Logout
+                </button>
+              </li>
+            </ul>
           </div>
-        </header>
+        </Header>
 
         {/* Tags filter */}
         {allTags.length > 0 && (
@@ -309,6 +291,8 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
             <PlusIcon className="h-6 w-6" />
           </button>
         </div>
+
+        <Footer />
       </div>
 
       <NoteDialog

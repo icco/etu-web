@@ -1,24 +1,19 @@
 import Link from "next/link"
 import { DocumentTextIcon, MagnifyingGlassIcon, DevicePhoneMobileIcon, CodeBracketIcon } from "@heroicons/react/24/outline"
 import { auth } from "@/lib/auth"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 export default async function LandingPage() {
   const session = await auth()
 
   return (
     <div className="min-h-screen bg-base-200">
-      <header className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
-        <div className="navbar-start">
-          <span className="text-2xl font-bold text-base-content">Etu</span>
-        </div>
-        <div className="navbar-end gap-4">
-          <ThemeToggle />
-          <Link href={session ? "/notes" : "/login"} className="btn btn-primary">
-            {session ? "Open App" : "Get Started"}
-          </Link>
-        </div>
-      </header>
+      <Header logoHref="/">
+        <Link href={session ? "/notes" : "/login"} className="btn btn-primary">
+          {session ? "Open App" : "Get Started"}
+        </Link>
+      </Header>
 
       <section className="container mx-auto px-6 py-20 md:py-32">
         <div className="max-w-4xl mx-auto text-center">
@@ -151,9 +146,7 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      <footer className="text-center text-sm opacity-60 py-4 bg-base-100">
-        &copy; 2026 <a href="https://natwelch.com" className="link link-hover">Nat Welch</a>.
-      </footer>
+      <Footer />
     </div>
   )
 }

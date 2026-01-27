@@ -3,7 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useFormStatus } from "react-dom"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { register } from "@/lib/actions/auth"
 import { toast } from "sonner"
 
@@ -40,15 +41,12 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
-      <div className="fixed top-4 right-4">
-        <ThemeToggle />
-      </div>
+    <div className="min-h-screen bg-base-200 flex flex-col">
+      <Header />
+      <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body p-8 sm:p-10">
-            <h1 className="text-2xl font-bold text-primary text-center mb-4">Etu</h1>
-
             <h2 className="card-title justify-center">Create your account</h2>
             <p className="text-base-content/70 text-center mb-4">
               Start capturing your thoughts today
@@ -114,12 +112,10 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <p className="text-center text-sm text-base-content/60 mt-4">
-          <Link href="/" className="link link-hover">
-            ← Back to home
-          </Link>
-        </p>
       </div>
+      </div>
+
+      <Footer />
     </div>
   )
 }

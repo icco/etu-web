@@ -1,11 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import {
-  ArrowLeftIcon,
   KeyIcon,
   ChartBarIcon,
   UserIcon,
@@ -17,7 +15,8 @@ import {
   DocumentTextIcon,
   TagIcon,
 } from "@heroicons/react/24/outline"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { toast } from "sonner"
 import { createApiKey, deleteApiKey } from "@/lib/actions/api-keys"
 
@@ -101,18 +100,10 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
   }
 
   return (
-    <div className="min-h-screen bg-base-200">
-      <header className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
-        <div className="flex-1">
-          <Link href="/notes" className="btn btn-ghost btn-square">
-            <ArrowLeftIcon className="h-6 w-6" />
-          </Link>
-          <span className="text-xl font-bold">Settings</span>
-        </div>
-        <div className="flex-none">
-          <ThemeToggle />
-        </div>
-      </header>
+    <div className="min-h-screen bg-base-200 flex flex-col">
+      <Header backHref="/notes" logoHref="/notes">
+        <span className="text-base-content/60 text-sm hidden sm:inline">Settings</span>
+      </Header>
 
       <main className="container mx-auto px-4 md:px-6 py-8 max-w-4xl">
         {/* Tabs */}
@@ -350,6 +341,8 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
           </div>
         )}
       </main>
+
+      <Footer />
     </div>
   )
 }
