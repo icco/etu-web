@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { marked } from "marked"
 import DOMPurify from "dompurify"
 import { XMarkIcon } from "@heroicons/react/24/outline"
@@ -49,6 +49,13 @@ export function NoteDialog({
   const filteredSuggestions = existingTags.filter(
     (t) => t.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(t)
   )
+
+  // Memoize markdown parsing to only run when preview tab is active
+  // This prevents expensive parsing on every keystroke while typing
+  const parsedContent = useMemo(() => {
+    if (activeTab !== "preview" || !content) return ""
+    return DOMPurify.sanitize(marked.parse(content) as string)
+  }, [content, activeTab])
 
   const handleSave = async () => {
     if (!content.trim()) return
@@ -125,11 +132,11 @@ export function NoteDialog({
             />
           ) : (
             <div className="min-h-[300px] p-4 bg-base-200 rounded-lg">
-              {content ? (
+              {parsedContent ? (
                 <div
                   className="prose prose-sm max-w-none"
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(marked.parse(content) as string),
+                    __html: parsedContent,
                   }}
                 />
               ) : (
