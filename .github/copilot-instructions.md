@@ -121,8 +121,9 @@ yarn test:e2e:update      # Update snapshots
 
 ### Error Handling
 
-- Server actions should return `{ success: boolean, error?: string }`
-- Display errors to users with toast notifications
+- Server actions throw errors on failure and return data directly on success
+- Client components use try-catch blocks to handle errors from server actions
+- Display errors to users with `sonner` toast notifications
 - Log errors but don't expose sensitive details to users
 
 ### Testing
@@ -164,26 +165,49 @@ STRIPE_PRICE_ID          # Stripe price ID (optional)
 ```typescript
 'use server'
 
+import { z } from 'zod'
+import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth'
-import { grpcClient } from '@/lib/grpc/client'
+import { notesService } from '@/lib/grpc/client'
 
-export async function createNote(formData: FormData) {
+const createNoteSchema = z.object({
+  content: z.string().min(1, 'Content is required'),
+  tags: z.array(z.string()).default([]),
+})
+
+// Helper to get service API key
+function getGrpcApiKey(): string {
+  const key = process.env.GRPC_API_KEY
+  if (!key) {
+    throw new Error('GRPC_API_KEY environment variable is required')
+  }
+  return key
+}
+
+// Helper to require authenticated user
+async function requireUser() {
   const session = await auth()
-  if (!session?.user) {
-    return { success: false, error: 'Unauthorized' }
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized')
   }
+  return session.user.id
+}
 
-  try {
-    const content = formData.get('content') as string
-    const response = await grpcClient.createNote({
-      content,
-      userId: session.user.id,
-    })
-    return { success: true, data: response }
-  } catch (error) {
-    console.error('Failed to create note:', error)
-    return { success: false, error: 'Failed to create note' }
-  }
+export async function createNote(data: { content: string; tags: string[] }) {
+  const userId = await requireUser()
+  const parsed = createNoteSchema.parse(data)
+
+  const response = await notesService.createNote(
+    {
+      userId,
+      content: parsed.content,
+      tags: parsed.tags,
+    },
+    getGrpcApiKey()
+  )
+
+  revalidatePath('/notes')
+  return { id: response.note.id }
 }
 ```
 
@@ -193,32 +217,41 @@ export async function createNote(formData: FormData) {
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { createNote } from '@/lib/actions/notes'
 
 export function NoteForm() {
+  const router = useRouter()
+  const [content, setContent] = useState('')
+  const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    const result = await createNote(formData)
-
-    if (result.success) {
+    try {
+      await createNote({ content, tags })
       toast.success('Note created!')
-      e.currentTarget.reset()
-    } else {
-      toast.error(result.error || 'Failed to create note')
+      setContent('')
+      setTags([])
+      router.refresh() // Refresh server components
+    } catch (error) {
+      toast.error('Failed to create note')
+      console.error(error)
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <textarea name="content" required />
+      <textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        required
+      />
       <button type="submit" disabled={loading}>
         {loading ? 'Creating...' : 'Create Note'}
       </button>
