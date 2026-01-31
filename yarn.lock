@@ -361,9 +361,9 @@
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
 "@icco/etu-proto@^0.0.0-20260131215221.209b8f3":
-  version "0.0.0-20260131222327.c5203d5"
-  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/0.0.0-20260131222327.c5203d5/d9c60eb7b78d6e83825fbafd83be93646b5cec0e#d9c60eb7b78d6e83825fbafd83be93646b5cec0e"
-  integrity sha512-ejE8wTZdc1/XbSKBH0EpRjY2B08IY/zlVMLHkR7trYqHmefZGn5ZR01HEVtgmOBgR8opCZgMojCPL+hnUbSIEg==
+  version "0.0.0-20260131222944.a240c4e"
+  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/0.0.0-20260131222944.a240c4e/42dfe027bc0dfe1c6d538d3b40513f5e4a5dbdda#42dfe027bc0dfe1c6d538d3b40513f5e4a5dbdda"
+  integrity sha512-Dj7sXLuMWF7cC6CvZhq5uijRtzviCrhFEz4FkvGgkQZKYwjcDxioUW/Ekg8taYhcauCEVhYZor+LvjexReXxvg==
   dependencies:
     "@bufbuild/protobuf" "^2.0.0"
 
