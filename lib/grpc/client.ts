@@ -20,7 +20,9 @@ import {
 } from "./mock"
 
 // Get backend URL from environment
-const GRPC_URL = process.env.GRPC_BACKEND_URL || "http://localhost:50051"
+const rawGrpcUrl = process.env.GRPC_BACKEND_URL || "http://localhost:50051"
+// Ensure URL has protocol prefix
+const GRPC_URL = rawGrpcUrl.startsWith("http") ? rawGrpcUrl : `http://${rawGrpcUrl}`
 
 // Create gRPC transport (uses HTTP/2 by default)
 function createTransport() {
@@ -29,14 +31,9 @@ function createTransport() {
   })
 }
 
-// Lazy-initialized transport
-let transport: ReturnType<typeof createGrpcTransport> | null = null
-
+// Create transport per-request to avoid stale connections
 function getTransport() {
-  if (!transport) {
-    transport = createTransport()
-  }
-  return transport
+  return createTransport()
 }
 
 // Create service clients
@@ -246,8 +243,13 @@ export interface VerifyApiKeyResponse {
 
 // Helper to create headers with API key
 function createHeaders(apiKey: string): HeadersInit {
+  // Debug: log API key prefix (first 10 chars) to verify it's being passed
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`gRPC auth header: ${apiKey ? apiKey.substring(0, 10) + "..." : "(empty)"}`)
+  }
+  // Use Authorization header with the API key (backend expects raw key, not Bearer format)
   return {
-    authorization: apiKey,
+    Authorization: apiKey,
   }
 }
 
