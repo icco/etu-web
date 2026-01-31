@@ -27,7 +27,6 @@ interface SettingsViewProps {
   user: {
     id: string
     email: string | null
-    name: string | null
     subscriptionStatus: string
     subscriptionEnd: Date | null
     createdAt: Date
@@ -63,7 +62,7 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
 
   // Profile editing state
   const [isEditingName, setIsEditingName] = useState(false)
-  const [editName, setEditName] = useState(userSettings?.username || user.name || "")
+  const [editName, setEditName] = useState(userSettings?.username || "")
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
 
   // Notion key editing state
@@ -144,7 +143,7 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
   }
 
   const handleCancelEditName = () => {
-    setEditName(userSettings?.username || user.name || "")
+    setEditName(userSettings?.username || "")
     setIsEditingName(false)
   }
 
@@ -247,7 +246,7 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
-                        <p className="py-2">{user.name || "Not set"}</p>
+                        <p className="py-2">{userSettings?.username || "Not set"}</p>
                         <button
                           onClick={() => setIsEditingName(true)}
                           className="btn btn-ghost btn-sm gap-2"
