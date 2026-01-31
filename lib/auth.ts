@@ -78,6 +78,11 @@ export async function getCurrentUser() {
         ? timestampToDate(response.user.subscriptionEnd)
         : null,
       createdAt: timestampToDate(response.user.createdAt),
+      updatedAt: response.user.updatedAt
+        ? timestampToDate(response.user.updatedAt)
+        : null,
+      username: response.user.username ?? null,
+      notionKey: response.user.notionKey ?? null,
     }
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {

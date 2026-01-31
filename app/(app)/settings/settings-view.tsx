@@ -27,9 +27,14 @@ interface SettingsViewProps {
   user: {
     id: string
     email: string | null
+    name: string | null
+    image: string | null
     subscriptionStatus: string
     subscriptionEnd: Date | null
     createdAt: Date
+    updatedAt: Date | null
+    username: string | null
+    notionKey: string | null
   }
   stats: {
     totalNotes: number
@@ -44,16 +49,9 @@ interface SettingsViewProps {
     createdAt: Date
     lastUsed: Date | null
   }[]
-  userSettings: {
-    userId: string
-    username?: string
-    notionKey?: string
-    createdAt?: Date
-    updatedAt?: Date
-  } | null
 }
 
-export function SettingsView({ user, stats, initialApiKeys, userSettings }: SettingsViewProps) {
+export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"account" | "stats" | "subscription" | "api">("account")
   const [apiKeys, setApiKeys] = useState(initialApiKeys)
@@ -64,12 +62,12 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
 
   // Profile editing state
   const [isEditingUsername, setIsEditingUsername] = useState(false)
-  const [editUsername, setEditUsername] = useState(userSettings?.username || "")
+  const [editUsername, setEditUsername] = useState(user.username || "")
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
 
   // Notion key editing state
   const [isEditingNotionKey, setIsEditingNotionKey] = useState(false)
-  const [editNotionKey, setEditNotionKey] = useState(userSettings?.notionKey || "")
+  const [editNotionKey, setEditNotionKey] = useState(user.notionKey || "")
   const [isUpdatingNotionKey, setIsUpdatingNotionKey] = useState(false)
 
   const handleCreateKey = async () => {
@@ -145,7 +143,7 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
   }
 
   const handleCancelEditUsername = () => {
-    setEditUsername(userSettings?.username || "")
+    setEditUsername(user.username || "")
     setIsEditingUsername(false)
   }
 
@@ -171,7 +169,7 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
   }
 
   const handleCancelEditNotionKey = () => {
-    setEditNotionKey(userSettings?.notionKey || "")
+    setEditNotionKey(user.notionKey || "")
     setIsEditingNotionKey(false)
   }
 
@@ -248,7 +246,7 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
-                        <p className="py-2">{userSettings?.username || "Not set"}</p>
+                        <p className="py-2">{user.username || "Not set"}</p>
                         <button
                           onClick={() => setIsEditingUsername(true)}
                           className="btn btn-ghost btn-sm gap-2"
@@ -260,11 +258,33 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
                     )}
                   </div>
 
+                  {/* Display Name Field (read-only, legacy) */}
+                  {user.name && (
+                    <div>
+                      <label className="text-sm text-base-content/60">Display Name</label>
+                      <p className="py-2">{user.name}</p>
+                    </div>
+                  )}
+
                   {/* Email Field (read-only) */}
                   <div>
                     <label className="text-sm text-base-content/60">Email</label>
                     <p className="py-2">{user.email}</p>
                   </div>
+
+                  {/* Profile Image Field (read-only) */}
+                  {user.image && (
+                    <div>
+                      <label className="text-sm text-base-content/60">Profile Image</label>
+                      <div className="py-2">
+                        <img
+                          src={user.image}
+                          alt="Profile"
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   {/* User ID Field (read-only) */}
                   <div>
@@ -280,12 +300,12 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
                     </p>
                   </div>
 
-                  {/* Settings Updated Field (read-only) */}
-                  {userSettings?.updatedAt && (
+                  {/* Last Updated Field (read-only) */}
+                  {user.updatedAt && (
                     <div>
-                      <label className="text-sm text-base-content/60">Settings Updated</label>
+                      <label className="text-sm text-base-content/60">Last Updated</label>
                       <p className="py-2" suppressHydrationWarning>
-                        {format(new Date(userSettings.updatedAt), "MMMM d, yyyy 'at' h:mm a")}
+                        {format(new Date(user.updatedAt), "MMMM d, yyyy 'at' h:mm a")}
                       </p>
                     </div>
                   )}
@@ -343,7 +363,7 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
                   ) : (
                     <div className="flex items-center justify-between">
                       <p className="py-2 font-mono text-sm">
-                        {userSettings?.notionKey ? "••••••••••••" : "Not configured"}
+                        {user.notionKey ? "••••••••••••" : "Not configured"}
                       </p>
                       <button
                         onClick={() => setIsEditingNotionKey(true)}

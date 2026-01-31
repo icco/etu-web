@@ -89,7 +89,10 @@ export interface User {
   subscriptionStatus: string
   subscriptionEnd?: Timestamp
   createdAt?: Timestamp
+  updatedAt?: Timestamp
   stripeCustomerId?: string
+  notionKey?: string
+  username?: string
 }
 
 export interface ApiKey {
@@ -216,7 +219,7 @@ export interface UpdateUserSettingsRequest {
 }
 
 export interface UpdateUserSettingsResponse {
-  settings: UserSettings
+  user: User
 }
 
 export interface GetUserByStripeCustomerIdRequest {
@@ -321,7 +324,10 @@ function convertUser(user: ProtoUser | undefined): User {
     subscriptionStatus: user.subscriptionStatus,
     subscriptionEnd: user.subscriptionEnd ? convertTimestamp(user.subscriptionEnd) : undefined,
     createdAt: user.createdAt ? convertTimestamp(user.createdAt) : undefined,
+    updatedAt: user.updatedAt ? convertTimestamp(user.updatedAt) : undefined,
     stripeCustomerId: user.stripeCustomerId,
+    notionKey: user.notionKey,
+    username: user.username,
   }
 }
 
@@ -704,7 +710,7 @@ const realUserSettingsService = {
         },
         { headers: createHeaders(apiKey) }
       )
-      return { settings: convertUserSettings(response.settings) }
+      return { user: convertUser(response.user) }
     }, "UserSettingsService.updateUserSettings")
   },
 }

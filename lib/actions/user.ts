@@ -83,20 +83,3 @@ export async function updateNotionKey(formData: FormData) {
   }
 }
 
-export async function getUserSettings() {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return null
-  }
-
-  try {
-    const response = await userSettingsService.getUserSettings(
-      { userId: session.user.id },
-      getGrpcApiKey()
-    )
-    return response.settings
-  } catch (error) {
-    console.error("Get user settings error:", error)
-    return null
-  }
-}

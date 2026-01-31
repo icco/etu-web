@@ -31,7 +31,6 @@ import type {
   Note,
   Tag,
   User,
-  UserSettings,
   Timestamp,
 } from "./client"
 
@@ -96,15 +95,10 @@ let mockUser: User = {
   name: "Test User",
   subscriptionStatus: "active",
   createdAt: mockTimestamp(new Date("2026-01-01T00:00:00Z")),
+  username: "testuser",
+  notionKey: undefined,
 }
 
-let mockUserSettings: UserSettings = {
-  userId: "mock-user-1",
-  username: "Test User",
-  notionKey: undefined,
-  createdAt: new Date("2026-01-01T00:00:00Z"),
-  updatedAt: new Date("2026-01-15T00:00:00Z"),
-}
 
 // Mock Notes Service
 export const mockNotesService = {
@@ -243,24 +237,27 @@ export const mockUserSettingsService = {
     _request: GetUserSettingsRequest,
     _apiKey: string
   ): Promise<GetUserSettingsResponse> {
-    return { settings: mockUserSettings }
+    // Return user settings from mockUser
+    return {
+      settings: {
+        userId: mockUser.id,
+        username: mockUser.username,
+        notionKey: mockUser.notionKey,
+      },
+    }
   },
 
   async updateUserSettings(
     request: UpdateUserSettingsRequest,
     _apiKey: string
   ): Promise<UpdateUserSettingsResponse> {
-    mockUserSettings = {
-      ...mockUserSettings,
-      username: request.username ?? mockUserSettings.username,
-      notionKey: request.notionKey ?? mockUserSettings.notionKey,
-      updatedAt: new Date(),
+    // Update mock user with new settings
+    mockUser = {
+      ...mockUser,
+      username: request.username ?? mockUser.username,
+      notionKey: request.notionKey ?? mockUser.notionKey,
     }
-    // Also update the mock user name for consistency
-    if (request.username) {
-      mockUser = { ...mockUser, name: request.username }
-    }
-    return { settings: mockUserSettings }
+    return { user: mockUser }
   },
 }
 
