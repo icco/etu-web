@@ -97,8 +97,9 @@ export async function updateNotionKey(formData: FormData) {
     return { error: "Not authenticated" }
   }
 
+  const notionKeyValue = formData.get("notionKey")
   const parsed = updateNotionKeySchema.safeParse({
-    notionKey: formData.get("notionKey") || undefined,
+    notionKey: notionKeyValue === null ? undefined : notionKeyValue,
   })
 
   if (!parsed.success) {
