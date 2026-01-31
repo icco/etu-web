@@ -61,8 +61,8 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
   const [isCreating, setIsCreating] = useState(false)
 
   // Profile editing state
-  const [isEditingName, setIsEditingName] = useState(false)
-  const [editName, setEditName] = useState(userSettings?.username || "")
+  const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const [editUsername, setEditUsername] = useState(userSettings?.username || "")
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
 
   // Notion key editing state
@@ -116,35 +116,35 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
     toast.info("Export functionality coming soon")
   }
 
-  const handleUpdateProfile = async () => {
-    if (!editName.trim()) {
-      toast.error("Name is required")
+  const handleUpdateUsername = async () => {
+    if (!editUsername.trim()) {
+      toast.error("Username is required")
       return
     }
 
     setIsUpdatingProfile(true)
     try {
       const formData = new FormData()
-      formData.set("name", editName.trim())
+      formData.set("username", editUsername.trim())
       const result = await updateProfile(formData)
 
       if (result.error) {
         toast.error(result.error)
       } else {
-        toast.success("Profile updated")
-        setIsEditingName(false)
+        toast.success("Username updated")
+        setIsEditingUsername(false)
         router.refresh()
       }
     } catch {
-      toast.error("Failed to update profile")
+      toast.error("Failed to update username")
     } finally {
       setIsUpdatingProfile(false)
     }
   }
 
-  const handleCancelEditName = () => {
-    setEditName(userSettings?.username || "")
-    setIsEditingName(false)
+  const handleCancelEditUsername = () => {
+    setEditUsername(userSettings?.username || "")
+    setIsEditingUsername(false)
   }
 
   const handleUpdateNotionKey = async () => {
@@ -208,25 +208,25 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
               <div className="card-body">
                 <h2 className="card-title">Profile Information</h2>
                 <div className="space-y-4">
-                  {/* Name Field */}
+                  {/* Username Field */}
                   <div>
-                    <label className="text-sm text-base-content/60">Display Name</label>
-                    {isEditingName ? (
+                    <label className="text-sm text-base-content/60">Username</label>
+                    {isEditingUsername ? (
                       <div className="flex gap-2 mt-1">
                         <input
                           type="text"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
+                          value={editUsername}
+                          onChange={(e) => setEditUsername(e.target.value)}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") handleUpdateProfile()
-                            if (e.key === "Escape") handleCancelEditName()
+                            if (e.key === "Enter") handleUpdateUsername()
+                            if (e.key === "Escape") handleCancelEditUsername()
                           }}
                           className="input input-bordered flex-1 bg-base-100 text-base-content"
-                          placeholder="Enter your name"
+                          placeholder="Enter your username"
                           autoFocus
                         />
                         <button
-                          onClick={handleUpdateProfile}
+                          onClick={handleUpdateUsername}
                           disabled={isUpdatingProfile}
                           className="btn btn-primary btn-sm"
                         >
@@ -237,7 +237,7 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
                           )}
                         </button>
                         <button
-                          onClick={handleCancelEditName}
+                          onClick={handleCancelEditUsername}
                           disabled={isUpdatingProfile}
                           className="btn btn-ghost btn-sm"
                         >
@@ -248,7 +248,7 @@ export function SettingsView({ user, stats, initialApiKeys, userSettings }: Sett
                       <div className="flex items-center justify-between">
                         <p className="py-2">{userSettings?.username || "Not set"}</p>
                         <button
-                          onClick={() => setIsEditingName(true)}
+                          onClick={() => setIsEditingUsername(true)}
                           className="btn btn-ghost btn-sm gap-2"
                         >
                           <PencilIcon className="h-4 w-4" />

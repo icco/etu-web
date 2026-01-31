@@ -13,8 +13,8 @@ function getGrpcApiKey(): string {
   return key
 }
 
-const updateProfileSchema = z.object({
-  username: z.string().min(1, "Name is required").max(100, "Name is too long"),
+const updateUsernameSchema = z.object({
+  username: z.string().min(1, "Username is required").max(100, "Username is too long"),
 })
 
 const updateNotionKeySchema = z.object({
@@ -27,8 +27,8 @@ export async function updateProfile(formData: FormData) {
     return { error: "Not authenticated" }
   }
 
-  const parsed = updateProfileSchema.safeParse({
-    username: formData.get("name"),
+  const parsed = updateUsernameSchema.safeParse({
+    username: formData.get("username"),
   })
 
   if (!parsed.success) {
