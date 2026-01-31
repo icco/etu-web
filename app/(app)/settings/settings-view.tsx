@@ -15,16 +15,13 @@ import {
   DocumentTextIcon,
   TagIcon,
   PencilIcon,
-  LockClosedIcon,
-  EyeIcon,
-  EyeSlashIcon,
 } from "@heroicons/react/24/outline"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { UserMenu } from "@/components/user-menu"
 import { toast } from "sonner"
 import { createApiKey, deleteApiKey } from "@/lib/actions/api-keys"
-import { updateProfile, changePassword } from "@/lib/actions/user"
+import { updateProfile, updateNotionKey } from "@/lib/actions/user"
 
 interface SettingsViewProps {
   user: {
@@ -48,9 +45,14 @@ interface SettingsViewProps {
     createdAt: Date
     lastUsed: Date | null
   }[]
+  userSettings: {
+    userId: string
+    username?: string
+    notionKey?: string
+  } | null
 }
 
-export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps) {
+export function SettingsView({ user, stats, initialApiKeys, userSettings }: SettingsViewProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"account" | "stats" | "subscription" | "api">("account")
   const [apiKeys, setApiKeys] = useState(initialApiKeys)
@@ -61,17 +63,13 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
 
   // Profile editing state
   const [isEditingName, setIsEditingName] = useState(false)
-  const [editName, setEditName] = useState(user.name || "")
+  const [editName, setEditName] = useState(userSettings?.username || user.name || "")
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
 
-  // Password change state
-  const [isChangingPassword, setIsChangingPassword] = useState(false)
-  const [currentPassword, setCurrentPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
+  // Notion key editing state
+  const [isEditingNotionKey, setIsEditingNotionKey] = useState(false)
+  const [editNotionKey, setEditNotionKey] = useState(userSettings?.notionKey || "")
+  const [isUpdatingNotionKey, setIsUpdatingNotionKey] = useState(false)
 
   const handleCreateKey = async () => {
     if (!newKeyName.trim()) {
@@ -146,57 +144,34 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
   }
 
   const handleCancelEditName = () => {
-    setEditName(user.name || "")
+    setEditName(userSettings?.username || user.name || "")
     setIsEditingName(false)
   }
 
-  const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error("All password fields are required")
-      return
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast.error("Passwords don't match")
-      return
-    }
-
-    if (newPassword.length < 8) {
-      toast.error("New password must be at least 8 characters")
-      return
-    }
-
-    setIsUpdatingPassword(true)
+  const handleUpdateNotionKey = async () => {
+    setIsUpdatingNotionKey(true)
     try {
       const formData = new FormData()
-      formData.set("currentPassword", currentPassword)
-      formData.set("newPassword", newPassword)
-      formData.set("confirmPassword", confirmPassword)
-      const result = await changePassword(formData)
+      formData.set("notionKey", editNotionKey.trim())
+      const result = await updateNotionKey(formData)
 
       if (result.error) {
         toast.error(result.error)
       } else {
-        toast.success("Password changed successfully")
-        setIsChangingPassword(false)
-        setCurrentPassword("")
-        setNewPassword("")
-        setConfirmPassword("")
+        toast.success("Notion key updated")
+        setIsEditingNotionKey(false)
+        router.refresh()
       }
     } catch {
-      toast.error("Failed to change password")
+      toast.error("Failed to update Notion key")
     } finally {
-      setIsUpdatingPassword(false)
+      setIsUpdatingNotionKey(false)
     }
   }
 
-  const handleCancelPasswordChange = () => {
-    setIsChangingPassword(false)
-    setCurrentPassword("")
-    setNewPassword("")
-    setConfirmPassword("")
-    setShowCurrentPassword(false)
-    setShowNewPassword(false)
+  const handleCancelEditNotionKey = () => {
+    setEditNotionKey(userSettings?.notionKey || "")
+    setIsEditingNotionKey(false)
   }
 
   return (
@@ -307,116 +282,68 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
               </div>
             </div>
 
-            {/* Security Card */}
+            {/* Integrations Card */}
             <div className="card bg-base-100 shadow-xl">
               <div className="card-body">
                 <h2 className="card-title gap-2">
-                  <LockClosedIcon className="h-5 w-5" />
-                  Security
+                  <KeyIcon className="h-5 w-5" />
+                  Integrations
                 </h2>
 
-                {isChangingPassword ? (
-                  <div className="space-y-4">
-                    {/* Current Password */}
-                    <div>
-                      <label className="text-sm font-medium">Current Password</label>
-                      <div className="relative mt-1">
-                        <input
-                          type={showCurrentPassword ? "text" : "password"}
-                          value={currentPassword}
-                          onChange={(e) => setCurrentPassword(e.target.value)}
-                          className="input input-bordered w-full bg-base-100 text-base-content pr-10"
-                          placeholder="Enter current password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/60 hover:text-base-content"
-                        >
-                          {showCurrentPassword ? (
-                            <EyeSlashIcon className="h-5 w-5" />
-                          ) : (
-                            <EyeIcon className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* New Password */}
-                    <div>
-                      <label className="text-sm font-medium">New Password</label>
-                      <div className="relative mt-1">
-                        <input
-                          type={showNewPassword ? "text" : "password"}
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          className="input input-bordered w-full bg-base-100 text-base-content pr-10"
-                          placeholder="Enter new password (min. 8 characters)"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowNewPassword(!showNewPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/60 hover:text-base-content"
-                        >
-                          {showNewPassword ? (
-                            <EyeSlashIcon className="h-5 w-5" />
-                          ) : (
-                            <EyeIcon className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Confirm New Password */}
-                    <div>
-                      <label className="text-sm font-medium">Confirm New Password</label>
+                {/* Notion Integration */}
+                <div>
+                  <label className="text-sm text-base-content/60">Notion API Key</label>
+                  <p className="text-xs text-base-content/50 mb-2">
+                    Connect your Notion workspace to sync notes
+                  </p>
+                  {isEditingNotionKey ? (
+                    <div className="flex gap-2">
                       <input
-                        type={showNewPassword ? "text" : "password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
-                        className="input input-bordered w-full bg-base-100 text-base-content mt-1"
-                        placeholder="Confirm new password"
+                        type="password"
+                        value={editNotionKey}
+                        onChange={(e) => setEditNotionKey(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleUpdateNotionKey()
+                          if (e.key === "Escape") handleCancelEditNotionKey()
+                        }}
+                        className="input input-bordered flex-1 bg-base-100 text-base-content"
+                        placeholder="Enter your Notion API key"
+                        autoFocus
                       />
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2 pt-2">
                       <button
-                        onClick={handleChangePassword}
-                        disabled={isUpdatingPassword}
-                        className="btn btn-primary gap-2"
+                        onClick={handleUpdateNotionKey}
+                        disabled={isUpdatingNotionKey}
+                        className="btn btn-primary btn-sm"
                       >
-                        {isUpdatingPassword ? (
-                          <span className="loading loading-spinner loading-sm"></span>
+                        {isUpdatingNotionKey ? (
+                          <span className="loading loading-spinner loading-xs"></span>
                         ) : (
-                          <CheckIcon className="h-5 w-5" />
+                          <CheckIcon className="h-4 w-4" />
                         )}
-                        Update Password
                       </button>
                       <button
-                        onClick={handleCancelPasswordChange}
-                        disabled={isUpdatingPassword}
-                        className="btn btn-ghost"
+                        onClick={handleCancelEditNotionKey}
+                        disabled={isUpdatingNotionKey}
+                        className="btn btn-ghost btn-sm"
                       >
                         Cancel
                       </button>
                     </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="text-sm text-base-content/60 mb-4">
-                      Keep your account secure by using a strong password.
-                    </p>
-                    <button
-                      onClick={() => setIsChangingPassword(true)}
-                      className="btn btn-ghost gap-2"
-                    >
-                      <LockClosedIcon className="h-5 w-5" />
-                      Change Password
-                    </button>
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <p className="py-2 font-mono text-sm">
+                        {userSettings?.notionKey ? "••••••••••••" : "Not configured"}
+                      </p>
+                      <button
+                        onClick={() => setIsEditingNotionKey(true)}
+                        className="btn btn-ghost btn-sm gap-2"
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                        {userSettings?.notionKey ? "Update" : "Configure"}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

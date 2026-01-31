@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { auth } from "@/lib/auth"
-import { userProfileService } from "@/lib/grpc/client"
+import { userSettingsService } from "@/lib/grpc/client"
 import { revalidatePath } from "next/cache"
 
 function getGrpcApiKey(): string {
@@ -14,16 +14,11 @@ function getGrpcApiKey(): string {
 }
 
 const updateProfileSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100, "Name is too long"),
+  username: z.string().min(1, "Name is required").max(100, "Name is too long"),
 })
 
-const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(8, "New password must be at least 8 characters"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+const updateNotionKeySchema = z.object({
+  notionKey: z.string().optional(),
 })
 
 export async function updateProfile(formData: FormData) {
@@ -33,7 +28,7 @@ export async function updateProfile(formData: FormData) {
   }
 
   const parsed = updateProfileSchema.safeParse({
-    name: formData.get("name"),
+    username: formData.get("name"),
   })
 
   if (!parsed.success) {
@@ -41,10 +36,10 @@ export async function updateProfile(formData: FormData) {
   }
 
   try {
-    await userProfileService.updateUserProfile(
+    await userSettingsService.updateUserSettings(
       {
         userId: session.user.id,
-        name: parsed.data.name,
+        username: parsed.data.username,
       },
       getGrpcApiKey()
     )
@@ -57,16 +52,14 @@ export async function updateProfile(formData: FormData) {
   }
 }
 
-export async function changePassword(formData: FormData) {
+export async function updateNotionKey(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) {
     return { error: "Not authenticated" }
   }
 
-  const parsed = changePasswordSchema.safeParse({
-    currentPassword: formData.get("currentPassword"),
-    newPassword: formData.get("newPassword"),
-    confirmPassword: formData.get("confirmPassword"),
+  const parsed = updateNotionKeySchema.safeParse({
+    notionKey: formData.get("notionKey") || undefined,
   })
 
   if (!parsed.success) {
@@ -74,22 +67,36 @@ export async function changePassword(formData: FormData) {
   }
 
   try {
-    const response = await userProfileService.changePassword(
+    await userSettingsService.updateUserSettings(
       {
         userId: session.user.id,
-        currentPassword: parsed.data.currentPassword,
-        newPassword: parsed.data.newPassword,
+        notionKey: parsed.data.notionKey,
       },
       getGrpcApiKey()
     )
 
-    if (!response.success) {
-      return { error: "Current password is incorrect" }
-    }
-
+    revalidatePath("/settings")
     return { success: true }
   } catch (error) {
-    console.error("Change password error:", error)
-    return { error: "Failed to change password" }
+    console.error("Update Notion key error:", error)
+    return { error: "Failed to update Notion key" }
+  }
+}
+
+export async function getUserSettings() {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return null
+  }
+
+  try {
+    const response = await userSettingsService.getUserSettings(
+      { userId: session.user.id },
+      getGrpcApiKey()
+    )
+    return response.settings
+  } catch (error) {
+    console.error("Get user settings error:", error)
+    return null
   }
 }

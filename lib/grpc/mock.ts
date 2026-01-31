@@ -24,13 +24,14 @@ import type {
   UpdateUserSubscriptionResponse,
   GetUserByStripeCustomerIdRequest,
   GetUserByStripeCustomerIdResponse,
-  UpdateUserProfileRequest,
-  UpdateUserProfileResponse,
-  ChangePasswordRequest,
-  ChangePasswordResponse,
+  GetUserSettingsRequest,
+  GetUserSettingsResponse,
+  UpdateUserSettingsRequest,
+  UpdateUserSettingsResponse,
   Note,
   Tag,
   User,
+  UserSettings,
   Timestamp,
 } from "./client"
 
@@ -95,6 +96,12 @@ let mockUser: User = {
   name: "Test User",
   subscriptionStatus: "active",
   createdAt: mockTimestamp(new Date("2026-01-01T00:00:00Z")),
+}
+
+let mockUserSettings: UserSettings = {
+  userId: "mock-user-1",
+  username: "Test User",
+  notionKey: undefined,
 }
 
 // Mock Notes Service
@@ -226,25 +233,31 @@ export const mockAuthService = {
     return { user: updatedUser }
   },
 
-  async updateUserProfile(
-    request: UpdateUserProfileRequest,
+}
+
+// Mock User Settings Service
+export const mockUserSettingsService = {
+  async getUserSettings(
+    _request: GetUserSettingsRequest,
     _apiKey: string
-  ): Promise<UpdateUserProfileResponse> {
-    // Update mock user profile
-    mockUser = {
-      ...mockUser,
-      name: request.name ?? mockUser.name,
-      image: request.image ?? mockUser.image,
-    }
-    return { user: mockUser }
+  ): Promise<GetUserSettingsResponse> {
+    return { settings: mockUserSettings }
   },
 
-  async changePassword(
-    _request: ChangePasswordRequest,
+  async updateUserSettings(
+    request: UpdateUserSettingsRequest,
     _apiKey: string
-  ): Promise<ChangePasswordResponse> {
-    // In mock mode, always succeed
-    return { success: true }
+  ): Promise<UpdateUserSettingsResponse> {
+    mockUserSettings = {
+      ...mockUserSettings,
+      username: request.username ?? mockUserSettings.username,
+      notionKey: request.notionKey ?? mockUserSettings.notionKey,
+    }
+    // Also update the mock user name for consistency
+    if (request.username) {
+      mockUser = { ...mockUser, name: request.username }
+    }
+    return { settings: mockUserSettings }
   },
 }
 
