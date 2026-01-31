@@ -95,7 +95,6 @@ let mockUser: User = {
   name: "Test User",
   subscriptionStatus: "active",
   createdAt: mockTimestamp(new Date("2026-01-01T00:00:00Z")),
-  username: "testuser",
   notionKey: undefined,
 }
 
@@ -237,14 +236,7 @@ export const mockUserSettingsService = {
     _request: GetUserSettingsRequest,
     _apiKey: string
   ): Promise<GetUserSettingsResponse> {
-    // Return user settings from mockUser
-    return {
-      settings: {
-        userId: mockUser.id,
-        username: mockUser.username,
-        notionKey: mockUser.notionKey,
-      },
-    }
+    return { user: mockUser }
   },
 
   async updateUserSettings(
@@ -254,7 +246,8 @@ export const mockUserSettingsService = {
     // Update mock user with new settings
     mockUser = {
       ...mockUser,
-      username: request.username ?? mockUser.username,
+      name: request.name ?? mockUser.name,
+      image: request.image ?? mockUser.image,
       notionKey: request.notionKey ?? mockUser.notionKey,
     }
     return { user: mockUser }

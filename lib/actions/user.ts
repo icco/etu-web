@@ -13,22 +13,30 @@ function getGrpcApiKey(): string {
   return key
 }
 
-const updateUsernameSchema = z.object({
-  username: z.string().min(1, "Username is required").max(100, "Username is too long"),
+const updateNameSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100, "Name is too long"),
+})
+
+const updateImageSchema = z.object({
+  image: z.string().url("Invalid image URL").optional().or(z.literal("")),
 })
 
 const updateNotionKeySchema = z.object({
   notionKey: z.string().optional(),
 })
 
-export async function updateProfile(formData: FormData) {
+const changePasswordSchema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+})
+
+export async function updateName(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) {
     return { error: "Not authenticated" }
   }
 
-  const parsed = updateUsernameSchema.safeParse({
-    username: formData.get("username"),
+  const parsed = updateNameSchema.safeParse({
+    name: formData.get("name"),
   })
 
   if (!parsed.success) {
@@ -39,7 +47,7 @@ export async function updateProfile(formData: FormData) {
     await userSettingsService.updateUserSettings(
       {
         userId: session.user.id,
-        username: parsed.data.username,
+        name: parsed.data.name,
       },
       getGrpcApiKey()
     )
@@ -47,8 +55,39 @@ export async function updateProfile(formData: FormData) {
     revalidatePath("/settings")
     return { success: true }
   } catch (error) {
-    console.error("Update profile error:", error)
-    return { error: "Failed to update profile" }
+    console.error("Update name error:", error)
+    return { error: "Failed to update name" }
+  }
+}
+
+export async function updateImage(formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { error: "Not authenticated" }
+  }
+
+  const parsed = updateImageSchema.safeParse({
+    image: formData.get("image") || undefined,
+  })
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message }
+  }
+
+  try {
+    await userSettingsService.updateUserSettings(
+      {
+        userId: session.user.id,
+        image: parsed.data.image || undefined,
+      },
+      getGrpcApiKey()
+    )
+
+    revalidatePath("/settings")
+    return { success: true }
+  } catch (error) {
+    console.error("Update image error:", error)
+    return { error: "Failed to update image" }
   }
 }
 
@@ -83,3 +122,32 @@ export async function updateNotionKey(formData: FormData) {
   }
 }
 
+export async function changePassword(formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { error: "Not authenticated" }
+  }
+
+  const parsed = changePasswordSchema.safeParse({
+    password: formData.get("password"),
+  })
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message }
+  }
+
+  try {
+    await userSettingsService.updateUserSettings(
+      {
+        userId: session.user.id,
+        password: parsed.data.password,
+      },
+      getGrpcApiKey()
+    )
+
+    return { success: true }
+  } catch (error) {
+    console.error("Change password error:", error)
+    return { error: "Failed to change password" }
+  }
+}

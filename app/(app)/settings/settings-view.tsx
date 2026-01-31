@@ -21,7 +21,7 @@ import { Footer } from "@/components/footer"
 import { UserMenu } from "@/components/user-menu"
 import { toast } from "sonner"
 import { createApiKey, deleteApiKey } from "@/lib/actions/api-keys"
-import { updateProfile, updateNotionKey } from "@/lib/actions/user"
+import { updateName, updateImage, updateNotionKey, changePassword } from "@/lib/actions/user"
 
 interface SettingsViewProps {
   user: {
@@ -33,7 +33,6 @@ interface SettingsViewProps {
     subscriptionEnd: Date | null
     createdAt: Date
     updatedAt: Date | null
-    username: string | null
     notionKey: string | null
   }
   stats: {
@@ -61,14 +60,25 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
   const [isCreating, setIsCreating] = useState(false)
 
   // Profile editing state
-  const [isEditingUsername, setIsEditingUsername] = useState(false)
-  const [editUsername, setEditUsername] = useState(user.username || "")
-  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editName, setEditName] = useState(user.name || "")
+  const [isUpdatingName, setIsUpdatingName] = useState(false)
+
+  // Image editing state
+  const [isEditingImage, setIsEditingImage] = useState(false)
+  const [editImage, setEditImage] = useState(user.image || "")
+  const [isUpdatingImage, setIsUpdatingImage] = useState(false)
 
   // Notion key editing state
   const [isEditingNotionKey, setIsEditingNotionKey] = useState(false)
   const [editNotionKey, setEditNotionKey] = useState(user.notionKey || "")
   const [isUpdatingNotionKey, setIsUpdatingNotionKey] = useState(false)
+
+  // Password change state
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
 
   const handleCreateKey = async () => {
     if (!newKeyName.trim()) {
@@ -116,35 +126,104 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
     toast.info("Export functionality coming soon")
   }
 
-  const handleUpdateUsername = async () => {
-    if (!editUsername.trim()) {
-      toast.error("Username is required")
+  const handleUpdateName = async () => {
+    if (!editName.trim()) {
+      toast.error("Name is required")
       return
     }
 
-    setIsUpdatingProfile(true)
+    setIsUpdatingName(true)
     try {
       const formData = new FormData()
-      formData.set("username", editUsername.trim())
-      const result = await updateProfile(formData)
+      formData.set("name", editName.trim())
+      const result = await updateName(formData)
 
       if (result.error) {
         toast.error(result.error)
       } else {
-        toast.success("Username updated")
-        setIsEditingUsername(false)
+        toast.success("Name updated")
+        setIsEditingName(false)
         router.refresh()
       }
     } catch {
-      toast.error("Failed to update username")
+      toast.error("Failed to update name")
     } finally {
-      setIsUpdatingProfile(false)
+      setIsUpdatingName(false)
     }
   }
 
-  const handleCancelEditUsername = () => {
-    setEditUsername(user.username || "")
-    setIsEditingUsername(false)
+  const handleCancelEditName = () => {
+    setEditName(user.name || "")
+    setIsEditingName(false)
+  }
+
+  const handleUpdateImage = async () => {
+    setIsUpdatingImage(true)
+    try {
+      const formData = new FormData()
+      formData.set("image", editImage.trim())
+      const result = await updateImage(formData)
+
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Profile image updated")
+        setIsEditingImage(false)
+        router.refresh()
+      }
+    } catch {
+      toast.error("Failed to update profile image")
+    } finally {
+      setIsUpdatingImage(false)
+    }
+  }
+
+  const handleCancelEditImage = () => {
+    setEditImage(user.image || "")
+    setIsEditingImage(false)
+  }
+
+  const handleChangePassword = async () => {
+    if (!newPassword) {
+      toast.error("Password is required")
+      return
+    }
+
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters")
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords don't match")
+      return
+    }
+
+    setIsUpdatingPassword(true)
+    try {
+      const formData = new FormData()
+      formData.set("password", newPassword)
+      const result = await changePassword(formData)
+
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Password changed successfully")
+        setIsChangingPassword(false)
+        setNewPassword("")
+        setConfirmPassword("")
+      }
+    } catch {
+      toast.error("Failed to change password")
+    } finally {
+      setIsUpdatingPassword(false)
+    }
+  }
+
+  const handleCancelPasswordChange = () => {
+    setIsChangingPassword(false)
+    setNewPassword("")
+    setConfirmPassword("")
   }
 
   const handleUpdateNotionKey = async () => {
@@ -208,37 +287,37 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
               <div className="card-body">
                 <h2 className="card-title">Profile Information</h2>
                 <div className="space-y-4">
-                  {/* Username Field */}
+                  {/* Name Field (editable) */}
                   <div>
-                    <label className="text-sm text-base-content/60">Username</label>
-                    {isEditingUsername ? (
+                    <label className="text-sm text-base-content/60">Name</label>
+                    {isEditingName ? (
                       <div className="flex gap-2 mt-1">
                         <input
                           type="text"
-                          value={editUsername}
-                          onChange={(e) => setEditUsername(e.target.value)}
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") handleUpdateUsername()
-                            if (e.key === "Escape") handleCancelEditUsername()
+                            if (e.key === "Enter") handleUpdateName()
+                            if (e.key === "Escape") handleCancelEditName()
                           }}
                           className="input input-bordered flex-1 bg-base-100 text-base-content"
-                          placeholder="Enter your username"
+                          placeholder="Enter your name"
                           autoFocus
                         />
                         <button
-                          onClick={handleUpdateUsername}
-                          disabled={isUpdatingProfile}
+                          onClick={handleUpdateName}
+                          disabled={isUpdatingName}
                           className="btn btn-primary btn-sm"
                         >
-                          {isUpdatingProfile ? (
+                          {isUpdatingName ? (
                             <span className="loading loading-spinner loading-xs"></span>
                           ) : (
                             <CheckIcon className="h-4 w-4" />
                           )}
                         </button>
                         <button
-                          onClick={handleCancelEditUsername}
-                          disabled={isUpdatingProfile}
+                          onClick={handleCancelEditName}
+                          disabled={isUpdatingName}
                           className="btn btn-ghost btn-sm"
                         >
                           Cancel
@@ -246,9 +325,9 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
-                        <p className="py-2">{user.username || "Not set"}</p>
+                        <p className="py-2">{user.name || "Not set"}</p>
                         <button
-                          onClick={() => setIsEditingUsername(true)}
+                          onClick={() => setIsEditingName(true)}
                           className="btn btn-ghost btn-sm gap-2"
                         >
                           <PencilIcon className="h-4 w-4" />
@@ -258,33 +337,71 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
                     )}
                   </div>
 
-                  {/* Display Name Field (read-only, legacy) */}
-                  {user.name && (
-                    <div>
-                      <label className="text-sm text-base-content/60">Display Name</label>
-                      <p className="py-2">{user.name}</p>
-                    </div>
-                  )}
-
                   {/* Email Field (read-only) */}
                   <div>
                     <label className="text-sm text-base-content/60">Email</label>
                     <p className="py-2">{user.email}</p>
                   </div>
 
-                  {/* Profile Image Field (read-only) */}
-                  {user.image && (
-                    <div>
-                      <label className="text-sm text-base-content/60">Profile Image</label>
-                      <div className="py-2">
-                        <img
-                          src={user.image}
-                          alt="Profile"
-                          className="w-16 h-16 rounded-full object-cover"
+                  {/* Profile Image Field (editable) */}
+                  <div>
+                    <label className="text-sm text-base-content/60">Profile Image</label>
+                    {isEditingImage ? (
+                      <div className="flex gap-2 mt-1">
+                        <input
+                          type="url"
+                          value={editImage}
+                          onChange={(e) => setEditImage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleUpdateImage()
+                            if (e.key === "Escape") handleCancelEditImage()
+                          }}
+                          className="input input-bordered flex-1 bg-base-100 text-base-content"
+                          placeholder="Enter image URL"
+                          autoFocus
                         />
+                        <button
+                          onClick={handleUpdateImage}
+                          disabled={isUpdatingImage}
+                          className="btn btn-primary btn-sm"
+                        >
+                          {isUpdatingImage ? (
+                            <span className="loading loading-spinner loading-xs"></span>
+                          ) : (
+                            <CheckIcon className="h-4 w-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={handleCancelEditImage}
+                          disabled={isUpdatingImage}
+                          className="btn btn-ghost btn-sm"
+                        >
+                          Cancel
+                        </button>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <div className="py-2">
+                          {user.image ? (
+                            <img
+                              src={user.image}
+                              alt="Profile"
+                              className="w-16 h-16 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-base-content/60">Not set</span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => setIsEditingImage(true)}
+                          className="btn btn-ghost btn-sm gap-2"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                          Edit
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
                   {/* User ID Field (read-only) */}
                   <div>
@@ -375,6 +492,74 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+
+            {/* Security Card */}
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <h2 className="card-title">Security</h2>
+
+                {isChangingPassword ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">New Password</label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="input input-bordered w-full bg-base-100 text-base-content mt-1"
+                        placeholder="Enter new password (min. 8 characters)"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium">Confirm Password</label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
+                        className="input input-bordered w-full bg-base-100 text-base-content mt-1"
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={handleChangePassword}
+                        disabled={isUpdatingPassword}
+                        className="btn btn-primary gap-2"
+                      >
+                        {isUpdatingPassword ? (
+                          <span className="loading loading-spinner loading-sm"></span>
+                        ) : (
+                          <CheckIcon className="h-5 w-5" />
+                        )}
+                        Update Password
+                      </button>
+                      <button
+                        onClick={handleCancelPasswordChange}
+                        disabled={isUpdatingPassword}
+                        className="btn btn-ghost"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm text-base-content/60 mb-4">
+                      Change your account password.
+                    </p>
+                    <button
+                      onClick={() => setIsChangingPassword(true)}
+                      className="btn btn-ghost gap-2"
+                    >
+                      Change Password
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -81,7 +81,6 @@ export async function getCurrentUser() {
       updatedAt: response.user.updatedAt
         ? timestampToDate(response.user.updatedAt)
         : null,
-      username: response.user.username ?? null,
       notionKey: response.user.notionKey ?? null,
     }
   } catch (error) {

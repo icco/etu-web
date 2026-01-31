@@ -12,7 +12,6 @@ import {
   type Tag as ProtoTag,
   type User as ProtoUser,
   type ApiKey as ProtoApiKey,
-  type UserSettings as ProtoUserSettings,
 } from "@icco/etu-proto"
 import {
   mockNotesService,
@@ -92,7 +91,6 @@ export interface User {
   updatedAt?: Timestamp
   stripeCustomerId?: string
   notionKey?: string
-  username?: string
 }
 
 export interface ApiKey {
@@ -196,26 +194,20 @@ export interface GetUserResponse {
   user: User
 }
 
-export interface UserSettings {
-  userId: string
-  notionKey?: string
-  username?: string
-  createdAt?: Date
-  updatedAt?: Date
-}
-
 export interface GetUserSettingsRequest {
   userId: string
 }
 
 export interface GetUserSettingsResponse {
-  settings: UserSettings
+  user: User
 }
 
 export interface UpdateUserSettingsRequest {
   userId: string
   notionKey?: string
-  username?: string
+  name?: string
+  image?: string
+  password?: string
 }
 
 export interface UpdateUserSettingsResponse {
@@ -327,7 +319,6 @@ function convertUser(user: ProtoUser | undefined): User {
     updatedAt: user.updatedAt ? convertTimestamp(user.updatedAt) : undefined,
     stripeCustomerId: user.stripeCustomerId,
     notionKey: user.notionKey,
-    username: user.username,
   }
 }
 
@@ -341,19 +332,6 @@ function convertApiKey(key: ProtoApiKey | undefined): ApiKey {
     keyPrefix: key.keyPrefix,
     createdAt: key.createdAt ? convertTimestamp(key.createdAt) : undefined,
     lastUsed: key.lastUsed ? convertTimestamp(key.lastUsed) : undefined,
-  }
-}
-
-function convertUserSettings(settings: ProtoUserSettings | undefined): UserSettings {
-  if (!settings) {
-    return { userId: "" }
-  }
-  return {
-    userId: settings.userId,
-    notionKey: settings.notionKey,
-    username: settings.username,
-    createdAt: settings.createdAt ? timestampToDate(convertTimestamp(settings.createdAt)) : undefined,
-    updatedAt: settings.updatedAt ? timestampToDate(convertTimestamp(settings.updatedAt)) : undefined,
   }
 }
 
@@ -692,7 +670,7 @@ const realUserSettingsService = {
         { userId: request.userId },
         { headers: createHeaders(apiKey) }
       )
-      return { settings: convertUserSettings(response.settings) }
+      return { user: convertUser(response.user) }
     }, "UserSettingsService.getUserSettings")
   },
 
@@ -706,7 +684,9 @@ const realUserSettingsService = {
         {
           userId: request.userId,
           notionKey: request.notionKey,
-          username: request.username,
+          name: request.name,
+          image: request.image,
+          password: request.password,
         },
         { headers: createHeaders(apiKey) }
       )
