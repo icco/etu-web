@@ -24,6 +24,10 @@ import type {
   UpdateUserSubscriptionResponse,
   GetUserByStripeCustomerIdRequest,
   GetUserByStripeCustomerIdResponse,
+  UpdateUserProfileRequest,
+  UpdateUserProfileResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
   Note,
   Tag,
   User,
@@ -85,7 +89,7 @@ const mockTags: Tag[] = [
   { id: "tag-7", name: "reading", count: 1 },
 ]
 
-const mockUser: User = {
+let mockUser: User = {
   id: "mock-user-1",
   email: "test@example.com",
   name: "Test User",
@@ -220,6 +224,27 @@ export const mockAuthService = {
       subscriptionEnd: request.subscriptionEnd,
     }
     return { user: updatedUser }
+  },
+
+  async updateUserProfile(
+    request: UpdateUserProfileRequest,
+    _apiKey: string
+  ): Promise<UpdateUserProfileResponse> {
+    // Update mock user profile
+    mockUser = {
+      ...mockUser,
+      name: request.name ?? mockUser.name,
+      image: request.image ?? mockUser.image,
+    }
+    return { user: mockUser }
+  },
+
+  async changePassword(
+    _request: ChangePasswordRequest,
+    _apiKey: string
+  ): Promise<ChangePasswordResponse> {
+    // In mock mode, always succeed
+    return { success: true }
   },
 }
 

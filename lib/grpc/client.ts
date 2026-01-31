@@ -186,6 +186,26 @@ export interface GetUserResponse {
   user: User
 }
 
+export interface UpdateUserProfileRequest {
+  userId: string
+  name?: string
+  image?: string
+}
+
+export interface UpdateUserProfileResponse {
+  user: User
+}
+
+export interface ChangePasswordRequest {
+  userId: string
+  currentPassword: string
+  newPassword: string
+}
+
+export interface ChangePasswordResponse {
+  success: boolean
+}
+
 export interface GetUserByStripeCustomerIdRequest {
   stripeCustomerId: string
 }
@@ -507,6 +527,7 @@ const realAuthService = {
       return { user: convertUser(response.user) }
     }, "AuthService.updateUserSubscription")
   },
+
 }
 
 // API Keys Service
@@ -626,3 +647,56 @@ function grpcStatusToMessage(code: Code, details: string): string {
 export const notesService = isMockMode() ? mockNotesService : realNotesService
 export const tagsService = isMockMode() ? mockTagsService : realTagsService
 export const authService = isMockMode() ? mockAuthService : realAuthService
+
+// User Profile Service
+// Note: These methods may not be in the published proto types yet.
+// Using type casting to call them if the backend supports them.
+const realUserProfileService = {
+  async updateUserProfile(
+    request: UpdateUserProfileRequest,
+    apiKey: string
+  ): Promise<UpdateUserProfileResponse> {
+    return withErrorHandling(async () => {
+      const client = getAuthClient() as unknown as {
+        updateUserProfile: (
+          req: { userId: string; name?: string; image?: string },
+          opts: { headers: HeadersInit }
+        ) => Promise<{ user?: unknown }>
+      }
+      const response = await client.updateUserProfile(
+        {
+          userId: request.userId,
+          name: request.name,
+          image: request.image,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { user: convertUser(response.user as ProtoUser | undefined) }
+    }, "AuthService.updateUserProfile")
+  },
+
+  async changePassword(
+    request: ChangePasswordRequest,
+    apiKey: string
+  ): Promise<ChangePasswordResponse> {
+    return withErrorHandling(async () => {
+      const client = getAuthClient() as unknown as {
+        changePassword: (
+          req: { userId: string; currentPassword: string; newPassword: string },
+          opts: { headers: HeadersInit }
+        ) => Promise<{ success: boolean }>
+      }
+      const response = await client.changePassword(
+        {
+          userId: request.userId,
+          currentPassword: request.currentPassword,
+          newPassword: request.newPassword,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { success: response.success }
+    }, "AuthService.changePassword")
+  },
+}
+
+export const userProfileService = isMockMode() ? mockAuthService : realUserProfileService

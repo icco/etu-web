@@ -14,12 +14,17 @@ import {
   ArrowDownTrayIcon,
   DocumentTextIcon,
   TagIcon,
+  PencilIcon,
+  LockClosedIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from "@heroicons/react/24/outline"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { UserMenu } from "@/components/user-menu"
 import { toast } from "sonner"
 import { createApiKey, deleteApiKey } from "@/lib/actions/api-keys"
+import { updateProfile, changePassword } from "@/lib/actions/user"
 
 interface SettingsViewProps {
   user: {
@@ -53,6 +58,20 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+
+  // Profile editing state
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editName, setEditName] = useState(user.name || "")
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+
+  // Password change state
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
 
   const handleCreateKey = async () => {
     if (!newKeyName.trim()) {
@@ -100,6 +119,86 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
     toast.info("Export functionality coming soon")
   }
 
+  const handleUpdateProfile = async () => {
+    if (!editName.trim()) {
+      toast.error("Name is required")
+      return
+    }
+
+    setIsUpdatingProfile(true)
+    try {
+      const formData = new FormData()
+      formData.set("name", editName.trim())
+      const result = await updateProfile(formData)
+
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Profile updated")
+        setIsEditingName(false)
+        router.refresh()
+      }
+    } catch {
+      toast.error("Failed to update profile")
+    } finally {
+      setIsUpdatingProfile(false)
+    }
+  }
+
+  const handleCancelEditName = () => {
+    setEditName(user.name || "")
+    setIsEditingName(false)
+  }
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("All password fields are required")
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords don't match")
+      return
+    }
+
+    if (newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters")
+      return
+    }
+
+    setIsUpdatingPassword(true)
+    try {
+      const formData = new FormData()
+      formData.set("currentPassword", currentPassword)
+      formData.set("newPassword", newPassword)
+      formData.set("confirmPassword", confirmPassword)
+      const result = await changePassword(formData)
+
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Password changed successfully")
+        setIsChangingPassword(false)
+        setCurrentPassword("")
+        setNewPassword("")
+        setConfirmPassword("")
+      }
+    } catch {
+      toast.error("Failed to change password")
+    } finally {
+      setIsUpdatingPassword(false)
+    }
+  }
+
+  const handleCancelPasswordChange = () => {
+    setIsChangingPassword(false)
+    setCurrentPassword("")
+    setNewPassword("")
+    setConfirmPassword("")
+    setShowCurrentPassword(false)
+    setShowNewPassword(false)
+  }
+
   return (
     <div className="min-h-screen bg-base-200 flex flex-col">
       <Header backHref="/notes" logoHref="/notes">
@@ -129,22 +228,195 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
 
         {/* Account Tab */}
         {activeTab === "account" && (
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title">Account Information</h2>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm text-base-content/60">User ID</label>
-                  <p className="font-mono text-sm">{user.id}</p>
+          <div className="space-y-6">
+            {/* Profile Information Card */}
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <h2 className="card-title">Profile Information</h2>
+                <div className="space-y-4">
+                  {/* Name Field */}
+                  <div>
+                    <label className="text-sm text-base-content/60">Display Name</label>
+                    {isEditingName ? (
+                      <div className="flex gap-2 mt-1">
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleUpdateProfile()
+                            if (e.key === "Escape") handleCancelEditName()
+                          }}
+                          className="input input-bordered flex-1 bg-base-100 text-base-content"
+                          placeholder="Enter your name"
+                          autoFocus
+                        />
+                        <button
+                          onClick={handleUpdateProfile}
+                          disabled={isUpdatingProfile}
+                          className="btn btn-primary btn-sm"
+                        >
+                          {isUpdatingProfile ? (
+                            <span className="loading loading-spinner loading-xs"></span>
+                          ) : (
+                            <CheckIcon className="h-4 w-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={handleCancelEditName}
+                          disabled={isUpdatingProfile}
+                          className="btn btn-ghost btn-sm"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <p className="py-2">{user.name || "Not set"}</p>
+                        <button
+                          onClick={() => setIsEditingName(true)}
+                          className="btn btn-ghost btn-sm gap-2"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                          Edit
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Email Field (read-only) */}
+                  <div>
+                    <label className="text-sm text-base-content/60">Email</label>
+                    <p className="py-2">{user.email}</p>
+                  </div>
+
+                  {/* User ID Field (read-only) */}
+                  <div>
+                    <label className="text-sm text-base-content/60">User ID</label>
+                    <p className="font-mono text-sm py-2">{user.id}</p>
+                  </div>
+
+                  {/* Account Created Field (read-only) */}
+                  <div>
+                    <label className="text-sm text-base-content/60">Account Created</label>
+                    <p className="py-2" suppressHydrationWarning>
+                      {format(new Date(user.createdAt), "MMMM d, yyyy")}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm text-base-content/60">Email</label>
-                  <p>{user.email}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-base-content/60">Account Created</label>
-                  <p suppressHydrationWarning>{format(new Date(user.createdAt), "MMMM d, yyyy")}</p>
-                </div>
+              </div>
+            </div>
+
+            {/* Security Card */}
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <h2 className="card-title gap-2">
+                  <LockClosedIcon className="h-5 w-5" />
+                  Security
+                </h2>
+
+                {isChangingPassword ? (
+                  <div className="space-y-4">
+                    {/* Current Password */}
+                    <div>
+                      <label className="text-sm font-medium">Current Password</label>
+                      <div className="relative mt-1">
+                        <input
+                          type={showCurrentPassword ? "text" : "password"}
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          className="input input-bordered w-full bg-base-100 text-base-content pr-10"
+                          placeholder="Enter current password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/60 hover:text-base-content"
+                        >
+                          {showCurrentPassword ? (
+                            <EyeSlashIcon className="h-5 w-5" />
+                          ) : (
+                            <EyeIcon className="h-5 w-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* New Password */}
+                    <div>
+                      <label className="text-sm font-medium">New Password</label>
+                      <div className="relative mt-1">
+                        <input
+                          type={showNewPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="input input-bordered w-full bg-base-100 text-base-content pr-10"
+                          placeholder="Enter new password (min. 8 characters)"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/60 hover:text-base-content"
+                        >
+                          {showNewPassword ? (
+                            <EyeSlashIcon className="h-5 w-5" />
+                          ) : (
+                            <EyeIcon className="h-5 w-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Confirm New Password */}
+                    <div>
+                      <label className="text-sm font-medium">Confirm New Password</label>
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
+                        className="input input-bordered w-full bg-base-100 text-base-content mt-1"
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={handleChangePassword}
+                        disabled={isUpdatingPassword}
+                        className="btn btn-primary gap-2"
+                      >
+                        {isUpdatingPassword ? (
+                          <span className="loading loading-spinner loading-sm"></span>
+                        ) : (
+                          <CheckIcon className="h-5 w-5" />
+                        )}
+                        Update Password
+                      </button>
+                      <button
+                        onClick={handleCancelPasswordChange}
+                        disabled={isUpdatingPassword}
+                        className="btn btn-ghost"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm text-base-content/60 mb-4">
+                      Keep your account secure by using a strong password.
+                    </p>
+                    <button
+                      onClick={() => setIsChangingPassword(true)}
+                      className="btn btn-ghost gap-2"
+                    >
+                      <LockClosedIcon className="h-5 w-5" />
+                      Change Password
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
