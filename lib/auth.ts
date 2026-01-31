@@ -81,7 +81,7 @@ export async function getCurrentUser() {
       updatedAt: response.user.updatedAt
         ? timestampToDate(response.user.updatedAt)
         : null,
-      notionKey: response.user.notionKey ?? null,
+      hasNotionKey: Boolean(response.user.notionKey),
     }
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {
