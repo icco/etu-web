@@ -7,12 +7,12 @@ import {
   AuthService,
   ApiKeysService,
   UserSettingsService,
-  type Timestamp as ProtoTimestamp,
   type Note as ProtoNote,
   type Tag as ProtoTag,
   type User as ProtoUser,
   type ApiKey as ProtoApiKey,
 } from "@icco/etu-proto"
+import type { Timestamp as ProtoTimestamp } from "@bufbuild/protobuf/wkt"
 import {
   mockNotesService,
   mockTagsService,
