@@ -52,6 +52,8 @@ export function NoteDialog({
   const [pendingImages, setPendingImages] = useState<PendingImage[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // Track preview URLs for cleanup to avoid memory leaks
+  const previewUrlsRef = useRef<Set<string>>(new Set())
 
   // Only reset form when dialog opens, not on every render
   const prevOpenRef = useRef(false)
@@ -97,20 +99,41 @@ export function NoteDialog({
     }
   }
 
+  // Image upload constraints (match server-side limits)
+  const MAX_IMAGE_COUNT = 10
+  const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024 // 5 MiB per image
+  const ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"]
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
     const newImages: PendingImage[] = []
     for (const file of Array.from(files)) {
-      if (!file.type.startsWith("image/")) continue
+      // Validate MIME type
+      if (!ALLOWED_MIME_TYPES.includes(file.type)) continue
+
+      // Validate file size
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        console.warn(`Skipping file "${file.name}": exceeds ${MAX_IMAGE_SIZE_BYTES / 1024 / 1024}MB limit`)
+        continue
+      }
+
+      // Check total image count limit
+      if (pendingImages.length + newImages.length >= MAX_IMAGE_COUNT) {
+        console.warn(`Maximum of ${MAX_IMAGE_COUNT} images allowed`)
+        break
+      }
 
       const base64 = await fileToBase64(file)
+      const previewUrl = URL.createObjectURL(file)
+      // Track URL for cleanup
+      previewUrlsRef.current.add(previewUrl)
       newImages.push({
         id: `pending-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         data: base64,
         mimeType: file.type,
-        previewUrl: URL.createObjectURL(file),
+        previewUrl,
       })
     }
 
@@ -126,15 +149,18 @@ export function NoteDialog({
       const img = prev.find((i) => i.id === id)
       if (img) {
         URL.revokeObjectURL(img.previewUrl)
+        previewUrlsRef.current.delete(img.previewUrl)
       }
       return prev.filter((i) => i.id !== id)
     })
   }
 
-  // Cleanup preview URLs on unmount
+  // Cleanup all tracked preview URLs on unmount
   useEffect(() => {
+    const urlsRef = previewUrlsRef.current
     return () => {
-      pendingImages.forEach((img) => URL.revokeObjectURL(img.previewUrl))
+      urlsRef.forEach((url) => URL.revokeObjectURL(url))
+      urlsRef.clear()
     }
   }, [])
 

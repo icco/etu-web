@@ -41,6 +41,17 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
     return DOMPurify.sanitize(marked.parse(content) as string)
   }
 
+  // Validate URL scheme to prevent XSS (e.g., javascript: URLs)
+  const SAFE_URL_SCHEMES = ["http:", "https:", "blob:", "data:"]
+  const isSafeUrl = (url: string): boolean => {
+    try {
+      const parsed = new URL(url, window.location.origin)
+      return SAFE_URL_SCHEMES.some((scheme) => parsed.protocol === scheme)
+    } catch {
+      return false
+    }
+  }
+
   const handleDelete = async () => {
     setIsDeleting(true)
     try {
@@ -135,20 +146,25 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
           {/* Image thumbnails */}
           {note.images && note.images.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
-              {note.images.slice(0, 4).map((img, idx) => (
-                <div key={img.id} className="relative">
-                  <img
-                    src={img.url}
-                    alt=""
-                    className="h-16 w-16 object-cover rounded-lg border border-base-300"
-                  />
-                  {idx === 3 && note.images.length > 4 && (
-                    <div className="absolute inset-0 bg-base-300/80 rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-medium">+{note.images.length - 4}</span>
-                    </div>
-                  )}
-                </div>
-              ))}
+              {note.images
+                .filter((img) => isSafeUrl(img.url))
+                .slice(0, 4)
+                .map((img, idx) => (
+                  <div key={img.id} className="relative">
+                    <img
+                      src={img.url}
+                      alt={img.extractedText || "Attached image"}
+                      className="h-16 w-16 object-cover rounded-lg border border-base-300"
+                    />
+                    {idx === 3 && note.images.filter((i) => isSafeUrl(i.url)).length > 4 && (
+                      <div className="absolute inset-0 bg-base-300/80 rounded-lg flex items-center justify-center">
+                        <span className="text-sm font-medium">
+                          +{note.images.filter((i) => isSafeUrl(i.url)).length - 4}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
             </div>
           )}
         </div>
@@ -180,30 +196,32 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
             />
 
             {/* Full size images in dialog */}
-            {note.images && note.images.length > 0 && (
+            {note.images && note.images.filter((img) => isSafeUrl(img.url)).length > 0 && (
               <div className="mt-6 space-y-4">
                 <h4 className="text-sm font-medium text-base-content/60">Attached Images</h4>
                 <div className="grid grid-cols-2 gap-4">
-                  {note.images.map((img) => (
-                    <a
-                      key={img.id}
-                      href={img.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block"
-                    >
-                      <img
-                        src={img.url}
-                        alt={img.extractedText || "Attached image"}
-                        className="w-full rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
-                      />
-                      {img.extractedText && (
-                        <p className="text-xs text-base-content/50 mt-1 line-clamp-2">
-                          {img.extractedText}
-                        </p>
-                      )}
-                    </a>
-                  ))}
+                  {note.images
+                    .filter((img) => isSafeUrl(img.url))
+                    .map((img) => (
+                      <a
+                        key={img.id}
+                        href={img.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        <img
+                          src={img.url}
+                          alt={img.extractedText || "Attached image"}
+                          className="w-full rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
+                        />
+                        {img.extractedText && (
+                          <p className="text-xs text-base-content/50 mt-1 line-clamp-2">
+                            {img.extractedText}
+                          </p>
+                        )}
+                      </a>
+                    ))}
                 </div>
               </div>
             )}
