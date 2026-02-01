@@ -18,28 +18,24 @@ import { NoteDialog } from "@/components/note-dialog"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { UserMenu } from "@/components/user-menu"
+import type {
+  Note as GrpcNote,
+  NoteImage as GrpcNoteImage,
+  Tag as GrpcTag,
+} from "@/lib/grpc/client"
 
-interface NoteImage {
-  id: string
-  url: string
-  extractedText: string
-  mimeType: string
-}
+type NoteImage = Pick<GrpcNoteImage, "id" | "url" | "extractedText" | "mimeType">
 
 interface Note {
-  id: string
-  content: string
+  id: GrpcNote["id"]
+  content: GrpcNote["content"]
   createdAt: Date
   updatedAt: Date
-  tags: string[]
+  tags: GrpcNote["tags"]
   images: NoteImage[]
 }
 
-interface Tag {
-  id: string
-  name: string
-  count: number
-}
+type Tag = Pick<GrpcTag, "id" | "name" | "count">
 
 interface NotesViewProps {
   initialNotes: Note[]

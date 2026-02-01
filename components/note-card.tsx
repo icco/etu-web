@@ -1,24 +1,20 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { format } from "date-fns"
 import { marked } from "marked"
 import DOMPurify from "isomorphic-dompurify"
 import { EllipsisHorizontalIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline"
+import type { Note as GrpcNote, NoteImage as GrpcNoteImage } from "@/lib/grpc/client"
 
-interface NoteImage {
-  id: string
-  url: string
-  extractedText: string
-  mimeType: string
-}
+type NoteImage = Pick<GrpcNoteImage, "id" | "url" | "extractedText" | "mimeType">
 
 interface Note {
-  id: string
-  content: string
+  id: GrpcNote["id"]
+  content: GrpcNote["content"]
   createdAt: Date
   updatedAt: Date
-  tags: string[]
+  tags: GrpcNote["tags"]
   images: NoteImage[]
 }
 
@@ -51,6 +47,12 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
       return false
     }
   }
+
+  // Compute safe images once to avoid repeated filtering
+  const safeImages = useMemo(() => {
+    if (!note.images) return []
+    return note.images.filter((img) => isSafeUrl(img.url))
+  }, [note.images])
 
   const handleDelete = async () => {
     setIsDeleting(true)
@@ -144,27 +146,22 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
           />
 
           {/* Image thumbnails */}
-          {note.images && note.images.length > 0 && (
+          {safeImages.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
-              {note.images
-                .filter((img) => isSafeUrl(img.url))
-                .slice(0, 4)
-                .map((img, idx) => (
-                  <div key={img.id} className="relative">
-                    <img
-                      src={img.url}
-                      alt={img.extractedText || "Attached image"}
-                      className="h-16 w-16 object-cover rounded-lg border border-base-300"
-                    />
-                    {idx === 3 && note.images.filter((i) => isSafeUrl(i.url)).length > 4 && (
-                      <div className="absolute inset-0 bg-base-300/80 rounded-lg flex items-center justify-center">
-                        <span className="text-sm font-medium">
-                          +{note.images.filter((i) => isSafeUrl(i.url)).length - 4}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
+              {safeImages.slice(0, 4).map((img, idx) => (
+                <div key={img.id} className="relative">
+                  <img
+                    src={img.url}
+                    alt={img.extractedText || "Attached image"}
+                    className="h-16 w-16 object-cover rounded-lg border border-base-300"
+                  />
+                  {idx === 3 && safeImages.length > 4 && (
+                    <div className="absolute inset-0 bg-base-300/80 rounded-lg flex items-center justify-center">
+                      <span className="text-sm font-medium">+{safeImages.length - 4}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -196,32 +193,30 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
             />
 
             {/* Full size images in dialog */}
-            {note.images && note.images.filter((img) => isSafeUrl(img.url)).length > 0 && (
+            {safeImages.length > 0 && (
               <div className="mt-6 space-y-4">
                 <h4 className="text-sm font-medium text-base-content/60">Attached Images</h4>
                 <div className="grid grid-cols-2 gap-4">
-                  {note.images
-                    .filter((img) => isSafeUrl(img.url))
-                    .map((img) => (
-                      <a
-                        key={img.id}
-                        href={img.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block"
-                      >
-                        <img
-                          src={img.url}
-                          alt={img.extractedText || "Attached image"}
-                          className="w-full rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
-                        />
-                        {img.extractedText && (
-                          <p className="text-xs text-base-content/50 mt-1 line-clamp-2">
-                            {img.extractedText}
-                          </p>
-                        )}
-                      </a>
-                    ))}
+                  {safeImages.map((img) => (
+                    <a
+                      key={img.id}
+                      href={img.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <img
+                        src={img.url}
+                        alt={img.extractedText || "Attached image"}
+                        className="w-full rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
+                      />
+                      {img.extractedText && (
+                        <p className="text-xs text-base-content/50 mt-1 line-clamp-2">
+                          {img.extractedText}
+                        </p>
+                      )}
+                    </a>
+                  ))}
                 </div>
               </div>
             )}

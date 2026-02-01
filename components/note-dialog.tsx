@@ -4,12 +4,9 @@ import { useState, useEffect, useRef, useMemo } from "react"
 import { marked } from "marked"
 import DOMPurify from "dompurify"
 import { XMarkIcon, PhotoIcon } from "@heroicons/react/24/outline"
+import type { NoteImage as GrpcNoteImage } from "@/lib/grpc/client"
 
-interface NoteImage {
-  id: string
-  url: string
-  mimeType: string
-}
+type NoteImage = Pick<GrpcNoteImage, "id" | "url" | "mimeType">
 
 interface PendingImage {
   id: string
@@ -64,6 +61,11 @@ export function NoteDialog({
       setTags(initialTags)
       setTagInput("")
       setActiveTab("write")
+      // Revoke any existing preview object URLs before clearing pending images
+      previewUrlsRef.current.forEach((url) => {
+        URL.revokeObjectURL(url)
+      })
+      previewUrlsRef.current.clear()
       setPendingImages([])
       setTimeout(() => textareaRef.current?.focus(), 100)
     }
@@ -93,15 +95,21 @@ export function NoteDialog({
       await onSave(content.trim(), tags, newImages)
       setContent("")
       setTags([])
+      // Revoke all preview URLs before clearing pending images
+      previewUrlsRef.current.forEach((url) => {
+        URL.revokeObjectURL(url)
+      })
+      previewUrlsRef.current.clear()
       setPendingImages([])
     } finally {
       setIsSaving(false)
     }
   }
 
-  // Image upload constraints (match server-side limits)
+  // Image upload constraints (aligned with Next server action bodySizeLimit: '2mb')
+  // Base64 encoding increases size by ~33%, so limit to ~1.4MB to stay within 2MB body limit
   const MAX_IMAGE_COUNT = 10
-  const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024 // 5 MiB per image
+  const MAX_IMAGE_SIZE_BYTES = 1.4 * 1024 * 1024 // ~1.4 MiB per image (fits in 2MB body after base64)
   const ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"]
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {

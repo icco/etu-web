@@ -25,7 +25,8 @@ const ALLOWED_IMAGE_MIME_TYPES = new Set<string>([
 ])
 
 const MAX_IMAGE_UPLOAD_COUNT = 10
-const MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024 // 5 MiB per image
+// Aligned with Next server action bodySizeLimit: '2mb' (accounting for base64 ~33% overhead)
+const MAX_IMAGE_UPLOAD_BYTES = 1.4 * 1024 * 1024 // ~1.4 MiB per image
 
 // Estimate decoded bytes from a base64 string without fully decoding
 function estimateBase64Size(base64: string): number {
@@ -58,8 +59,11 @@ function parseImageUploads(images?: { data: string; mimeType: string }[]): Image
       throw new Error("Image upload exceeds maximum allowed size")
     }
 
+    // Use Buffer.from for more efficient base64 decoding on server
+    const buffer = Buffer.from(img.data, "base64")
+
     return {
-      data: Uint8Array.from(atob(img.data), (c) => c.charCodeAt(0)),
+      data: new Uint8Array(buffer),
       mimeType: img.mimeType,
     }
   })
