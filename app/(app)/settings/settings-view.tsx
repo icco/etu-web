@@ -33,7 +33,7 @@ interface SettingsViewProps {
     subscriptionEnd: Date | null
     createdAt: Date
     updatedAt: Date | null
-    notionKey: string | null
+    hasNotionKey: boolean
   }
   stats: {
     totalNotes: number
@@ -248,7 +248,7 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
   }
 
   const handleCancelEditNotionKey = () => {
-    setEditNotionKey(user.notionKey || "")
+    setEditNotionKey("")
     setIsEditingNotionKey(false)
   }
 
@@ -480,7 +480,7 @@ export function SettingsView({ user, stats, initialApiKeys }: SettingsViewProps)
                   ) : (
                     <div className="flex items-center justify-between">
                       <p className="py-2 font-mono text-sm">
-                        {user.notionKey ? "••••••••••••" : "Not configured"}
+                        {user.hasNotionKey ? "••••••••••••" : "Not configured"}
                       </p>
                       <button
                         onClick={() => setIsEditingNotionKey(true)}

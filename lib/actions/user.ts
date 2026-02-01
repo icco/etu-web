@@ -18,7 +18,8 @@ const updateNameSchema = z.object({
 })
 
 const updateImageSchema = z.object({
-  image: z.string().url("Invalid image URL").optional().or(z.literal("")),
+  // Allow empty string (to clear) or valid URL
+  image: z.union([z.literal(""), z.string().url("Invalid image URL")]),
 })
 
 const updateNotionKeySchema = z.object({
@@ -66,8 +67,9 @@ export async function updateImage(formData: FormData) {
     return { error: "Not authenticated" }
   }
 
+  const imageValue = formData.get("image")
   const parsed = updateImageSchema.safeParse({
-    image: formData.get("image") || undefined,
+    image: typeof imageValue === "string" ? imageValue : "",
   })
 
   if (!parsed.success) {
@@ -75,10 +77,12 @@ export async function updateImage(formData: FormData) {
   }
 
   try {
+    // Empty string means clear the image, otherwise set the URL
+    // Pass empty string explicitly to clear, or the URL to set
     await userSettingsService.updateUserSettings(
       {
         userId: session.user.id,
-        image: parsed.data.image || undefined,
+        image: parsed.data.image === "" ? "" : parsed.data.image,
       },
       getGrpcApiKey()
     )
