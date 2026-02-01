@@ -81,4 +81,54 @@ test.describe("Notes Page", () => {
 
     await expect(page).toHaveScreenshot("notes-modal-markdown.png")
   })
+
+  test("can attach image to note and see it after save", async ({ page }) => {
+    await expect(page.locator("text=ideas").first()).toBeVisible({ timeout: 10000 })
+
+    // Open new note dialog via FAB
+    const fabButton = page.locator(".fab button")
+    await fabButton.click()
+    await expect(page.locator("dialog.modal-open")).toBeVisible({ timeout: 5000 })
+
+    // Fill in note content
+    const textarea = page.locator("dialog.modal-open textarea")
+    await textarea.fill("Note with an attached image")
+
+    // Upload an image via the file input
+    // Create a small test PNG (1x1 red pixel)
+    const pngBuffer = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==",
+      "base64"
+    )
+    const fileInput = page.locator('dialog.modal-open input[type="file"]')
+    await fileInput.setInputFiles({
+      name: "test-image.png",
+      mimeType: "image/png",
+      buffer: pngBuffer,
+    })
+
+    // Verify the pending image preview appears
+    await expect(page.locator("dialog.modal-open text=New images to upload")).toBeVisible()
+    const pendingImagePreview = page.locator("dialog.modal-open img").first()
+    await expect(pendingImagePreview).toBeVisible()
+
+    // Save the note
+    await page.getByRole("button", { name: "Save Blip" }).click()
+
+    // Wait for modal to close and notes to refresh
+    await expect(page.locator("dialog.modal-open")).not.toBeVisible({ timeout: 5000 })
+
+    // Find the newly created note (should be at the top)
+    await expect(page.locator("text=Note with an attached image")).toBeVisible({ timeout: 5000 })
+
+    // Click on the new note to open it
+    const newNoteCard = page.locator(".card", { hasText: "Note with an attached image" })
+    await newNoteCard.click()
+
+    // Verify the image is displayed in the note modal
+    await expect(page.locator("dialog.modal-open")).toBeVisible({ timeout: 5000 })
+    await expect(page.locator("dialog.modal-open text=Attached Images")).toBeVisible()
+    const attachedImage = page.locator("dialog.modal-open .grid img")
+    await expect(attachedImage).toBeVisible()
+  })
 })
