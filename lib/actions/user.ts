@@ -77,12 +77,11 @@ export async function updateImage(formData: FormData) {
   }
 
   try {
-    // Empty string means clear the image, otherwise set the URL
-    // Pass empty string explicitly to clear, or the URL to set
+    // Empty string clears the image, otherwise sets the URL
     await userSettingsService.updateUserSettings(
       {
         userId: session.user.id,
-        image: parsed.data.image === "" ? "" : parsed.data.image,
+        image: parsed.data.image,
       },
       getGrpcApiKey()
     )
