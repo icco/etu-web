@@ -112,7 +112,7 @@ test.describe("Dark Mode", () => {
 
       await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible()
       await expect(page.getByLabel("Email")).toBeVisible()
-      await expect(page.getByLabel("Password")).toBeVisible()
+      await expect(page.getByLabel("Password", { exact: true })).toBeVisible()
       await expect(page).toHaveScreenshot("register-page-dark.png")
     })
   })
