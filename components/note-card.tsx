@@ -194,7 +194,7 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
                     >
                       <img
                         src={img.url}
-                        alt=""
+                        alt={img.extractedText || "Attached image"}
                         className="w-full rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
                       />
                       {img.extractedText && (
