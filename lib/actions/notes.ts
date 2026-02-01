@@ -252,8 +252,13 @@ export async function getRandomNotes(count: number = 5) {
     })),
   }))
 
-  // Shuffle and select random notes
-  const shuffled = [...allNotes].sort(() => Math.random() - 0.5)
+  // Fisher-Yates shuffle algorithm for proper randomization
+  const shuffled = [...allNotes]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  
   return shuffled.slice(0, Math.min(count, shuffled.length))
 }
 
