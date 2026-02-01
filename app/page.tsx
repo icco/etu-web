@@ -11,12 +11,12 @@ export default async function LandingPage() {
 
   // If user is logged in, show random notes instead of landing page
   if (session?.user) {
-    const [randomNotes, tags] = await Promise.all([
+    const [randomNotesData, tags] = await Promise.all([
       getRandomNotes(5),
       getTags(),
     ])
     
-    return <RandomNotesView notes={randomNotes} tags={tags} />
+    return <RandomNotesView notes={randomNotesData.notes} tags={tags} />
   }
 
   // Show landing page for unauthenticated users

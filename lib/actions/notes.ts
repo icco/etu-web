@@ -233,24 +233,26 @@ export async function getRandomNotes(count: number = 5) {
       getGrpcApiKey()
     )
 
-    return response.notes.map((note) => ({
-      id: note.id,
-      content: note.content,
-      createdAt: timestampToDate(note.createdAt),
-      updatedAt: timestampToDate(note.updatedAt),
-      tags: note.tags,
-      images: note.images.map((img) => ({
-        id: img.id,
-        url: img.url,
-        extractedText: img.extractedText,
-        mimeType: img.mimeType,
-        createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
+    return {
+      notes: response.notes.map((note) => ({
+        id: note.id,
+        content: note.content,
+        createdAt: timestampToDate(note.createdAt),
+        updatedAt: timestampToDate(note.updatedAt),
+        tags: note.tags,
+        images: note.images.map((img) => ({
+          id: img.id,
+          url: img.url,
+          extractedText: img.extractedText,
+          mimeType: img.mimeType,
+          createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
+        })),
       })),
-    }))
+    }
   } catch (error: unknown) {
     console.error("Failed to fetch random notes", error)
     // Return empty array on error to prevent page crash
-    return []
+    return { notes: [] }
   }
 }
 
