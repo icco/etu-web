@@ -25,8 +25,8 @@ const ALLOWED_IMAGE_MIME_TYPES = new Set<string>([
 ])
 
 const MAX_IMAGE_UPLOAD_COUNT = 10
-// Aligned with Next server action bodySizeLimit: '2mb' (accounting for base64 ~33% overhead)
-const MAX_IMAGE_UPLOAD_BYTES = 1.4 * 1024 * 1024 // ~1.4 MiB per image
+// Aligned with Next server action bodySizeLimit: '10mb' (accounting for base64 ~33% overhead)
+const MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024 // 5 MiB per image
 
 // Estimate decoded bytes from a base64 string without fully decoding
 function estimateBase64Size(base64: string): number {

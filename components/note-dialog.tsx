@@ -109,10 +109,9 @@ export function NoteDialog({
     }
   }
 
-  // Image upload constraints (aligned with Next server action bodySizeLimit: '2mb')
-  // Base64 encoding increases size by ~33%, so limit to ~1.4MB to stay within 2MB body limit
+  // Image upload constraints (aligned with Next server action bodySizeLimit: '10mb')
   const MAX_IMAGE_COUNT = 10
-  const MAX_IMAGE_SIZE_BYTES = 1.4 * 1024 * 1024 // ~1.4 MiB per image (fits in 2MB body after base64)
+  const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024 // 5 MiB per image
   const ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"]
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
