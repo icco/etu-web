@@ -105,6 +105,7 @@ export async function createNote(data: {
   )
 
   revalidatePath("/notes")
+  revalidatePath("/")
   return { id: response.note.id }
 }
 
@@ -130,6 +131,7 @@ export async function updateNote(data: {
   )
 
   revalidatePath("/notes")
+  revalidatePath("/")
   return { success: true }
 }
 
@@ -145,6 +147,7 @@ export async function deleteNote(id: string) {
   )
 
   revalidatePath("/notes")
+  revalidatePath("/")
   return { success: true }
 }
 
@@ -220,46 +223,35 @@ export async function getNotes(options?: {
 export async function getRandomNotes(count: number = 5) {
   const userId = await requireUser()
 
-  // Fetch a larger set of notes to select from
-  // We fetch more than we need to ensure good randomness
-  const fetchLimit = Math.max(count * 10, 100)
-  
-  const response = await notesService.listNotes(
-    {
-      userId,
-      search: "",
-      tags: [],
-      startDate: "",
-      endDate: "",
-      limit: fetchLimit,
-      offset: 0,
-    },
-    getGrpcApiKey()
-  )
+  try {
+    // Use the backend's randomNotes API
+    const response = await notesService.getRandomNotes(
+      {
+        userId,
+        count,
+      },
+      getGrpcApiKey()
+    )
 
-  const allNotes = response.notes.map((note) => ({
-    id: note.id,
-    content: note.content,
-    createdAt: timestampToDate(note.createdAt),
-    updatedAt: timestampToDate(note.updatedAt),
-    tags: note.tags,
-    images: note.images.map((img) => ({
-      id: img.id,
-      url: img.url,
-      extractedText: img.extractedText,
-      mimeType: img.mimeType,
-      createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
-    })),
-  }))
-
-  // Fisher-Yates shuffle algorithm for proper randomization
-  const shuffled = [...allNotes]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    return response.notes.map((note) => ({
+      id: note.id,
+      content: note.content,
+      createdAt: timestampToDate(note.createdAt),
+      updatedAt: timestampToDate(note.updatedAt),
+      tags: note.tags,
+      images: note.images.map((img) => ({
+        id: img.id,
+        url: img.url,
+        extractedText: img.extractedText,
+        mimeType: img.mimeType,
+        createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
+      })),
+    }))
+  } catch (error: unknown) {
+    console.error("Failed to fetch random notes", error)
+    // Return empty array on error to prevent page crash
+    return []
   }
-  
-  return shuffled.slice(0, Math.min(count, shuffled.length))
 }
 
 export async function getTags() {

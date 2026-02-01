@@ -8,8 +8,9 @@ test.describe("Random Notes Home Page", () => {
     await page.getByLabel("Password").fill("testpassword")
     await page.getByRole("button", { name: "Sign In" }).click()
 
-    // Wait for redirect to home page with random notes
-    await page.waitForURL("/")
+    // After login, explicitly navigate to the home page
+    // (auth flow may redirect to /notes, so we navigate to / explicitly)
+    await page.goto("/")
   })
 
   test("displays random blips heading", async ({ page }) => {
@@ -52,5 +53,19 @@ test.describe("Random Notes Home Page", () => {
     await page.locator("text=Refresh Random Selection").scrollIntoViewIfNeeded()
     await expect(page.getByRole("button", { name: /refresh random selection/i })).toBeVisible()
     await expect(page).toHaveScreenshot("random-notes-refresh.png")
+  })
+
+  test("clicking refresh button reloads the page", async ({ page }) => {
+    await expect(page.locator("h1").filter({ hasText: "Random Blips" })).toBeVisible({ timeout: 10000 })
+
+    // Scroll to the refresh button
+    const refreshButton = page.getByRole("button", { name: /refresh random selection/i })
+    await refreshButton.scrollIntoViewIfNeeded()
+
+    // Click the refresh button
+    await refreshButton.click()
+
+    // Page should reload - verify the heading is still visible after refresh
+    await expect(page.locator("h1").filter({ hasText: "Random Blips" })).toBeVisible({ timeout: 10000 })
   })
 })

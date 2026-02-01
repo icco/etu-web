@@ -177,6 +177,15 @@ export interface DeleteNoteResponse {
   success: boolean
 }
 
+export interface GetRandomNotesRequest {
+  userId: string
+  count?: number
+}
+
+export interface GetRandomNotesResponse {
+  notes: Note[]
+}
+
 export interface ListTagsRequest {
   userId: string
 }
@@ -470,6 +479,42 @@ const realNotesService = {
       )
       return { success: response.success }
     }, "NotesService.deleteNote")
+  },
+
+  async getRandomNotes(request: GetRandomNotesRequest, apiKey: string): Promise<GetRandomNotesResponse> {
+    return withErrorHandling(async () => {
+      const client = getNotesClient()
+      // Try to use the new randomNotes endpoint if available
+      try {
+        const response = await (client as any).getRandomNotes(
+          {
+            userId: request.userId,
+            count: request.count ?? 5,
+          },
+          { headers: createHeaders(apiKey) }
+        )
+        return {
+          notes: response.notes.map(convertNote),
+        }
+      } catch (error) {
+        // If the method doesn't exist yet, fall back to listNotes
+        // This will be removed once the proto is updated everywhere
+        if (error instanceof ConnectError && error.code === Code.Unimplemented) {
+          const listResponse = await client.listNotes(
+            {
+              userId: request.userId,
+              limit: Math.max(request.count ?? 5, 50),
+              offset: 0,
+            },
+            { headers: createHeaders(apiKey) }
+          )
+          return {
+            notes: listResponse.notes.map(convertNote),
+          }
+        }
+        throw error
+      }
+    }, "NotesService.getRandomNotes")
   },
 }
 

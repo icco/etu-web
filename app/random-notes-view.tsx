@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { SparklesIcon, ClockIcon, PlusIcon } from "@heroicons/react/24/outline"
 import { toast } from "sonner"
-import { updateNote, deleteNote } from "@/lib/actions/notes"
+import { createNote, updateNote, deleteNote } from "@/lib/actions/notes"
 import { NoteCard } from "@/components/note-card"
 import { NoteDialog } from "@/components/note-dialog"
 import { Header } from "@/components/header"
@@ -49,6 +49,13 @@ export function RandomNotesView({ notes, tags }: RandomNotesViewProps) {
           addImages: newImages.length > 0 ? newImages : undefined,
         })
         toast.success("Blip updated")
+      } else {
+        await createNote({
+          content,
+          tags,
+          images: newImages.length > 0 ? newImages : undefined,
+        })
+        toast.success("Blip saved")
       }
       setDialogOpen(false)
       setEditingNote(null)
@@ -105,10 +112,13 @@ export function RandomNotesView({ notes, tags }: RandomNotesViewProps) {
                 <p className="text-base-content/60 mb-6 max-w-md">
                   Start your interstitial journaling journey by capturing your first thought.
                 </p>
-                <Link href="/notes" className="btn btn-primary gap-2">
+                <button 
+                  onClick={() => setDialogOpen(true)} 
+                  className="btn btn-primary gap-2"
+                >
                   <PlusIcon className="h-5 w-5" />
                   Create Your First Blip
-                </Link>
+                </button>
               </div>
             ) : (
               <div className="space-y-4">
@@ -138,6 +148,20 @@ export function RandomNotesView({ notes, tags }: RandomNotesViewProps) {
             )}
           </div>
         </main>
+
+        {/* FAB - New note button */}
+        <div className="fab">
+          <button
+            onClick={() => {
+              setEditingNote(null)
+              setDialogOpen(true)
+            }}
+            className="btn btn-lg btn-circle btn-primary"
+            aria-label="Create new note"
+          >
+            <PlusIcon className="h-6 w-6" />
+          </button>
+        </div>
 
         <Footer />
       </div>
