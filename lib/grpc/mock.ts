@@ -223,13 +223,9 @@ export const mockNotesService = {
 
   async getRandomNotes(request: GetRandomNotesRequest, _apiKey: string): Promise<GetRandomNotesResponse> {
     const count = request.count || 5
-    // Shuffle mock notes using Fisher-Yates algorithm
-    const shuffled = [...mockNotes]
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-    }
-    return { notes: shuffled.slice(0, Math.min(count, shuffled.length)) }
+    // Return random notes - server is responsible for randomization
+    // Just return the first N notes from mock data for testing
+    return { notes: mockNotes.slice(0, Math.min(count, mockNotes.length)) }
   },
 }
 
