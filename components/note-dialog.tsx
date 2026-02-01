@@ -3,14 +3,32 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import { marked } from "marked"
 import DOMPurify from "dompurify"
-import { XMarkIcon } from "@heroicons/react/24/outline"
+import { XMarkIcon, PhotoIcon } from "@heroicons/react/24/outline"
+
+interface NoteImage {
+  id: string
+  url: string
+  mimeType: string
+}
+
+interface PendingImage {
+  id: string
+  data: string // base64
+  mimeType: string
+  previewUrl: string
+}
 
 interface NoteDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSave: (content: string, tags: string[]) => Promise<void>
+  onSave: (
+    content: string,
+    tags: string[],
+    newImages: { data: string; mimeType: string }[]
+  ) => Promise<void>
   initialContent?: string
   initialTags?: string[]
+  initialImages?: NoteImage[]
   existingTags?: string[]
   title?: string
 }
@@ -21,6 +39,7 @@ export function NoteDialog({
   onSave,
   initialContent = "",
   initialTags = [],
+  initialImages = [],
   existingTags = [],
   title = "New Blip",
 }: NoteDialogProps) {
@@ -30,7 +49,9 @@ export function NoteDialog({
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write")
   const [isSaving, setIsSaving] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [pendingImages, setPendingImages] = useState<PendingImage[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Only reset form when dialog opens, not on every render
   const prevOpenRef = useRef(false)
@@ -41,6 +62,7 @@ export function NoteDialog({
       setTags(initialTags)
       setTagInput("")
       setActiveTab("write")
+      setPendingImages([])
       setTimeout(() => textareaRef.current?.focus(), 100)
     }
     prevOpenRef.current = open
@@ -62,12 +84,72 @@ export function NoteDialog({
 
     setIsSaving(true)
     try {
-      await onSave(content.trim(), tags)
+      const newImages = pendingImages.map((img) => ({
+        data: img.data,
+        mimeType: img.mimeType,
+      }))
+      await onSave(content.trim(), tags, newImages)
       setContent("")
       setTags([])
+      setPendingImages([])
     } finally {
       setIsSaving(false)
     }
+  }
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    const newImages: PendingImage[] = []
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith("image/")) continue
+
+      const base64 = await fileToBase64(file)
+      newImages.push({
+        id: `pending-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        data: base64,
+        mimeType: file.type,
+        previewUrl: URL.createObjectURL(file),
+      })
+    }
+
+    setPendingImages((prev) => [...prev, ...newImages])
+    // Reset file input so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
+  const removePendingImage = (id: string) => {
+    setPendingImages((prev) => {
+      const img = prev.find((i) => i.id === id)
+      if (img) {
+        URL.revokeObjectURL(img.previewUrl)
+      }
+      return prev.filter((i) => i.id !== id)
+    })
+  }
+
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      pendingImages.forEach((img) => URL.revokeObjectURL(img.previewUrl))
+    }
+  }, [])
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const result = reader.result as string
+        // Remove data URL prefix to get just the base64
+        const base64 = result.split(",")[1]
+        resolve(base64)
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -142,6 +224,72 @@ export function NoteDialog({
               ) : (
                 <p className="text-base-content/60 italic">Nothing to preview yet...</p>
               )}
+            </div>
+          )}
+        </div>
+
+        {/* Images */}
+        <div className="p-4 border-t border-base-300 space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium">Images</label>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="btn btn-ghost btn-sm gap-1"
+            >
+              <PhotoIcon className="h-4 w-4" />
+              Add Image
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+          </div>
+
+          {/* Existing images (read-only when editing) */}
+          {initialImages.length > 0 && (
+            <div className="space-y-2">
+              <span className="text-xs text-base-content/60">Existing images</span>
+              <div className="flex flex-wrap gap-2">
+                {initialImages.map((img) => (
+                  <div key={img.id} className="relative group">
+                    <img
+                      src={img.url}
+                      alt=""
+                      className="h-20 w-20 object-cover rounded-lg border border-base-300"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pending images (new uploads) */}
+          {pendingImages.length > 0 && (
+            <div className="space-y-2">
+              <span className="text-xs text-base-content/60">New images to upload</span>
+              <div className="flex flex-wrap gap-2">
+                {pendingImages.map((img) => (
+                  <div key={img.id} className="relative group">
+                    <img
+                      src={img.previewUrl}
+                      alt=""
+                      className="h-20 w-20 object-cover rounded-lg border border-base-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePendingImage(img.id)}
+                      className="absolute -top-2 -right-2 btn btn-circle btn-xs btn-error opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <XMarkIcon className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

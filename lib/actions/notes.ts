@@ -3,7 +3,7 @@
 import { z } from "zod"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
-import { notesService, tagsService, timestampToDate } from "@/lib/grpc/client"
+import { notesService, tagsService, timestampToDate, type ImageUpload } from "@/lib/grpc/client"
 
 const createNoteSchema = z.object({
   content: z.string().min(1, "Content is required"),
@@ -15,6 +15,15 @@ const updateNoteSchema = z.object({
   content: z.string().min(1).optional(),
   tags: z.array(z.string()).optional(),
 })
+
+// Helper to convert base64 image data to ImageUpload format
+function parseImageUploads(images?: { data: string; mimeType: string }[]): ImageUpload[] {
+  if (!images || images.length === 0) return []
+  return images.map((img) => ({
+    data: Uint8Array.from(atob(img.data), (c) => c.charCodeAt(0)),
+    mimeType: img.mimeType,
+  }))
+}
 
 // Service API key for internal gRPC calls
 function getGrpcApiKey(): string {
@@ -33,7 +42,11 @@ async function requireUser() {
   return session.user.id
 }
 
-export async function createNote(data: { content: string; tags: string[] }) {
+export async function createNote(data: {
+  content: string
+  tags: string[]
+  images?: { data: string; mimeType: string }[]
+}) {
   const userId = await requireUser()
   const parsed = createNoteSchema.parse(data)
 
@@ -42,6 +55,7 @@ export async function createNote(data: { content: string; tags: string[] }) {
       userId,
       content: parsed.content,
       tags: parsed.tags,
+      images: parseImageUploads(data.images),
     },
     getGrpcApiKey()
   )
@@ -50,7 +64,12 @@ export async function createNote(data: { content: string; tags: string[] }) {
   return { id: response.note.id }
 }
 
-export async function updateNote(data: { id: string; content?: string; tags?: string[] }) {
+export async function updateNote(data: {
+  id: string
+  content?: string
+  tags?: string[]
+  addImages?: { data: string; mimeType: string }[]
+}) {
   const userId = await requireUser()
   const parsed = updateNoteSchema.parse(data)
 
@@ -61,6 +80,7 @@ export async function updateNote(data: { id: string; content?: string; tags?: st
       content: parsed.content,
       tags: parsed.tags,
       updateTags: parsed.tags !== undefined,
+      addImages: parseImageUploads(data.addImages),
     },
     getGrpcApiKey()
   )
@@ -101,6 +121,13 @@ export async function getNote(id: string) {
     createdAt: timestampToDate(response.note.createdAt),
     updatedAt: timestampToDate(response.note.updatedAt),
     tags: response.note.tags,
+    images: response.note.images.map((img) => ({
+      id: img.id,
+      url: img.url,
+      extractedText: img.extractedText,
+      mimeType: img.mimeType,
+      createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
+    })),
   }
 }
 
@@ -134,6 +161,13 @@ export async function getNotes(options?: {
       createdAt: timestampToDate(note.createdAt),
       updatedAt: timestampToDate(note.updatedAt),
       tags: note.tags,
+      images: note.images.map((img) => ({
+        id: img.id,
+        url: img.url,
+        extractedText: img.extractedText,
+        mimeType: img.mimeType,
+        createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
+      })),
     })),
     total: response.total,
   }

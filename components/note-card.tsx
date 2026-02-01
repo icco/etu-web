@@ -6,12 +6,20 @@ import { marked } from "marked"
 import DOMPurify from "isomorphic-dompurify"
 import { EllipsisHorizontalIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline"
 
+interface NoteImage {
+  id: string
+  url: string
+  extractedText: string
+  mimeType: string
+}
+
 interface Note {
   id: string
   content: string
   createdAt: Date
   updatedAt: Date
   tags: string[]
+  images: NoteImage[]
 }
 
 interface NoteCardProps {
@@ -123,6 +131,26 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
             className="prose prose-sm max-w-none"
             dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
           />
+
+          {/* Image thumbnails */}
+          {note.images && note.images.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {note.images.slice(0, 4).map((img, idx) => (
+                <div key={img.id} className="relative">
+                  <img
+                    src={img.url}
+                    alt=""
+                    className="h-16 w-16 object-cover rounded-lg border border-base-300"
+                  />
+                  {idx === 3 && note.images.length > 4 && (
+                    <div className="absolute inset-0 bg-base-300/80 rounded-lg flex items-center justify-center">
+                      <span className="text-sm font-medium">+{note.images.length - 4}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -150,6 +178,35 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
               className="prose prose-sm max-w-none"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
             />
+
+            {/* Full size images in dialog */}
+            {note.images && note.images.length > 0 && (
+              <div className="mt-6 space-y-4">
+                <h4 className="text-sm font-medium text-base-content/60">Attached Images</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  {note.images.map((img) => (
+                    <a
+                      key={img.id}
+                      href={img.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <img
+                        src={img.url}
+                        alt=""
+                        className="w-full rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
+                      />
+                      {img.extractedText && (
+                        <p className="text-xs text-base-content/50 mt-1 line-clamp-2">
+                          {img.extractedText}
+                        </p>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="modal-action px-4 pb-4">

@@ -19,12 +19,20 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { UserMenu } from "@/components/user-menu"
 
+interface NoteImage {
+  id: string
+  url: string
+  extractedText: string
+  mimeType: string
+}
+
 interface Note {
   id: string
   content: string
   createdAt: Date
   updatedAt: Date
   tags: string[]
+  images: NoteImage[]
 }
 
 interface Tag {
@@ -118,13 +126,26 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
     router.push("/notes")
   }
 
-  const handleSaveNote = async (content: string, tags: string[]) => {
+  const handleSaveNote = async (
+    content: string,
+    tags: string[],
+    newImages: { data: string; mimeType: string }[]
+  ) => {
     try {
       if (editingNote) {
-        await updateNote({ id: editingNote.id, content, tags })
+        await updateNote({
+          id: editingNote.id,
+          content,
+          tags,
+          addImages: newImages.length > 0 ? newImages : undefined,
+        })
         toast.success("Blip updated")
       } else {
-        await createNote({ content, tags })
+        await createNote({
+          content,
+          tags,
+          images: newImages.length > 0 ? newImages : undefined,
+        })
         toast.success("Blip saved")
       }
       setDialogOpen(false)
@@ -270,6 +291,7 @@ export function NotesView({ initialNotes, initialTags, searchParams }: NotesView
         onSave={handleSaveNote}
         initialContent={editingNote?.content}
         initialTags={editingNote?.tags}
+        initialImages={editingNote?.images}
         existingTags={allTags}
         title={editingNote ? "Edit Blip" : "New Blip"}
       />
