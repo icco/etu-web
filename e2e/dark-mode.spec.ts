@@ -69,9 +69,7 @@ test.describe("Dark Mode", () => {
 
       await page.locator("text=How It Works").scrollIntoViewIfNeeded()
       await expect(page.locator("text=Capture Instantly")).toBeVisible()
-      await expect(page).toHaveScreenshot("landing-features-dark.png", {
-        fullPage: true,
-      })
+      await expect(page).toHaveScreenshot("landing-features-dark.png")
     })
 
     test("displays pricing section in dark mode", async ({ page }) => {
