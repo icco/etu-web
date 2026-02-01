@@ -486,16 +486,21 @@ const realNotesService = {
       const client = getNotesClient()
       // Try to use the new randomNotes endpoint if available
       try {
-        const response = await (client as any).getRandomNotes(
-          {
-            userId: request.userId,
-            count: request.count ?? 5,
-          },
-          { headers: createHeaders(apiKey) }
-        )
-        return {
-          notes: response.notes.map(convertNote),
+        // Check if method exists before calling
+        if (typeof (client as Record<string, unknown>).getRandomNotes === 'function') {
+          const response = await (client as { getRandomNotes: (req: unknown, opts: unknown) => Promise<{ notes: unknown[] }> }).getRandomNotes(
+            {
+              userId: request.userId,
+              count: request.count ?? 5,
+            },
+            { headers: createHeaders(apiKey) }
+          )
+          return {
+            notes: response.notes.map(convertNote),
+          }
         }
+        // Method doesn't exist, fall through to fallback
+        throw new ConnectError("Method not implemented", Code.Unimplemented)
       } catch (error) {
         // If the method doesn't exist yet, fall back to listNotes
         // This will be removed once the proto is updated everywhere

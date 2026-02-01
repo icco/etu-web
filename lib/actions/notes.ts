@@ -250,7 +250,7 @@ export async function getRandomNotes(count: number = 5) {
       })),
     }
   } catch (error: unknown) {
-    console.error("Failed to fetch random notes", error)
+    console.error("Failed to fetch random notes", { userId, count, error })
     // Return empty array on error to prevent page crash
     return { notes: [] }
   }
