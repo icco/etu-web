@@ -23,9 +23,7 @@ test.describe("Landing Page", () => {
     await page.goto("/")
     await page.locator("text=How It Works").scrollIntoViewIfNeeded()
     await expect(page.locator("text=Capture Instantly")).toBeVisible()
-    await expect(page).toHaveScreenshot("landing-features.png", {
-      fullPage: true,
-    })
+    await expect(page).toHaveScreenshot("landing-features.png")
   })
 
   test("displays pricing section", async ({ page }) => {
