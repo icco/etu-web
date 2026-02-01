@@ -12,6 +12,8 @@ import type {
   UpdateNoteResponse,
   DeleteNoteRequest,
   DeleteNoteResponse,
+  GetRandomNotesRequest,
+  GetRandomNotesResponse,
   ListTagsRequest,
   ListTagsResponse,
   RegisterRequest,
@@ -217,6 +219,13 @@ export const mockNotesService = {
     }
     mockNotes.splice(index, 1)
     return { success: true }
+  },
+
+  async getRandomNotes(request: GetRandomNotesRequest, _apiKey: string): Promise<GetRandomNotesResponse> {
+    const count = request.count || 5
+    // Return random notes - server is responsible for randomization
+    // Just return the first N notes from mock data for testing
+    return { notes: mockNotes.slice(0, Math.min(count, mockNotes.length)) }
   },
 }
 

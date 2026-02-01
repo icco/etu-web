@@ -177,6 +177,15 @@ export interface DeleteNoteResponse {
   success: boolean
 }
 
+export interface GetRandomNotesRequest {
+  userId: string
+  count?: number
+}
+
+export interface GetRandomNotesResponse {
+  notes: Note[]
+}
+
 export interface ListTagsRequest {
   userId: string
 }
@@ -470,6 +479,22 @@ const realNotesService = {
       )
       return { success: response.success }
     }, "NotesService.deleteNote")
+  },
+
+  async getRandomNotes(request: GetRandomNotesRequest, apiKey: string): Promise<GetRandomNotesResponse> {
+    return withErrorHandling(async () => {
+      const client = getNotesClient()
+      const response = await client.getRandomNotes(
+        {
+          userId: request.userId,
+          count: request.count ?? 5,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return {
+        notes: response.notes.map(convertNote),
+      }
+    }, "NotesService.getRandomNotes")
   },
 }
 
