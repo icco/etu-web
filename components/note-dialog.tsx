@@ -228,9 +228,9 @@ export function NoteDialog({
         </div>
 
         {/* Scrollable content area - contains editor, images, and tags */}
-        <div className="flex-1 overflow-auto min-h-0">
-          {/* Content */}
-          <div className="p-4">
+        <div className="flex-1 overflow-auto min-h-0 flex flex-col">
+          {/* Content - fills available space on mobile */}
+          <div className="p-4 flex-1 md:flex-none flex flex-col min-h-0">
             {activeTab === "write" ? (
               <textarea
                 ref={textareaRef}
@@ -238,10 +238,10 @@ export function NoteDialog({
                 onChange={(e) => setContent(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Write your thoughts in Markdown... (Cmd+Enter to save)"
-                className="textarea textarea-bordered w-full min-h-[150px] h-[200px] md:h-[300px] font-mono text-sm resize-y bg-base-100 text-base-content placeholder:text-base-content/50"
+                className="textarea textarea-bordered w-full flex-1 min-h-[150px] md:min-h-[300px] md:flex-none md:h-[300px] font-mono text-sm resize-none md:resize-y bg-base-100 text-base-content placeholder:text-base-content/50"
               />
             ) : (
-              <div className="min-h-[150px] p-4 bg-base-200 rounded-lg">
+              <div className="flex-1 min-h-[150px] md:flex-none p-4 bg-base-200 rounded-lg overflow-auto">
                 {parsedContent ? (
                   <div
                     className="prose prose-sm max-w-none"
