@@ -16,13 +16,53 @@ const updateNoteSchema = z.object({
   tags: z.array(z.string()).optional(),
 })
 
+// Image upload constraints
+const ALLOWED_IMAGE_MIME_TYPES = new Set<string>([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/gif",
+])
+
+const MAX_IMAGE_UPLOAD_COUNT = 10
+const MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024 // 5 MiB per image
+
+// Estimate decoded bytes from a base64 string without fully decoding
+function estimateBase64Size(base64: string): number {
+  const len = base64.length
+  if (len === 0) return 0
+  let padding = 0
+  if (base64.endsWith("==")) {
+    padding = 2
+  } else if (base64.endsWith("=")) {
+    padding = 1
+  }
+  return (len * 3) / 4 - padding
+}
+
 // Helper to convert base64 image data to ImageUpload format
 function parseImageUploads(images?: { data: string; mimeType: string }[]): ImageUpload[] {
   if (!images || images.length === 0) return []
-  return images.map((img) => ({
-    data: Uint8Array.from(atob(img.data), (c) => c.charCodeAt(0)),
-    mimeType: img.mimeType,
-  }))
+
+  if (images.length > MAX_IMAGE_UPLOAD_COUNT) {
+    throw new Error("Too many images uploaded")
+  }
+
+  return images.map((img) => {
+    if (!ALLOWED_IMAGE_MIME_TYPES.has(img.mimeType)) {
+      throw new Error("Unsupported image MIME type")
+    }
+
+    const estimatedBytes = estimateBase64Size(img.data)
+    if (estimatedBytes > MAX_IMAGE_UPLOAD_BYTES) {
+      throw new Error("Image upload exceeds maximum allowed size")
+    }
+
+    return {
+      data: Uint8Array.from(atob(img.data), (c) => c.charCodeAt(0)),
+      mimeType: img.mimeType,
+    }
+  })
 }
 
 // Service API key for internal gRPC calls
