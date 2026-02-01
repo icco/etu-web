@@ -1,8 +1,6 @@
 name: E2E Tests
-
 on:
   pull_request:
-
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -13,23 +11,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "yarn"
-          registry-url: "https://npm.pkg.github.com"
-          scope: "@icco"
-
+          cache: yarn
+          registry-url: https://npm.pkg.github.com
+          scope: '@icco'
       - name: Install dependencies
         run: yarn install --frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Install Playwright browsers
         run: yarn playwright install chromium --with-deps
-
       - name: Run E2E tests
         id: e2e
         run: yarn test:e2e --update-snapshots
@@ -37,9 +31,8 @@ jobs:
         env:
           CI: true
           E2E_MOCK: "true"
-          GRPC_API_KEY: "test-api-key"
-          NEXTAUTH_SECRET: "test-secret-for-e2e"
-
+          GRPC_API_KEY: test-api-key
+          NEXTAUTH_SECRET: test-secret-for-e2e
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: always()
@@ -50,7 +43,6 @@ jobs:
             test-results/
             playwright-report/
           retention-days: 30
-
       - name: Commit screenshots to PR branch
         if: always()
         run: |
@@ -65,7 +57,6 @@ jobs:
             git commit -m "chore: update e2e screenshots [skip ci]"
             git push origin HEAD:${{ github.head_ref }}
           fi
-
       - name: Comment PR with screenshots
         if: github.event_name == 'pull_request' && always()
         run: node .github/scripts/comment-screenshots.js
@@ -75,7 +66,6 @@ jobs:
           PR_BRANCH: ${{ github.head_ref }}
           RUN_ID: ${{ github.run_id }}
           TEST_OUTCOME: ${{ steps.e2e.outcome }}
-
       - name: Fail if tests failed
         if: steps.e2e.outcome == 'failure'
         run: exit 1
