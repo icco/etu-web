@@ -174,7 +174,7 @@ export function NoteDialog({
 
   return (
     <dialog className={`modal ${open ? "modal-open" : ""}`}>
-      <div className="modal-box w-11/12 max-w-3xl max-h-[90vh] flex flex-col p-0">
+      <div className="modal-box w-full h-full max-w-none max-h-none md:w-11/12 md:max-w-3xl md:h-auto md:max-h-[90vh] md:rounded-2xl rounded-none flex flex-col p-0">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-base-300">
           <h3 className="font-bold text-lg">{title}</h3>
