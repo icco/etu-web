@@ -78,12 +78,12 @@ export function LoginForm() {
               </div>
             </form>
 
-            <p className="text-center text-sm text-base-content/70 mt-4">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="link link-primary">
+            <div className="text-center mt-4">
+              <p className="text-sm text-base-content/90 mb-2">Don&apos;t have an account?</p>
+              <Link href="/register" className="btn btn-outline btn-sm w-full">
                 Create one
               </Link>
-            </p>
+            </div>
           </div>
         </div>
 

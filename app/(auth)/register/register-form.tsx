@@ -103,12 +103,12 @@ export function RegisterForm() {
               </div>
             </form>
 
-            <p className="text-center text-sm text-base-content/70 mt-4">
-              Already have an account?{" "}
-              <Link href="/login" className="link link-primary">
+            <div className="text-center mt-4">
+              <p className="text-sm text-base-content/90 mb-2">Already have an account?</p>
+              <Link href="/login" className="btn btn-outline btn-sm w-full">
                 Sign in
               </Link>
-            </p>
+            </div>
           </div>
         </div>
 
