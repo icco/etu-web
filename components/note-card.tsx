@@ -121,7 +121,7 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
           </div>
 
           <div
-            className={compact ? "prose prose-sm max-w-none line-clamp-2" : "prose prose-sm max-w-none"}
+            className={compact ? "prose prose-sm max-w-none line-clamp-2 flex-1" : "prose prose-sm max-w-none"}
             dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
           />
 
@@ -147,7 +147,7 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
 
           {/* Tags at bottom right */}
           {note.tags.length > 0 && (
-            <div className={compact ? "flex flex-wrap gap-1 mt-2 justify-end" : "flex flex-wrap gap-2 mt-3 justify-end"}>
+            <div className={compact ? "flex flex-wrap gap-1 mt-auto pt-2 justify-end" : "flex flex-wrap gap-2 mt-3 justify-end"}>
               {note.tags.map((tag) => (
                 <span key={tag} className={compact ? "badge badge-ghost badge-xs" : "badge badge-ghost badge-sm"}>
                   {tag}
