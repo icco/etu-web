@@ -6,11 +6,13 @@ interface HeaderProps {
   backHref?: string
   /** URL the logo links to. Defaults to "/" */
   logoHref?: string
+  /** Navigation component to display in the center */
+  nav?: React.ReactNode
   /** Content to display on the right side of the header */
   children?: React.ReactNode
 }
 
-export function Header({ backHref, logoHref = "/", children }: HeaderProps) {
+export function Header({ backHref, logoHref = "/", nav, children }: HeaderProps) {
   return (
     <header className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
       <div className="navbar-start">
@@ -23,6 +25,7 @@ export function Header({ backHref, logoHref = "/", children }: HeaderProps) {
           Etu
         </Link>
       </div>
+      {nav && <div className="navbar-center hidden md:flex">{nav}</div>}
       {children && (
         <div className="navbar-end gap-2">
           {children}
