@@ -108,16 +108,16 @@ export default async function LandingPage() {
             <div className="max-w-4xl mx-auto">
               <div className="grid md:grid-cols-3 gap-8 text-center">
                 <div>
-                  <div className="text-4xl font-bold text-primary mb-2">10,000+</div>
-                  <div className="text-base-content/60">Notes captured</div>
+                  <div className="text-4xl font-bold mb-2">10,000+</div>
+                  <div className="text-base-content/80">Notes captured</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-primary mb-2">Open Source</div>
-                  <div className="text-base-content/60">Self-host anytime</div>
+                  <div className="text-4xl font-bold mb-2">Open Source</div>
+                  <div className="text-base-content/80">Self-host anytime</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-primary mb-2">$5/year</div>
-                  <div className="text-base-content/60">Simple pricing</div>
+                  <div className="text-4xl font-bold mb-2">$5/year</div>
+                  <div className="text-base-content/80">Simple pricing</div>
                 </div>
               </div>
             </div>
