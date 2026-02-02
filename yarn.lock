@@ -360,7 +360,7 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/retry/-/retry-0.4.3.tgz#c2b9d2e374ee62c586d3adbea87199b1d7a7a6ba"
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
-"@icco/etu-proto@^2026.2":
+"@icco/etu-proto@^2026.2.0":
   version "2026.2.222527"
   resolved "https://npm.pkg.github.com/download/@icco/etu-proto/2026.2.222527/db0a670ae40a69c5abbc1d60aaa3589a7408c8ea#db0a670ae40a69c5abbc1d60aaa3589a7408c8ea"
   integrity sha512-g5CfQdPs4F7yI+og0+7FrRc1fxBj5M4jw93CQBnmCZLd5p67OarGj64V+yVuupl9NEFrrT1crmvin9gguU1T7Q==
