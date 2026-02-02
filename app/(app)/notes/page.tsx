@@ -1,6 +1,11 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import { getNotes, getTags } from "@/lib/actions/notes"
 import { NotesView } from "./notes-view"
+
+export const metadata: Metadata = {
+  title: "Notes | Etu",
+}
 
 export default async function NotesPage() {
   const [notesData, tags] = await Promise.all([

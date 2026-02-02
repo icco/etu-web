@@ -1,6 +1,11 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import { searchNotes, getTags } from "@/lib/actions/notes"
 import { SearchView } from "./search-view"
+
+export const metadata: Metadata = {
+  title: "Search | Etu",
+}
 
 export default async function SearchPage({
   searchParams,

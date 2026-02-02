@@ -34,14 +34,15 @@ export default async function LandingPage() {
       <main className="flex-1">
         <section className="container mx-auto px-6 py-20 md:py-32">
           <div className="max-w-4xl mx-auto text-center">
+            <div className="badge badge-primary badge-lg mb-6">The Best Note-Taking App</div>
             <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
               Your Thoughts,
               <br />
               Resurfaced at the Right Time
             </h2>
             <p className="text-xl text-base-content/60 mb-8 leading-relaxed max-w-2xl mx-auto">
-              Capture fleeting ideas as blips. Let the system bring them back when you need them.
-              Turn scattered thoughts into finished work.
+              The simplest, most powerful way to capture ideas. Write blips in seconds, tag them effortlessly,
+              and let the system bring them back when you need them. No bloat, no complexity—just your thoughts, organized.
             </p>
             <Link href={session ? "/notes" : "/register"} className="btn btn-primary btn-lg">
               Start Capturing Ideas
@@ -52,16 +53,17 @@ export default async function LandingPage() {
         <section className="container mx-auto px-6 py-20 border-t border-base-300">
           <div className="max-w-5xl mx-auto">
             <h3 className="text-3xl md:text-4xl font-semibold text-center mb-12">
-              What Are Blips?
+              Why Etu Is Different
             </h3>
             <div className="card bg-base-100 shadow-xl mb-12">
               <div className="card-body">
                 <p className="text-lg leading-relaxed mb-4">
-                  A blip is more than just a note—it&apos;s a <strong>unit of attention managed by software</strong>.
-                  When you capture a fleeting thought, Etu doesn&apos;t just store it away to be forgotten.
-                  Instead, the system brings it back to you at the right moments.
+                  Most note apps become graveyards for ideas. You capture something brilliant,
+                  then never see it again. Etu is <strong>the best note-taking app</strong> because
+                  it&apos;s built around one insight: the value of a note isn&apos;t in storage—it&apos;s in resurfacing.
                 </p>
                 <p className="text-lg leading-relaxed mb-4">
+                  A blip is more than just a note—it&apos;s a <strong>unit of attention managed by software</strong>.
                   Whether it&apos;s a seed for an article, a creative insight, or a pattern you&apos;re tracking,
                   blips resurface over time. Each time you see an old blip, you can refine it, connect it to other
                   ideas, or let it naturally evolve into something bigger.

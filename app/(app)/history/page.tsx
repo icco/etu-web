@@ -1,6 +1,11 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import { getNotes, getTags } from "@/lib/actions/notes"
 import { HistoryView } from "./history-view"
+
+export const metadata: Metadata = {
+  title: "History | Etu",
+}
 
 export default async function HistoryPage() {
   const [notesData, tags] = await Promise.all([
