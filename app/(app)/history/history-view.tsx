@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
 import {
@@ -9,14 +8,15 @@ import {
   PlusIcon,
   ArrowLeftIcon,
 } from "@heroicons/react/24/outline"
-import { toast } from "sonner"
-import { getNotes, createNote, updateNote, deleteNote } from "@/lib/actions/notes"
+import { getNotes } from "@/lib/actions/notes"
 import { NoteCard } from "@/components/note-card"
 import { NoteDialog } from "@/components/note-dialog"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { NavSearch } from "@/components/nav-search"
 import { UserMenu } from "@/components/user-menu"
+import { AppNav } from "@/components/app-nav"
+import { useNoteActions } from "@/lib/hooks/use-note-actions"
+import { groupNotesByDate } from "@/lib/utils/group-notes"
 import type { Tag } from "@/lib/grpc/client"
 import type { Note } from "@/lib/types"
 
@@ -26,22 +26,27 @@ interface HistoryViewProps {
   initialTags: Tag[]
 }
 
-function groupNotesByDate(notes: Note[]): Map<string, Note[]> {
-  const grouped = new Map<string, Note[]>()
-  notes.forEach((note) => {
-    const d = new Date(note.createdAt)
-    const dateKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`
-    if (!grouped.has(dateKey)) grouped.set(dateKey, [])
-    grouped.get(dateKey)!.push(note)
-  })
-  return grouped
-}
-
 export function HistoryView({ initialNotes, initialTotal, initialTags }: HistoryViewProps) {
-  const router = useRouter()
   const [notes, setNotes] = useState<Note[]>(initialNotes)
   const [total, setTotal] = useState(initialTotal)
   const [loading, setLoading] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const hasLoadedMoreRef = useRef(false)
+
+  const allTags = initialTags.map((t) => t.name)
+  const groupedNotes = groupNotesByDate(notes)
+  const hasMore = notes.length < total
+
+  const {
+    dialogOpen,
+    setDialogOpen,
+    editingNote,
+    handleSaveNote,
+    handleEditNote,
+    handleDeleteNote,
+    openNewNoteDialog,
+    closeDialog,
+  } = useNoteActions({ existingTags: allTags })
 
   // Sync with server after refresh when we haven't loaded more pages (so mutations show up)
   useEffect(() => {
@@ -50,14 +55,6 @@ export function HistoryView({ initialNotes, initialTotal, initialTags }: History
       setTotal(initialTotal)
     }
   }, [initialNotes, initialTotal])
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingNote, setEditingNote] = useState<Note | null>(null)
-  const sentinelRef = useRef<HTMLDivElement>(null)
-  const hasLoadedMoreRef = useRef(false)
-
-  const allTags = initialTags.map((t) => t.name)
-  const groupedNotes = groupNotesByDate(notes)
-  const hasMore = notes.length < total
 
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return
@@ -85,56 +82,10 @@ export function HistoryView({ initialNotes, initialTotal, initialTags }: History
     return () => observer.disconnect()
   }, [hasMore, loading, loadMore])
 
-  const handleSaveNote = async (
-    content: string,
-    tags: string[],
-    newImages: { data: string; mimeType: string }[]
-  ) => {
-    try {
-      if (editingNote) {
-        await updateNote({
-          id: editingNote.id,
-          content,
-          tags,
-          addImages: newImages.length > 0 ? newImages : undefined,
-        })
-        toast.success("Blip updated")
-      } else {
-        await createNote({
-          content,
-          tags,
-          images: newImages.length > 0 ? newImages : undefined,
-        })
-        toast.success("Blip saved")
-      }
-      setDialogOpen(false)
-      setEditingNote(null)
-      router.refresh()
-    } catch {
-      toast.error("Failed to save blip")
-    }
-  }
-
-  const handleEditNote = (note: Note) => {
-    setEditingNote(note)
-    setDialogOpen(true)
-  }
-
-  const handleDeleteNote = async (id: string) => {
-    try {
-      await deleteNote(id)
-      toast.success("Blip deleted")
-      router.refresh()
-    } catch {
-      toast.error("Failed to delete blip")
-    }
-  }
-
   return (
     <>
       <div className="min-h-screen bg-base-200 flex flex-col">
-        <Header logoHref="/" backHref="/notes">
-          <NavSearch />
+        <Header logoHref="/" nav={<AppNav />}>
           <UserMenu />
         </Header>
 
@@ -192,10 +143,7 @@ export function HistoryView({ initialNotes, initialTotal, initialTags }: History
 
         <div className="fab">
           <button
-            onClick={() => {
-              setEditingNote(null)
-              setDialogOpen(true)
-            }}
+            onClick={openNewNoteDialog}
             className="btn btn-lg btn-circle btn-primary"
             aria-label="Create new note"
           >
@@ -209,8 +157,8 @@ export function HistoryView({ initialNotes, initialTotal, initialTags }: History
       <NoteDialog
         open={dialogOpen}
         onOpenChange={(open) => {
-          setDialogOpen(open)
-          if (!open) setEditingNote(null)
+          if (!open) closeDialog()
+          else setDialogOpen(open)
         }}
         onSave={handleSaveNote}
         initialContent={editingNote?.content}

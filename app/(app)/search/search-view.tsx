@@ -1,22 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { format } from "date-fns"
-import {
-  MagnifyingGlassIcon,
-  PlusIcon,
-  ClockIcon,
-} from "@heroicons/react/24/outline"
-import { toast } from "sonner"
-import { createNote, updateNote, deleteNote } from "@/lib/actions/notes"
+import { MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/outline"
 import { NoteCard } from "@/components/note-card"
 import { NoteDialog } from "@/components/note-dialog"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { NavSearch } from "@/components/nav-search"
 import { UserMenu } from "@/components/user-menu"
+import { AppNav } from "@/components/app-nav"
+import { useNoteActions } from "@/lib/hooks/use-note-actions"
+import { groupNotesByDate } from "@/lib/utils/group-notes"
 import type { Tag } from "@/lib/grpc/client"
 import type { Note } from "@/lib/types"
 
@@ -26,93 +20,26 @@ interface SearchViewProps {
   query: string
 }
 
-function groupNotesByDate(notes: Note[]): Map<string, Note[]> {
-  const grouped = new Map<string, Note[]>()
-  notes.forEach((note) => {
-    const d = new Date(note.createdAt)
-    const dateKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`
-    if (!grouped.has(dateKey)) grouped.set(dateKey, [])
-    grouped.get(dateKey)!.push(note)
-  })
-  return grouped
-}
-
 export function SearchView({ initialNotes, initialTags, query }: SearchViewProps) {
-  const router = useRouter()
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingNote, setEditingNote] = useState<Note | null>(null)
-
   const notes = initialNotes
   const allTags = initialTags.map((t) => t.name)
   const groupedNotes = groupNotesByDate(notes)
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return
-      if (e.key === "n" && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault()
-        setEditingNote(null)
-        setDialogOpen(true)
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [])
-
-  const handleSaveNote = async (
-    content: string,
-    tags: string[],
-    newImages: { data: string; mimeType: string }[]
-  ) => {
-    try {
-      if (editingNote) {
-        await updateNote({
-          id: editingNote.id,
-          content,
-          tags,
-          addImages: newImages.length > 0 ? newImages : undefined,
-        })
-        toast.success("Blip updated")
-      } else {
-        await createNote({
-          content,
-          tags,
-          images: newImages.length > 0 ? newImages : undefined,
-        })
-        toast.success("Blip saved")
-      }
-      setDialogOpen(false)
-      setEditingNote(null)
-      router.refresh()
-    } catch {
-      toast.error("Failed to save blip")
-    }
-  }
-
-  const handleEditNote = (note: Note) => {
-    setEditingNote(note)
-    setDialogOpen(true)
-  }
-
-  const handleDeleteNote = async (id: string) => {
-    try {
-      await deleteNote(id)
-      toast.success("Blip deleted")
-      router.refresh()
-    } catch {
-      toast.error("Failed to delete blip")
-    }
-  }
+  const {
+    dialogOpen,
+    setDialogOpen,
+    editingNote,
+    handleSaveNote,
+    handleEditNote,
+    handleDeleteNote,
+    openNewNoteDialog,
+    closeDialog,
+  } = useNoteActions({ existingTags: allTags })
 
   return (
     <>
       <div className="min-h-screen bg-base-200 flex flex-col">
-        <Header logoHref="/">
-          <Link href="/history" className="btn btn-ghost gap-2">
-            <ClockIcon className="h-5 w-5" />
-            History
-          </Link>
+        <Header logoHref="/" nav={<AppNav />}>
           <NavSearch defaultValue={query} />
           <UserMenu />
         </Header>
@@ -170,10 +97,7 @@ export function SearchView({ initialNotes, initialTags, query }: SearchViewProps
 
         <div className="fab">
           <button
-            onClick={() => {
-              setEditingNote(null)
-              setDialogOpen(true)
-            }}
+            onClick={openNewNoteDialog}
             className="btn btn-lg btn-circle btn-primary"
             aria-label="Create new note"
           >
@@ -187,8 +111,8 @@ export function SearchView({ initialNotes, initialTags, query }: SearchViewProps
       <NoteDialog
         open={dialogOpen}
         onOpenChange={(open) => {
-          setDialogOpen(open)
-          if (!open) setEditingNote(null)
+          if (!open) closeDialog()
+          else setDialogOpen(open)
         }}
         onSave={handleSaveNote}
         initialContent={editingNote?.content}
