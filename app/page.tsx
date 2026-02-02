@@ -1,5 +1,15 @@
 import Link from "next/link"
-import { DocumentTextIcon, MagnifyingGlassIcon, DevicePhoneMobileIcon, CodeBracketIcon } from "@heroicons/react/24/outline"
+import {
+  DocumentTextIcon,
+  MagnifyingGlassIcon,
+  DevicePhoneMobileIcon,
+  CodeBracketIcon,
+  TagIcon,
+  PhotoIcon,
+  ChartBarIcon,
+  KeyIcon,
+  CommandLineIcon,
+} from "@heroicons/react/24/outline"
 import { auth } from "@/lib/auth"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -83,7 +93,7 @@ export default async function LandingPage() {
                 <DocumentTextIcon className="h-10 w-10 text-primary" />
                 <h4 className="card-title">Capture Instantly</h4>
                 <p className="text-base-content/60">
-                  Jot down fleeting thoughts as blips. Write in Markdown, add tags, no friction between idea and capture.
+                  Write blips in Markdown with live preview. Add tags with autocomplete, attach images, and save with Cmd+Enter—no friction between idea and capture.
                 </p>
               </div>
             </div>
@@ -91,9 +101,9 @@ export default async function LandingPage() {
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
               <div className="card-body">
                 <MagnifyingGlassIcon className="h-10 w-10 text-primary" />
-                <h4 className="card-title">Resurface & Refine</h4>
+                <h4 className="card-title">Search & Resurface</h4>
                 <p className="text-base-content/60">
-                  Old blips come back to find you. Review, connect ideas, and watch patterns emerge over time.
+                  Full-text search, filter by tags or date range, and browse a tags page with counts. Old blips resurface on your home feed so you revisit and refine ideas.
                 </p>
               </div>
             </div>
@@ -103,7 +113,7 @@ export default async function LandingPage() {
                 <DevicePhoneMobileIcon className="h-10 w-10 text-primary" />
                 <h4 className="card-title">Access Everywhere</h4>
                 <p className="text-base-content/60">
-                  Web, CLI, and mobile apps. Capture from wherever inspiration strikes, sync automatically.
+                  Web app, CLI, and mobile. Generate API keys in Settings to use with the Etu CLI and mobile app. Responsive design with keyboard shortcuts (n for new, / to search).
                 </p>
               </div>
             </div>
@@ -113,8 +123,60 @@ export default async function LandingPage() {
                 <CodeBracketIcon className="h-10 w-10 text-primary" />
                 <h4 className="card-title">Your Data, Your Rules</h4>
                 <p className="text-base-content/60">
-                  Open source and self-hostable. Export anytime. Built in the open on GitHub.
+                  Open source and self-hostable. Light/dark theme, full data export, and optional Notion sync. Built in the open on GitHub.
                 </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="container mx-auto px-6 py-20 border-t border-base-300">
+        <div className="max-w-5xl mx-auto">
+          <h3 className="text-3xl md:text-4xl font-semibold text-center mb-12">
+            Everything You Need
+          </h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex gap-3">
+              <DocumentTextIcon className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold mb-1">Notes & Markdown</h4>
+                <p className="text-sm text-base-content/60">Timeline view with date grouping, full note view with rendered Markdown, edit and delete anytime.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <TagIcon className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold mb-1">Tags & Filtering</h4>
+                <p className="text-sm text-base-content/60">Tag autocomplete, filter by one or more tags, dedicated tags page with note counts, date range filters.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <PhotoIcon className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold mb-1">Images in Blips</h4>
+                <p className="text-sm text-base-content/60">Attach images to any blip. They’re stored with your note and shown in the full note view.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <ChartBarIcon className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold mb-1">Stats & Account</h4>
+                <p className="text-sm text-base-content/60">Dashboard with total notes, tags, and word count. Edit profile, avatar, password, and manage subscription.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <KeyIcon className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold mb-1">API Keys & Notion</h4>
+                <p className="text-sm text-base-content/60">Create and revoke API keys for CLI and mobile. Optional Notion API key to sync notes to your workspace.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <CommandLineIcon className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold mb-1">Keyboard Shortcuts</h4>
+                <p className="text-sm text-base-content/60">Press n for a new blip, / to focus search. Cmd+Enter in the editor to save. Fast capture without leaving the keyboard.</p>
               </div>
             </div>
           </div>
@@ -137,19 +199,23 @@ export default async function LandingPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">✓</span>
-                  <span>Intelligent search and tagging</span>
+                  <span>Markdown, tags, and images in notes</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">✓</span>
-                  <span>Web, CLI, and mobile access</span>
+                  <span>Search, tag filters, and date range</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">✓</span>
-                  <span>API keys for custom integrations</span>
+                  <span>Web, CLI, and mobile (API keys)</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">✓</span>
-                  <span>Full data export anytime</span>
+                  <span>Stats, profile, and Notion sync</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-1">✓</span>
+                  <span>Light/dark theme, full export</span>
                 </li>
               </ul>
               <Link href="/register" className="btn btn-primary w-full">
