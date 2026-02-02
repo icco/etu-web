@@ -20,7 +20,7 @@ export function NotesView({ initialNotes, initialTags }: NotesViewProps) {
   const notes = initialNotes
   const allTags = initialTags.map((t) => t.name)
   const gridNotes = notes.slice(0, 6)
-  const mostRecent = notes[0]
+  const mostRecent = notes.length > 0 ? notes[0] : undefined
 
   const {
     dialogOpen,

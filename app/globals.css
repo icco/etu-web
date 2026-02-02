@@ -219,7 +219,6 @@ section[data-footnotes] h2 {
 }
 
 @media not all and (min-width: 640px) {
-
   .footnotes h2,
   section[data-footnotes] h2 {
     font-size: 1.5rem;
@@ -227,7 +226,6 @@ section[data-footnotes] h2 {
 }
 
 @media not all and (min-width: 640px) {
-
   h1,
   .f1 {
     font-size: 2rem;
