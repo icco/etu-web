@@ -223,6 +223,36 @@ export async function getNotes(options?: {
   }
 }
 
+export async function searchNotes(options: { query: string; limit?: number; offset?: number }) {
+  const userId = await requireUser()
+  const response = await notesService.searchNotes(
+    {
+      userId,
+      query: options.query.trim(),
+      limit: options.limit ?? 50,
+      offset: options.offset ?? 0,
+    },
+    getGrpcApiKey()
+  )
+  return {
+    notes: response.notes.map((note) => ({
+      id: note.id,
+      content: note.content,
+      createdAt: timestampToDate(note.createdAt),
+      updatedAt: timestampToDate(note.updatedAt),
+      tags: note.tags,
+      images: note.images.map((img) => ({
+        id: img.id,
+        url: img.url,
+        extractedText: img.extractedText,
+        mimeType: img.mimeType,
+        createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
+      })),
+    })),
+    total: response.total,
+  }
+}
+
 export async function getTags() {
   const userId = await requireUser()
 

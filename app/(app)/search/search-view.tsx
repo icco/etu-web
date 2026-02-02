@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { format } from "date-fns"
 import {
-  DocumentTextIcon,
+  MagnifyingGlassIcon,
   PlusIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline"
@@ -19,22 +20,32 @@ import { UserMenu } from "@/components/user-menu"
 import type { Tag } from "@/lib/grpc/client"
 import type { Note } from "@/lib/types"
 
-interface NotesViewProps {
+interface SearchViewProps {
   initialNotes: Note[]
   initialTags: Tag[]
+  query: string
 }
 
-export function NotesView({ initialNotes, initialTags }: NotesViewProps) {
+function groupNotesByDate(notes: Note[]): Map<string, Note[]> {
+  const grouped = new Map<string, Note[]>()
+  notes.forEach((note) => {
+    const d = new Date(note.createdAt)
+    const dateKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`
+    if (!grouped.has(dateKey)) grouped.set(dateKey, [])
+    grouped.get(dateKey)!.push(note)
+  })
+  return grouped
+}
+
+export function SearchView({ initialNotes, initialTags, query }: SearchViewProps) {
   const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingNote, setEditingNote] = useState<Note | null>(null)
 
   const notes = initialNotes
   const allTags = initialTags.map((t) => t.name)
-  const gridNotes = notes.slice(0, 6)
-  const mostRecent = notes[0]
+  const groupedNotes = groupNotesByDate(notes)
 
-  // Keyboard shortcut: n for new note
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement
@@ -102,49 +113,57 @@ export function NotesView({ initialNotes, initialTags }: NotesViewProps) {
             <ClockIcon className="h-5 w-5" />
             History
           </Link>
-          <NavSearch />
+          <NavSearch defaultValue={query} />
           <UserMenu />
         </Header>
 
         <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
-          {notes.length === 0 ? (
+          <div className="mb-6 flex items-center gap-2">
+            <MagnifyingGlassIcon className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Search</h1>
+          </div>
+
+          {!query ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <DocumentTextIcon className="h-16 w-16 text-base-content/40 mb-4" />
-              <h2 className="text-2xl font-semibold mb-2">No blips yet</h2>
+              <MagnifyingGlassIcon className="h-16 w-16 text-base-content/40 mb-4" />
+              <h2 className="text-2xl font-semibold mb-2">Search your blips</h2>
               <p className="text-base-content/60 mb-6 max-w-md">
-                Start your interstitial journaling journey by capturing your first thought.
+                Use the search box above to find notes by content or keywords.
               </p>
-              <button onClick={() => setDialogOpen(true)} className="btn btn-primary gap-2">
-                <PlusIcon className="h-5 w-5" />
-                Create Your First Blip
-              </button>
+              <NavSearch defaultValue="" className="input input-bordered w-full max-w-md" />
+            </div>
+          ) : notes.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <MagnifyingGlassIcon className="h-16 w-16 text-base-content/40 mb-4" />
+              <h2 className="text-2xl font-semibold mb-2">No matching blips</h2>
+              <p className="text-base-content/60 mb-6">Try a different search term.</p>
+              <NavSearch defaultValue={query} className="input input-bordered w-full max-w-md" />
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto space-y-8">
-              {/* 3×2 grid of truncated blips */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {gridNotes.map((note) => (
-                  <NoteCard
-                    key={note.id}
-                    note={note}
-                    onEdit={handleEditNote}
-                    onDelete={handleDeleteNote}
-                    compact
-                  />
-                ))}
-              </div>
-
-              {/* Most recent blip in full form */}
-              {mostRecent && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Latest blip</h3>
-                  <NoteCard
-                    note={mostRecent}
-                    onEdit={handleEditNote}
-                    onDelete={handleDeleteNote}
-                  />
+            <div className="max-w-3xl mx-auto space-y-8">
+              <p className="text-base-content/60">
+                {notes.length} result{notes.length === 1 ? "" : "s"} for &quot;{query}&quot;
+              </p>
+              {Array.from(groupedNotes.entries()).map(([dateKey, dateNotes]) => (
+                <div key={dateKey}>
+                  <div className="sticky top-16 bg-base-200/95 backdrop-blur-sm py-2 mb-4 z-10">
+                    <h3 className="text-lg font-semibold" suppressHydrationWarning>
+                      {format(new Date(dateNotes[0].createdAt), "MMMM d, yyyy")}
+                    </h3>
+                    <div className="divider my-0" />
+                  </div>
+                  <div className="space-y-4">
+                    {dateNotes.map((note) => (
+                      <NoteCard
+                        key={note.id}
+                        note={note}
+                        onEdit={handleEditNote}
+                        onDelete={handleDeleteNote}
+                      />
+                    ))}
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
           )}
         </main>

@@ -15,6 +15,7 @@ import { NoteCard } from "@/components/note-card"
 import { NoteDialog } from "@/components/note-dialog"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { NavSearch } from "@/components/nav-search"
 import { UserMenu } from "@/components/user-menu"
 import type { Tag } from "@/lib/grpc/client"
 import type { Note } from "@/lib/types"
@@ -133,6 +134,7 @@ export function HistoryView({ initialNotes, initialTotal, initialTags }: History
     <>
       <div className="min-h-screen bg-base-200 flex flex-col">
         <Header logoHref="/" backHref="/notes">
+          <NavSearch />
           <UserMenu />
         </Header>
 
