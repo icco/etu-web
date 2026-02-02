@@ -59,19 +59,10 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
         className="card bg-base-100 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer group"
         onClick={() => setViewOpen(true)}
       >
-        <div className={compact ? "card-body p-2" : "card-body p-4"}>
+        <div className={compact ? "card-body p-4 flex flex-col" : "card-body p-4 flex flex-col"}>
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <div className={compact ? "text-xs text-base-content/60 mb-1" : "text-sm text-base-content/60 mb-2"} suppressHydrationWarning>{formatNoteDate(note.createdAt)}</div>
-              {note.tags.length > 0 && (
-                <div className={compact ? "flex flex-wrap gap-1 mb-1" : "flex flex-wrap gap-2 mb-3"}>
-                  {note.tags.map((tag) => (
-                    <span key={tag} className={compact ? "badge badge-ghost badge-xs" : "badge badge-ghost badge-sm"}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
             <div className="dropdown dropdown-end">
               <button
@@ -153,6 +144,17 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
               ))}
             </div>
           )}
+
+          {/* Tags at bottom right */}
+          {note.tags.length > 0 && (
+            <div className={compact ? "flex flex-wrap gap-1 mt-2 justify-end" : "flex flex-wrap gap-2 mt-3 justify-end"}>
+              {note.tags.map((tag) => (
+                <span key={tag} className={compact ? "badge badge-ghost badge-xs" : "badge badge-ghost badge-sm"}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -164,16 +166,6 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
               {formatNoteDate(note.createdAt)}
             </h3>
           </div>
-
-          {note.tags.length > 0 && (
-            <div className="px-6 py-3 flex flex-wrap gap-2">
-              {note.tags.map((tag) => (
-                <span key={tag} className="badge badge-ghost">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
 
           <div className="flex-1 overflow-auto px-6 py-4">
             <div
@@ -207,6 +199,17 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
                     </a>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Tags at bottom right */}
+            {note.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-6 justify-end">
+                {note.tags.map((tag) => (
+                  <span key={tag} className="badge badge-ghost">
+                    {tag}
+                  </span>
+                ))}
               </div>
             )}
           </div>
