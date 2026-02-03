@@ -1,5 +1,8 @@
 name: Generate Proto Documentation
 on:
+  push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 permissions:
@@ -47,7 +50,7 @@ jobs:
           mkdir -p public/docs
           protoc --doc_out=public/docs --doc_opt=html,index.html -I /tmp/proto-temp -I /tmp/proto-include /tmp/proto-temp/etu.proto
       - name: Commit and push generated docs
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Update proto documentation
           file_pattern: public/docs/*
