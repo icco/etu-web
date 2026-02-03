@@ -6,6 +6,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { UserMenu } from "@/components/user-menu"
 import { AppNav } from "@/components/app-nav"
+import { MobileNav } from "@/components/mobile-nav"
 
 interface Tag {
   id: string
@@ -19,7 +20,7 @@ interface TagsViewProps {
 export function TagsView({ tags }: TagsViewProps) {
   return (
     <div className="min-h-screen bg-base-200 flex flex-col">
-      <Header logoHref="/" nav={<AppNav />}>
+      <Header logoHref="/" nav={<AppNav />} mobileNav={<MobileNav />}>
         <UserMenu />
       </Header>
 
