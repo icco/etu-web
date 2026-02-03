@@ -106,7 +106,7 @@ export function HistoryView({ initialNotes, initialTotal, initialTags }: History
               </p>
               <Link href="/notes" className="btn btn-primary gap-2">
                 <ArrowLeftIcon className="h-5 w-5" />
-                Go to Notes
+                Notes
               </Link>
             </div>
           ) : (
