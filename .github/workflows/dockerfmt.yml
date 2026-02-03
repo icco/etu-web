@@ -1,6 +1,8 @@
+# Dockerfile formatting is now in .github/workflows/pr-checks.yml (dockerfmt job).
+# This file is kept for workflow_run or manual trigger if needed; remove if unused.
 name: Format Dockerfile
 on:
-  pull_request:
+  workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
