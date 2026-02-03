@@ -361,9 +361,9 @@
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
 "@icco/etu-proto@^2026.2.0":
-  version "2026.2.222527"
-  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/2026.2.222527/db0a670ae40a69c5abbc1d60aaa3589a7408c8ea#db0a670ae40a69c5abbc1d60aaa3589a7408c8ea"
-  integrity sha512-g5CfQdPs4F7yI+og0+7FrRc1fxBj5M4jw93CQBnmCZLd5p67OarGj64V+yVuupl9NEFrrT1crmvin9gguU1T7Q==
+  version "2026.2.25029"
+  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/2026.2.25029/a342c359ab49bfd675414bfce5e14951638824a5#a342c359ab49bfd675414bfce5e14951638824a5"
+  integrity sha512-97+/S2IhpHML3Aj74Ldn7GMiJaKf8gSby47DZSXh96rh1YabwiIa8h2Ip39y5lp6+/1M4sz4HYGEDyzCOE0DLA==
   dependencies:
     "@bufbuild/protobuf" "^2.0.0"
 
@@ -1369,9 +1369,9 @@ csstype@^3.2.2:
   integrity sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==
 
 daisyui@^5.5.14:
-  version "5.5.16"
-  resolved "https://registry.yarnpkg.com/daisyui/-/daisyui-5.5.16.tgz#2dbadce939fb38685ce60570399b293821285a36"
-  integrity sha512-EPGcgduRIwXoQPuIl+r2BXRQsOutvf7UEB/mBfRiD2fdOYYnUqDU5PNp2eONnRqo1DxSsnD01gCRPccH65FWtQ==
+  version "5.5.17"
+  resolved "https://registry.yarnpkg.com/daisyui/-/daisyui-5.5.17.tgz#9a7172ab236e451055fe8b938ee4fc9be8e62151"
+  integrity sha512-Y8QWps/990Epp0Gn+7ReeALSXgwrd3W36waokJvHgqUdYx6t2sj0e1krW3+YqviBa57XTJqHJNTt8HMvcODL2Q==
 
 damerau-levenshtein@^1.0.8:
   version "1.0.8"
