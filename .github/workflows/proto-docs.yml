@@ -1,4 +1,4 @@
-name: Generate and Host Proto Documentation
+name: Generate Proto Documentation
 on:
   push:
     branches:
@@ -6,13 +6,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
   packages: read
 
 concurrency:
-  group: "pages"
+  group: "proto-docs"
   cancel-in-progress: false
 
 jobs:
@@ -21,6 +19,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -49,25 +49,19 @@ jobs:
 
       - name: Extract proto files from @icco/etu-proto
         run: |
-          mkdir -p proto-docs/proto
+          mkdir -p /tmp/proto-temp
           # Find and copy proto files from node_modules
-          find node_modules/@icco/etu-proto -name "*.proto" -exec cp {} proto-docs/proto/ \; 2>/dev/null || true
-          # If no proto files found, create a placeholder
-          if [ ! "$(ls -A proto-docs/proto)" ]; then
-            echo "// Proto files are compiled to TypeScript in @icco/etu-proto package" > proto-docs/proto/README.txt
-            echo "// Source proto files are located in the etu-backend repository" >> proto-docs/proto/README.txt
-            echo "// Package version: $(node -p "require('./package.json').dependencies['@icco/etu-proto']")" >> proto-docs/proto/README.txt
-          fi
+          find node_modules/@icco/etu-proto -name "*.proto" -exec cp {} /tmp/proto-temp/ \; 2>/dev/null || true
 
       - name: Generate documentation
         run: |
-          mkdir -p proto-docs/html
+          mkdir -p public/proto-docs
           # Check if we have proto files to document
-          if ls proto-docs/proto/*.proto 1> /dev/null 2>&1; then
-            protoc --doc_out=proto-docs/html --doc_opt=html,index.html proto-docs/proto/*.proto
+          if ls /tmp/proto-temp/*.proto 1> /dev/null 2>&1; then
+            protoc --doc_out=public/proto-docs --doc_opt=html,index.html /tmp/proto-temp/*.proto
           else
             # Create a simple HTML page explaining the proto package
-            cat > proto-docs/html/index.html << 'EOF'
+            cat > public/proto-docs/index.html << 'EOF'
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -154,18 +148,14 @@ jobs:
           EOF
           fi
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: proto-docs/html
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build-docs
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Commit and push generated docs
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/proto-docs
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update proto documentation"
+            git push
+          fi
