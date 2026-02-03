@@ -13,17 +13,16 @@ test.describe("Mobile Navigation", () => {
   test("mobile menu button is visible on home page", async ({ page }) => {
     await page.goto("/")
     
-    // Check that the mobile menu (hamburger) button is visible
-    const mobileMenuButton = page.locator('[role="button"]').filter({ has: page.locator('svg') }).first()
+    // Check that the mobile menu button is visible using test ID
+    const mobileMenuButton = page.getByTestId("mobile-nav").getByRole("button", { name: "Open navigation menu" })
     await expect(mobileMenuButton).toBeVisible()
   })
 
   test("can navigate to /notes from home page using mobile menu", async ({ page }) => {
     await page.goto("/")
     
-    // Click the mobile menu button (hamburger icon)
-    const mobileMenuButton = page.locator('.dropdown').filter({ has: page.locator('svg[class*="h-6 w-6"]') }).first()
-    await mobileMenuButton.click()
+    // Click the mobile menu button using test ID
+    await page.getByTestId("mobile-nav").getByRole("button", { name: "Open navigation menu" }).click()
     
     // Wait for dropdown to appear and click Notes link
     await page.getByRole("link", { name: /notes/i }).first().click()
@@ -36,11 +35,10 @@ test.describe("Mobile Navigation", () => {
     await page.goto("/")
     
     // Click the mobile menu button
-    const mobileMenuButton = page.locator('.dropdown').filter({ has: page.locator('svg[class*="h-6 w-6"]') }).first()
-    await mobileMenuButton.click()
+    await page.getByTestId("mobile-nav").getByRole("button", { name: "Open navigation menu" }).click()
     
     // Check all navigation links are visible in the menu
-    const dropdown = page.locator('.dropdown-content')
+    const dropdown = page.getByTestId("mobile-nav").locator('.dropdown-content')
     await expect(dropdown.getByRole("link", { name: /notes/i })).toBeVisible()
     await expect(dropdown.getByRole("link", { name: /history/i })).toBeVisible()
     await expect(dropdown.getByRole("link", { name: /search/i })).toBeVisible()
@@ -51,11 +49,10 @@ test.describe("Mobile Navigation", () => {
     await page.goto("/notes")
     
     // Click the mobile menu button
-    const mobileMenuButton = page.locator('.dropdown').filter({ has: page.locator('svg[class*="h-6 w-6"]') }).first()
-    await mobileMenuButton.click()
+    await page.getByTestId("mobile-nav").getByRole("button", { name: "Open navigation menu" }).click()
     
     // Navigate to History
-    await page.getByRole("link", { name: /history/i }).first().click()
+    await page.getByTestId("mobile-nav").locator('.dropdown-content').getByRole("link", { name: /history/i }).click()
     await expect(page).toHaveURL("/history")
   })
 })

@@ -21,8 +21,8 @@ export function MobileNav() {
   const pathname = usePathname()
 
   return (
-    <div className="dropdown dropdown-end md:hidden">
-      <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-square">
+    <div className="dropdown dropdown-end md:hidden" data-testid="mobile-nav">
+      <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-square" aria-label="Open navigation menu">
         <Bars3Icon className="h-6 w-6" />
       </div>
       <ul

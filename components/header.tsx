@@ -29,10 +29,12 @@ export function Header({ backHref, logoHref = "/", nav, mobileNav, children }: H
           </Link>
         </div>
         {nav && <div className="navbar-center hidden md:flex">{nav}</div>}
-        <div className="navbar-end gap-2">
-          {mobileNav}
-          {children}
-        </div>
+        {(mobileNav || children) && (
+          <div className="navbar-end gap-2">
+            {mobileNav}
+            {children}
+          </div>
+        )}
       </div>
     </header>
   )
