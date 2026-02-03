@@ -25,7 +25,7 @@ test.describe("Mobile Navigation", () => {
     await page.getByTestId("mobile-nav").getByRole("button", { name: "Open navigation menu" }).click()
     
     // Wait for dropdown to appear and click Notes link
-    await page.getByRole("link", { name: /notes/i }).first().click()
+    await page.getByTestId("mobile-nav").locator('.dropdown-content').getByRole("link", { name: /notes/i }).click()
     
     // Verify we navigated to /notes
     await expect(page).toHaveURL("/notes")
