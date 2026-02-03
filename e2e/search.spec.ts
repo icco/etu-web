@@ -31,8 +31,8 @@ test.describe("Search Page", () => {
   test("has search input in header", async ({ page }) => {
     await expect(page.locator("h1").filter({ hasText: "Search" })).toBeVisible({ timeout: 10000 })
 
-    // Check for search input
-    await expect(page.locator('input[name="q"]')).toBeVisible()
+    // Check for search input (use first() as there may be multiple on page)
+    await expect(page.locator('input[name="q"]').first()).toBeVisible()
   })
 
   test("displays results when searching", async ({ page }) => {
