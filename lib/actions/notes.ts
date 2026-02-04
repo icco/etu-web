@@ -323,7 +323,6 @@ export async function getStats() {
   }
 }
 
-<<<<<<< HEAD
 export async function exportAllNotes() {
   const userId = await requireUser()
 
