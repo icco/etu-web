@@ -77,7 +77,7 @@ test.describe("Dark Mode", () => {
       await enableDarkMode(page)
 
       await page.locator("text=Simple pricing").scrollIntoViewIfNeeded()
-      await expect(page.locator("text=$5")).toBeVisible()
+      await expect(page.locator("text=$5/year").first()).toBeVisible()
       await expect(page).toHaveScreenshot("landing-pricing-dark.png")
     })
   })
