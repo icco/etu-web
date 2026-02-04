@@ -347,7 +347,7 @@ export async function getUserStats() {
  * Returns total blips, unique tags, and words written across all users
  */
 export async function getGlobalStats() {
-  // No userId = global stats (requires backend to be deployed)
+  // Empty userId = global stats (backend returns stats for all users when userId is empty)
   const response = await statsService.getStats(
     { userId: "" },
     getGrpcApiKey()

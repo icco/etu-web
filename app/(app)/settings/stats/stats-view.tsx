@@ -43,14 +43,14 @@ export function StatsView({ userStats, globalStats }: StatsViewProps) {
                 <DocumentTextIcon className="h-6 w-6" />
               </div>
               <div className="stat-title">Your Blips</div>
-              <div className="stat-value">{userStats.totalBlips}</div>
+              <div className="stat-value">{userStats.totalBlips.toLocaleString()}</div>
             </div>
             <div className="stat">
               <div className="stat-figure text-primary">
                 <TagIcon className="h-6 w-6" />
               </div>
               <div className="stat-title">Your Tags</div>
-              <div className="stat-value">{userStats.uniqueTags}</div>
+              <div className="stat-value">{userStats.uniqueTags.toLocaleString()}</div>
             </div>
             <div className="stat">
               <div className="stat-title">Words Written</div>

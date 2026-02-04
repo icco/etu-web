@@ -372,6 +372,8 @@ export const mockApiKeysService = {
 export const mockStatsService = {
   async getStats(request: GetStatsRequest, _apiKey: string): Promise<GetStatsResponse> {
     // Calculate mock stats based on mock data
+    // Note: This mock ignores userId and always returns stats for all mock data
+    // In a real implementation, you might filter by userId when provided
     const totalBlips = BigInt(mockNotes.length)
     const uniqueTags = BigInt(mockTags.length)
     
