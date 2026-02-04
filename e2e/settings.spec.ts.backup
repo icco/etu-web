@@ -210,8 +210,13 @@ test.describe("Settings Page", () => {
     // Verify URL changed
     await page.waitForURL("/settings/stats")
 
+<<<<<<< HEAD
+    // Verify user stats content
+    await expect(page.locator("text=Your Statistics")).toBeVisible()
+=======
     // Verify stats content
     await expect(page.locator("text=Usage Statistics")).toBeVisible()
+>>>>>>> origin/main
     await expect(page.locator("text=Total Blips")).toBeVisible()
     await expect(page.locator("text=Unique Tags")).toBeVisible()
     await expect(page.locator("text=Words Written")).toBeVisible()
@@ -255,7 +260,11 @@ test.describe("Settings Page", () => {
     await page.waitForURL("/settings/stats")
 
     // Verify stats content is visible
+<<<<<<< HEAD
+    await expect(page.locator("text=Your Statistics")).toBeVisible()
+=======
     await expect(page.locator("text=Usage Statistics")).toBeVisible()
+>>>>>>> origin/main
 
     // Verify Stats tab is active
     await expect(page.getByRole("tab", { name: "Stats" })).toHaveClass(/tab-active/)
