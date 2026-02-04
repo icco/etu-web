@@ -108,14 +108,9 @@ test.describe("Export Notes", () => {
     })
     await exportButton.click()
 
-    // Verify loading state appears briefly
-    // Note: This may be too fast to catch in tests, but we check anyway
-    const loadingSpinner = page.locator(".loading-spinner")
-    const exportingText = page.getByText("Exporting...")
-
-    // One of these should be visible or the button should be disabled
-    await expect(
-      exportButton.or(loadingSpinner).or(exportingText)
-    ).toBeVisible()
+    // Verify loading state: button should be disabled during export
+    // The actual loading state may be too brief to catch reliably,
+    // but we verify the button transitions to disabled state
+    await expect(exportButton).toBeDisabled()
   })
 })

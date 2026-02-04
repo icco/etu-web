@@ -336,7 +336,7 @@ export async function exportAllNotes() {
   const exportData = {
     exportDate: new Date().toISOString(),
     userId,
-    totalNotes: response.total,
+    totalNotes: response.notes.length,
     notes: response.notes.map((note) => ({
       id: note.id,
       content: note.content,
