@@ -323,6 +323,45 @@ export async function getStats() {
   }
 }
 
+export async function exportAllNotes() {
+  const userId = await requireUser()
+
+  // Fetch all notes (use a high limit to get all notes)
+  // NOTE: This fetches up to 10,000 notes. For users with more notes,
+  // they may need to export in batches or we need pagination support.
+  const response = await notesService.listNotes(
+    {
+      userId,
+      limit: 10000,
+      offset: 0,
+    },
+    getGrpcApiKey()
+  )
+
+  // Format notes for export
+  const exportData = {
+    exportDate: new Date().toISOString(),
+    userId,
+    totalNotes: response.notes.length,
+    notes: response.notes.map((note) => ({
+      id: note.id,
+      content: note.content,
+      tags: note.tags,
+      createdAt: timestampToDate(note.createdAt).toISOString(),
+      updatedAt: timestampToDate(note.updatedAt).toISOString(),
+      images: note.images.map((img) => ({
+        id: img.id,
+        url: img.url,
+        extractedText: img.extractedText,
+        mimeType: img.mimeType,
+        createdAt: img.createdAt ? timestampToDate(img.createdAt).toISOString() : undefined,
+      })),
+    })),
+  }
+
+  return exportData
+}
+
 /**
  * Get user-specific stats using the Stats API
  * Returns total blips, unique tags, and words written for the current user
