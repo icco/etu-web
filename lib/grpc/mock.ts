@@ -40,6 +40,8 @@ import type {
   DeleteApiKeyResponse,
   VerifyApiKeyRequest,
   VerifyApiKeyResponse,
+  GetStatsRequest,
+  GetStatsResponse,
   ApiKey,
   Note,
   NoteImage,
@@ -364,6 +366,28 @@ export const mockApiKeysService = {
     _apiKey: string
   ): Promise<VerifyApiKeyResponse> {
     return { valid: true, userId: mockUser.id }
+  },
+}
+
+// Mock Stats Service
+export const mockStatsService = {
+  async getStats(request: GetStatsRequest, _apiKey: string): Promise<GetStatsResponse> {
+    // Calculate stats from mock data
+    const totalBlips = mockNotes.length
+    const uniqueTags = mockTags.length
+    
+    // Count words in all notes
+    let wordsWritten = 0
+    for (const note of mockNotes) {
+      const words = note.content.split(/\s+/).filter((w) => w.length > 0)
+      wordsWritten += words.length
+    }
+    
+    return {
+      totalBlips,
+      uniqueTags,
+      wordsWritten,
+    }
   },
 }
 

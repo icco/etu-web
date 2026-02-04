@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { getStats } from "@/lib/actions/notes"
+import { getUserStats, getGlobalStats } from "@/lib/actions/stats"
 import { getApiKeys } from "@/lib/actions/api-keys"
 import { getCurrentUser } from "@/lib/auth"
 import { SettingsView } from "./settings-view"
@@ -13,12 +13,17 @@ export default async function SettingsPage() {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
 
-  const [stats, apiKeys] = await Promise.all([getStats(), getApiKeys()])
+  const [userStats, globalStats, apiKeys] = await Promise.all([
+    getUserStats(),
+    getGlobalStats(),
+    getApiKeys(),
+  ])
 
   return (
     <SettingsView
       user={user}
-      stats={stats}
+      userStats={userStats}
+      globalStats={globalStats}
       initialApiKeys={apiKeys}
     />
   )
