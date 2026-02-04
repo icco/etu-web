@@ -3,14 +3,7 @@ import Credentials from "next-auth/providers/credentials"
 import { z } from "zod"
 import { authConfig } from "./auth.config"
 import { authService, timestampToDate } from "./grpc/client"
-
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
-}
+import { getGrpcApiKey } from "./actions/utils"
 
 const loginSchema = z.object({
   email: z.string().email(),

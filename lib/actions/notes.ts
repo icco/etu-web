@@ -2,8 +2,8 @@
 
 import { z } from "zod"
 import { revalidatePath } from "next/cache"
-import { auth } from "@/lib/auth"
 import { notesService, tagsService, timestampToDate, type ImageUpload } from "@/lib/grpc/client"
+import { getGrpcApiKey, requireUser } from "./utils"
 
 const createNoteSchema = z.object({
   content: z.string().min(1, "Content is required"),
@@ -69,22 +69,7 @@ function parseImageUploads(images?: { data: string; mimeType: string }[]): Image
   })
 }
 
-// Service API key for internal gRPC calls
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
-}
 
-async function requireUser() {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
-  }
-  return session.user.id
-}
 
 export async function createNote(data: {
   content: string

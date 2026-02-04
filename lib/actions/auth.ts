@@ -5,14 +5,7 @@ import { signIn } from "@/lib/auth"
 import { AuthError } from "next-auth"
 import { authService, GrpcError } from "@/lib/grpc/client"
 import { Code } from "@connectrpc/connect"
-
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
-}
+import { getGrpcApiKey } from "./utils"
 
 const registerSchema = z.object({
   email: z.string().email("Invalid email address"),

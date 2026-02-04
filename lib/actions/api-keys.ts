@@ -2,28 +2,12 @@
 
 import { z } from "zod"
 import { revalidatePath } from "next/cache"
-import { auth } from "@/lib/auth"
 import { apiKeysService, timestampToDate } from "@/lib/grpc/client"
-
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
-}
+import { getGrpcApiKey, requireUser } from "./utils"
 
 const createKeySchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
 })
-
-async function requireUser() {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
-  }
-  return session.user.id
-}
 
 export async function createApiKey(name: string) {
   const userId = await requireUser()
