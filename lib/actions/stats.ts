@@ -54,6 +54,7 @@ export async function getGlobalStats(): Promise<StatsData> {
   // Ensure user is authenticated before fetching global stats
   await requireUser()
 
+  // Per backend API design: empty userId returns global stats for all users
   const response = await statsService.getStats(
     {
       userId: undefined, // Empty userId for global stats
