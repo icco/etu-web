@@ -111,3 +111,4 @@ export function StatsView({ userStats, globalStats }: StatsViewProps) {
     </div>
   )
 }
+}
