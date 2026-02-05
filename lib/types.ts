@@ -28,11 +28,7 @@ export type Note = Omit<GrpcNote, "createdAt" | "updatedAt" | "images" | "audios
 }
 
 // View layer type for Tag: omits Timestamp createdAt (not needed in views)
-export type Tag = Omit<GrpcTag, "createdAt"> & {
-  id: string
-  name: string
-  count: number
-}
+export type Tag = Omit<GrpcTag, "createdAt">
 
 // =============================================================================
 // Converter functions: gRPC types -> View types
