@@ -180,14 +180,16 @@ export function AccountView({ user }: AccountViewProps) {
 
   const handleExportNotes = async () => {
     setIsExporting(true)
+    // Yield so React can commit the disabled/loading state before export runs
+    await new Promise((r) => setTimeout(r, 0))
     try {
       const exportData = await exportAllNotes()
-      
+
       // Create a blob from the JSON data
       const blob = new Blob([JSON.stringify(exportData, null, 2)], {
         type: "application/json",
       })
-      
+
       // Create a download link and trigger download
       const url = URL.createObjectURL(blob)
       const link = document.createElement("a")
@@ -197,7 +199,7 @@ export function AccountView({ user }: AccountViewProps) {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-      
+
       toast.success(`Exported ${exportData.totalNotes} notes successfully`)
     } catch {
       toast.error("Failed to export notes")
