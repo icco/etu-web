@@ -445,21 +445,32 @@ export function NoteDialog({
               <div className="space-y-2">
                 <span className="text-xs text-base-content/60">Existing audio files</span>
                 <div className="space-y-2">
-                  {initialAudios.map((audio) => (
-                    <div key={audio.id} className="flex items-center gap-2 p-2 bg-base-200 rounded-lg">
-                      <MusicalNoteIcon className="h-5 w-5 text-base-content/60 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <audio controls className="w-full h-8" src={audio.url}>
-                          <track kind="captions" />
-                        </audio>
-                        {audio.transcribedText && (
-                          <p className="text-xs text-base-content/60 mt-1 line-clamp-2">
-                            {audio.transcribedText}
-                          </p>
-                        )}
+                  {initialAudios.map((audio) => {
+                    // Generate WebVTT caption from transcription if available
+                    const captionUrl = audio.transcribedText
+                      ? `data:text/vtt;base64,${btoa(
+                          `WEBVTT\n\n00:00:00.000 --> 99:59:59.999\n${audio.transcribedText}`
+                        )}`
+                      : undefined
+                    
+                    return (
+                      <div key={audio.id} className="flex items-center gap-2 p-2 bg-base-200 rounded-lg">
+                        <MusicalNoteIcon className="h-5 w-5 text-base-content/60 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <audio controls className="w-full h-8" src={audio.url}>
+                            {captionUrl && (
+                              <track kind="captions" src={captionUrl} srcLang="en" label="Transcription" default />
+                            )}
+                          </audio>
+                          {audio.transcribedText && (
+                            <p className="text-xs text-base-content/60 mt-1 line-clamp-2">
+                              {audio.transcribedText}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -475,7 +486,7 @@ export function NoteDialog({
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-base-content truncate">{audio.fileName}</p>
                         <audio controls className="w-full h-8 mt-1" src={audio.previewUrl}>
-                          <track kind="captions" />
+                          {/* No captions for pending uploads - transcription happens on backend */}
                         </audio>
                       </div>
                       <button

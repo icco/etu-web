@@ -229,20 +229,31 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
               <div className="mt-6 space-y-4">
                 <h4 className="text-sm font-medium text-base-content/60">Attached Audio Files</h4>
                 <div className="space-y-3">
-                  {safeAudios.map((audio) => (
-                    <div key={audio.id} className="space-y-2">
-                      <audio controls className="w-full" src={audio.url}>
-                        <track kind="captions" />
-                        Your browser does not support the audio element.
-                      </audio>
-                      {audio.transcribedText && (
-                        <div className="bg-base-200 rounded-lg p-3">
-                          <p className="text-xs font-medium text-base-content/60 mb-1">Transcription:</p>
-                          <p className="text-sm text-base-content/80">{audio.transcribedText}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {safeAudios.map((audio) => {
+                    // Generate WebVTT caption from transcription if available
+                    const captionUrl = audio.transcribedText
+                      ? `data:text/vtt;base64,${btoa(
+                          `WEBVTT\n\n00:00:00.000 --> 99:59:59.999\n${audio.transcribedText}`
+                        )}`
+                      : undefined
+                    
+                    return (
+                      <div key={audio.id} className="space-y-2">
+                        <audio controls className="w-full" src={audio.url}>
+                          {captionUrl && (
+                            <track kind="captions" src={captionUrl} srcLang="en" label="Transcription" default />
+                          )}
+                          Your browser does not support the audio element.
+                        </audio>
+                        {audio.transcribedText && (
+                          <div className="bg-base-200 rounded-lg p-3">
+                            <p className="text-xs font-medium text-base-content/60 mb-1">Transcription:</p>
+                            <p className="text-sm text-base-content/80">{audio.transcribedText}</p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
