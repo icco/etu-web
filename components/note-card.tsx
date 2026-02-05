@@ -231,8 +231,9 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
                 <div className="space-y-3">
                   {safeAudios.map((audio) => {
                     // Generate WebVTT caption from transcription if available
+                    // Use charset in data URL to avoid base64 encoding issues with Unicode
                     const captionUrl = audio.transcribedText
-                      ? `data:text/vtt;base64,${btoa(
+                      ? `data:text/vtt;charset=utf-8,${encodeURIComponent(
                           `WEBVTT\n\n00:00:00.000 --> 99:59:59.999\n${audio.transcribedText}`
                         )}`
                       : undefined
