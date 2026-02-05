@@ -10,6 +10,7 @@ import {
   StatsService,
   type Note as ProtoNote,
   type NoteImage as ProtoNoteImage,
+  type NoteAudio as ProtoNoteAudio,
   type Tag as ProtoTag,
   type User as ProtoUser,
   type ApiKey as ProtoApiKey,
@@ -86,11 +87,25 @@ export interface ImageUpload {
   mimeType: string
 }
 
+export interface NoteAudio {
+  id: string
+  url: string
+  transcribedText: string
+  mimeType: string
+  createdAt?: Timestamp
+}
+
+export interface AudioUpload {
+  data: Uint8Array
+  mimeType: string
+}
+
 export interface Note {
   id: string
   content: string
   tags: string[]
   images: NoteImage[]
+  audios: NoteAudio[]
   createdAt?: Timestamp
   updatedAt?: Timestamp
 }
@@ -146,6 +161,7 @@ export interface CreateNoteRequest {
   content: string
   tags?: string[]
   images?: ImageUpload[]
+  audios?: AudioUpload[]
 }
 
 export interface CreateNoteResponse {
@@ -168,6 +184,7 @@ export interface UpdateNoteRequest {
   tags?: string[]
   updateTags?: boolean
   addImages?: ImageUpload[]
+  addAudios?: AudioUpload[]
 }
 
 export interface UpdateNoteResponse {
@@ -347,15 +364,26 @@ function convertNoteImage(image: ProtoNoteImage): NoteImage {
   }
 }
 
+function convertNoteAudio(audio: ProtoNoteAudio): NoteAudio {
+  return {
+    id: audio.id,
+    url: audio.url,
+    transcribedText: audio.transcribedText,
+    mimeType: audio.mimeType,
+    createdAt: audio.createdAt ? convertTimestamp(audio.createdAt) : undefined,
+  }
+}
+
 function convertNote(note: ProtoNote | undefined): Note {
   if (!note) {
-    return { id: "", content: "", tags: [], images: [] }
+    return { id: "", content: "", tags: [], images: [], audios: [] }
   }
   return {
     id: note.id,
     content: note.content,
     tags: [...note.tags],
     images: note.images.map(convertNoteImage),
+    audios: note.audios.map(convertNoteAudio),
     createdAt: note.createdAt ? convertTimestamp(note.createdAt) : undefined,
     updatedAt: note.updatedAt ? convertTimestamp(note.updatedAt) : undefined,
   }
@@ -456,6 +484,7 @@ const realNotesService = {
           content: request.content,
           tags: request.tags ?? [],
           images: request.images ?? [],
+          audios: request.audios ?? [],
         },
         { headers: createHeaders(apiKey) }
       )
@@ -488,6 +517,7 @@ const realNotesService = {
           tags: request.tags ?? [],
           updateTags: request.updateTags ?? false,
           addImages: request.addImages ?? [],
+          addAudios: request.addAudios ?? [],
         },
         { headers: createHeaders(apiKey) }
       )

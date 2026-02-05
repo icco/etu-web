@@ -9,6 +9,7 @@ import {
   statsService,
   timestampToDate,
   type ImageUpload,
+  type AudioUpload,
 } from "@/lib/grpc/client"
 
 const createNoteSchema = z.object({
@@ -33,6 +34,23 @@ const ALLOWED_IMAGE_MIME_TYPES = new Set<string>([
 const MAX_IMAGE_UPLOAD_COUNT = 10
 // Aligned with Next server action bodySizeLimit: '10mb' (accounting for base64 ~33% overhead)
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024 // 5 MiB per image
+
+// Audio upload constraints
+const ALLOWED_AUDIO_MIME_TYPES = new Set<string>([
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/wav",
+  "audio/wave",
+  "audio/ogg",
+  "audio/webm",
+  "audio/mp4",
+  "audio/m4a",
+  "audio/flac",
+  "audio/aac",
+])
+
+const MAX_AUDIO_UPLOAD_COUNT = 5
+const MAX_AUDIO_UPLOAD_BYTES = 25 * 1024 * 1024 // 25 MiB per audio
 
 // Estimate decoded bytes from a base64 string without fully decoding
 function estimateBase64Size(base64: string): number {
@@ -75,6 +93,34 @@ function parseImageUploads(images?: { data: string; mimeType: string }[]): Image
   })
 }
 
+// Helper to convert base64 audio data to AudioUpload format
+function parseAudioUploads(audios?: { data: string; mimeType: string }[]): AudioUpload[] {
+  if (!audios || audios.length === 0) return []
+
+  if (audios.length > MAX_AUDIO_UPLOAD_COUNT) {
+    throw new Error("Too many audio files uploaded")
+  }
+
+  return audios.map((audio) => {
+    if (!ALLOWED_AUDIO_MIME_TYPES.has(audio.mimeType)) {
+      throw new Error("Unsupported audio MIME type")
+    }
+
+    const estimatedBytes = estimateBase64Size(audio.data)
+    if (estimatedBytes > MAX_AUDIO_UPLOAD_BYTES) {
+      throw new Error("Audio upload exceeds maximum allowed size")
+    }
+
+    // Use Buffer.from for more efficient base64 decoding on server
+    const buffer = Buffer.from(audio.data, "base64")
+
+    return {
+      data: new Uint8Array(buffer),
+      mimeType: audio.mimeType,
+    }
+  })
+}
+
 // Service API key for internal gRPC calls
 function getGrpcApiKey(): string {
   const key = process.env.GRPC_API_KEY
@@ -96,6 +142,7 @@ export async function createNote(data: {
   content: string
   tags: string[]
   images?: { data: string; mimeType: string }[]
+  audios?: { data: string; mimeType: string }[]
 }) {
   const userId = await requireUser()
   const parsed = createNoteSchema.parse(data)
@@ -106,6 +153,7 @@ export async function createNote(data: {
       content: parsed.content,
       tags: parsed.tags,
       images: parseImageUploads(data.images),
+      audios: parseAudioUploads(data.audios),
     },
     getGrpcApiKey()
   )
@@ -121,6 +169,7 @@ export async function updateNote(data: {
   content?: string
   tags?: string[]
   addImages?: { data: string; mimeType: string }[]
+  addAudios?: { data: string; mimeType: string }[]
 }) {
   const userId = await requireUser()
   const parsed = updateNoteSchema.parse(data)
@@ -133,6 +182,7 @@ export async function updateNote(data: {
       tags: parsed.tags,
       updateTags: parsed.tags !== undefined,
       addImages: parseImageUploads(data.addImages),
+      addAudios: parseAudioUploads(data.addAudios),
     },
     getGrpcApiKey()
   )
@@ -184,6 +234,13 @@ export async function getNote(id: string) {
       mimeType: img.mimeType,
       createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
     })),
+    audios: response.note.audios.map((audio) => ({
+      id: audio.id,
+      url: audio.url,
+      transcribedText: audio.transcribedText,
+      mimeType: audio.mimeType,
+      createdAt: audio.createdAt ? timestampToDate(audio.createdAt) : undefined,
+    })),
   }
 }
 
@@ -224,6 +281,13 @@ export async function getNotes(options?: {
         mimeType: img.mimeType,
         createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
       })),
+      audios: note.audios.map((audio) => ({
+        id: audio.id,
+        url: audio.url,
+        transcribedText: audio.transcribedText,
+        mimeType: audio.mimeType,
+        createdAt: audio.createdAt ? timestampToDate(audio.createdAt) : undefined,
+      })),
     })),
     total: response.total,
   }
@@ -253,6 +317,13 @@ export async function getRandomNotes(options?: { count?: number }) {
       mimeType: img.mimeType,
       createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
     })),
+    audios: note.audios.map((audio) => ({
+      id: audio.id,
+      url: audio.url,
+      transcribedText: audio.transcribedText,
+      mimeType: audio.mimeType,
+      createdAt: audio.createdAt ? timestampToDate(audio.createdAt) : undefined,
+    })),
   }))
 }
 
@@ -280,6 +351,13 @@ export async function searchNotes(options: { query: string; limit?: number; offs
         extractedText: img.extractedText,
         mimeType: img.mimeType,
         createdAt: img.createdAt ? timestampToDate(img.createdAt) : undefined,
+      })),
+      audios: note.audios.map((audio) => ({
+        id: audio.id,
+        url: audio.url,
+        transcribedText: audio.transcribedText,
+        mimeType: audio.mimeType,
+        createdAt: audio.createdAt ? timestampToDate(audio.createdAt) : undefined,
       })),
     })),
     total: response.total,
@@ -382,6 +460,13 @@ export async function exportAllNotes() {
         extractedText: img.extractedText,
         mimeType: img.mimeType,
         createdAt: img.createdAt ? timestampToDate(img.createdAt).toISOString() : undefined,
+      })),
+      audios: note.audios.map((audio) => ({
+        id: audio.id,
+        url: audio.url,
+        transcribedText: audio.transcribedText,
+        mimeType: audio.mimeType,
+        createdAt: audio.createdAt ? timestampToDate(audio.createdAt).toISOString() : undefined,
       })),
     })),
   }
