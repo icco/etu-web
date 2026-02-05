@@ -11,6 +11,7 @@ import {
   type ImageUpload,
   type AudioUpload,
 } from "@/lib/grpc/client"
+import type { Note, Tag } from "@/lib/types"
 
 const createNoteSchema = z.object({
   content: z.string().min(1, "Content is required"),
@@ -210,7 +211,7 @@ export async function deleteNote(id: string) {
   return { success: true }
 }
 
-export async function getNote(id: string) {
+export async function getNote(id: string): Promise<Note> {
   const userId = await requireUser()
 
   const response = await notesService.getNote(
@@ -251,7 +252,7 @@ export async function getNotes(options?: {
   endDate?: Date
   limit?: number
   offset?: number
-}) {
+}): Promise<{ notes: Note[]; total: number }> {
   const userId = await requireUser()
 
   const response = await notesService.listNotes(
@@ -293,7 +294,7 @@ export async function getNotes(options?: {
   }
 }
 
-export async function getRandomNotes(options?: { count?: number }) {
+export async function getRandomNotes(options?: { count?: number }): Promise<Note[]> {
   const userId = await requireUser()
 
   const response = await notesService.getRandomNotes(
@@ -327,7 +328,7 @@ export async function getRandomNotes(options?: { count?: number }) {
   }))
 }
 
-export async function searchNotes(options: { query: string; limit?: number; offset?: number }) {
+export async function searchNotes(options: { query: string; limit?: number; offset?: number }): Promise<{ notes: Note[]; total: number }> {
   const userId = await requireUser()
   const response = await notesService.searchNotes(
     {
@@ -364,7 +365,7 @@ export async function searchNotes(options: { query: string; limit?: number; offs
   }
 }
 
-export async function getTags() {
+export async function getTags(): Promise<Tag[]> {
   const userId = await requireUser()
 
   const response = await tagsService.listTags(
