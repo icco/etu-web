@@ -328,9 +328,9 @@
     levn "^0.4.1"
 
 "@exodus/bytes@^1.11.0", "@exodus/bytes@^1.6.0":
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/@exodus/bytes/-/bytes-1.11.0.tgz#e0fd4f7940997f3a1c09db4bbeb600ec0f633643"
-  integrity sha512-wO3vd8nsEHdumsXrjGO/v4p6irbg7hy9kvIeR6i2AwylZSk4HJdWgL0FNaVquW1+AweJcdvU1IEpuIWk/WaPnA==
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@exodus/bytes/-/bytes-1.12.0.tgz#c7a268cf9c14d44e14959e08824467f496c5f10a"
+  integrity sha512-BuCOHA/EJdPN0qQ5MdgAiJSt9fYDHbghlgrj33gRdy/Yp1/FMCDhU6vJfcKrLC0TPWGSrfH3vYXBQWmFHxlddw==
 
 "@heroicons/react@^2.2.0":
   version "2.2.0"
@@ -361,9 +361,9 @@
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
 "@icco/etu-proto@^2026.2.0":
-  version "2026.2.163558"
-  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/2026.2.163558/9ee3684e37706cef9b76b02c2842b3fb57ef56ba#9ee3684e37706cef9b76b02c2842b3fb57ef56ba"
-  integrity sha512-NigaSQrJDZwVraTlOVfMFAkq41i+eKkG0GKjueZgdIaSpC6jqFY0dGf5cHxvwxXDdlocmCDHxGeFKx2CxpXyUQ==
+  version "2026.2.132145"
+  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/2026.2.132145/9f0c1e4a6e2485c81901250eca2b827c0aa01807#9f0c1e4a6e2485c81901250eca2b827c0aa01807"
+  integrity sha512-JEqlWnh1x6jh8DE6+lOj8S2qPL6OSHIiNhBpeg4C0psNH1QmotAGKSbclk6BEGfkNhsA+a0KapDFsJULV8g27w==
   dependencies:
     "@bufbuild/protobuf" "^2.0.0"
 
@@ -1287,9 +1287,9 @@ callsites@^3.0.0:
   integrity sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==
 
 caniuse-lite@^1.0.30001579, caniuse-lite@^1.0.30001759:
-  version "1.0.30001768"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001768.tgz#546bfaf4ec33305096e842906df911bcf3ac0d1f"
-  integrity sha512-qY3aDRZC5nWPgHUgIB84WL+nySuo19wk0VJpp/XI9T34lrvkyhRvNVOFJOp2kxClQhiFBu+TaUSudf6oa3vkSA==
+  version "1.0.30001769"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001769.tgz#1ad91594fad7dc233777c2781879ab5409f7d9c2"
+  integrity sha512-BCfFL1sHijQlBGWBMuJyhZUhzo7wer5sVj9hqekB/7xn0Ypy+pER/edCYQm4exbXj4WiySGp40P8UuTh6w1srg==
 
 chalk@^4.0.0:
   version "4.1.2"
@@ -2013,9 +2013,9 @@ get-symbol-description@^1.1.0:
     get-intrinsic "^1.2.6"
 
 get-tsconfig@^4.10.0:
-  version "4.13.3"
-  resolved "https://registry.yarnpkg.com/get-tsconfig/-/get-tsconfig-4.13.3.tgz#4d1a0be959d52d9de289f789d7fee83cdbffd8bb"
-  integrity sha512-vp8Cj/+9Q/ibZUrq1rhy8mCTQpCk31A3uu9wc1C50yAb3x2pFHOsGdAZQ7jD86ARayyxZUViYeIztW+GE8dcrg==
+  version "4.13.6"
+  resolved "https://registry.yarnpkg.com/get-tsconfig/-/get-tsconfig-4.13.6.tgz#2fbfda558a98a691a798f123afd95915badce876"
+  integrity sha512-shZT/QMiSHc/YBLxxOkMtgSid5HFoauqCE3/exfsEcwg1WkeqjG+V40yBbBrsD+jW2HDXcs28xOfcbm2jI8Ddw==
   dependencies:
     resolve-pkg-maps "^1.0.0"
 
@@ -2737,9 +2737,9 @@ node-releases@^2.0.27:
   integrity sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==
 
 oauth4webapi@^3.3.0:
-  version "3.8.3"
-  resolved "https://registry.yarnpkg.com/oauth4webapi/-/oauth4webapi-3.8.3.tgz#8a3e36b88a52db5e619907f031bff3770b2ed1a4"
-  integrity sha512-pQ5BsX3QRTgnt5HxgHwgunIRaDXBdkT23tf8dfzmtTIL2LTpdmxgbpbBm0VgFWAIDlezQvQCTgnVIUmHupXHxw==
+  version "3.8.4"
+  resolved "https://registry.yarnpkg.com/oauth4webapi/-/oauth4webapi-3.8.4.tgz#95918759aa4f1cce9ff94237ed653901f6ee7c23"
+  integrity sha512-EKlVEgav8zH31IXxvhCqjEgQws6S9QmnmJyLXmeV5REf59g7VmqRVa5l/rhGWtUqGm2rLVTNwukn9hla5kJ2WQ==
 
 object-assign@^4.1.1:
   version "4.1.1"
@@ -3373,17 +3373,17 @@ tinyglobby@^0.2.13, tinyglobby@^0.2.15:
     fdir "^6.5.0"
     picomatch "^4.0.3"
 
-tldts-core@^7.0.22:
-  version "7.0.22"
-  resolved "https://registry.yarnpkg.com/tldts-core/-/tldts-core-7.0.22.tgz#c446174555a1f38c166740934e5809a092b1d4c8"
-  integrity sha512-KgbTDC5wzlL6j/x6np6wCnDSMUq4kucHNm00KXPbfNzmllCmtmvtykJHfmgdHntwIeupW04y8s1N/43S1PkQDw==
+tldts-core@^7.0.23:
+  version "7.0.23"
+  resolved "https://registry.yarnpkg.com/tldts-core/-/tldts-core-7.0.23.tgz#47bf18282a44641304a399d247703413b5d3e309"
+  integrity sha512-0g9vrtDQLrNIiCj22HSe9d4mLVG3g5ph5DZ8zCKBr4OtrspmNB6ss7hVyzArAeE88ceZocIEGkyW1Ime7fxPtQ==
 
 tldts@^7.0.5:
-  version "7.0.22"
-  resolved "https://registry.yarnpkg.com/tldts/-/tldts-7.0.22.tgz#1ace3cf67ee9ca197636da1b410dff8ba837d84f"
-  integrity sha512-nqpKFC53CgopKPjT6Wfb6tpIcZXHcI6G37hesvikhx0EmUGPkZrujRyAjgnmp1SHNgpQfKVanZ+KfpANFt2Hxw==
+  version "7.0.23"
+  resolved "https://registry.yarnpkg.com/tldts/-/tldts-7.0.23.tgz#444f0f0720fa777839a23ea665e04f61ee57217a"
+  integrity sha512-ASdhgQIBSay0R/eXggAkQ53G4nTJqTXqC2kbaBbdDwM7SkjyZyO0OaaN1/FH7U/yCeqOHDwFO5j8+Os/IS1dXw==
   dependencies:
-    tldts-core "^7.0.22"
+    tldts-core "^7.0.23"
 
 to-regex-range@^5.0.1:
   version "5.0.1"
