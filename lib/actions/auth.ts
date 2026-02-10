@@ -1,10 +1,18 @@
 "use server"
 
 import { z } from "zod"
+import { headers } from "next/headers"
 import { signIn } from "@/lib/auth"
 import { AuthError } from "next-auth"
 import { authService, GrpcError } from "@/lib/grpc/client"
 import { Code } from "@connectrpc/connect"
+import { isRateLimited, getClientIdentifier } from "@/lib/rate-limit"
+import {
+  isAccountLocked,
+  recordFailedLogin,
+  recordSuccessfulLogin,
+} from "@/lib/account-lockout"
+import logger from "@/lib/logger"
 
 function getGrpcApiKey(): string {
   const key = process.env.GRPC_API_KEY
@@ -36,6 +44,16 @@ export async function register(formData: FormData) {
 
   const { email, password } = parsed.data
 
+  // Rate limiting: 5 attempts per minute per IP
+  const headersList = await headers()
+  const clientId = await getClientIdentifier(headersList)
+  const rateLimitKey = `register:${clientId}`
+
+  if (isRateLimited(rateLimitKey, 5, 60 * 1000)) {
+    logger.security("Registration rate limit exceeded", { clientId, email })
+    return { error: "Too many registration attempts. Please try again later." }
+  }
+
   try {
     await authService.register({ email, password }, getGrpcApiKey())
   } catch (error) {
@@ -43,7 +61,7 @@ export async function register(formData: FormData) {
     if (error instanceof GrpcError && error.code === Code.AlreadyExists) {
       return { error: "An account with this email already exists" }
     }
-    console.error("Registration error:", error)
+    logger.error("Registration error", error, { email })
     return { error: "Failed to create account" }
   }
 
@@ -72,16 +90,57 @@ export async function login(formData: FormData) {
     return { error: parsed.error.issues[0].message }
   }
 
+  const { email, password } = parsed.data
+
+  // Check account lockout first
+  const lockStatus = isAccountLocked(email)
+  if (lockStatus.isLocked && lockStatus.unlockAt) {
+    const minutesRemaining = Math.ceil(
+      (lockStatus.unlockAt - Date.now()) / (60 * 1000)
+    )
+    logger.security("Login attempt on locked account", { email })
+    return {
+      error: `Account temporarily locked due to multiple failed login attempts. Please try again in ${minutesRemaining} minute${minutesRemaining === 1 ? "" : "s"}.`,
+    }
+  }
+
+  // Rate limiting: 5 attempts per minute per IP
+  const headersList = await headers()
+  const clientId = await getClientIdentifier(headersList)
+  const rateLimitKey = `login:${clientId}`
+
+  if (isRateLimited(rateLimitKey, 5, 60 * 1000)) {
+    logger.security("Login rate limit exceeded", { clientId, email })
+    return { error: "Too many login attempts. Please try again later." }
+  }
+
   try {
     await signIn("credentials", {
       email: parsed.data.email,
       password: parsed.data.password,
       redirectTo: "/notes",
     })
+
+    // Successful login - clear any lockout state
+    recordSuccessfulLogin(email)
   } catch (error) {
     if (error instanceof AuthError) {
+      // Record failed login attempt
+      const lockoutStatus = recordFailedLogin(email)
+
+      if (lockoutStatus.isLocked && lockoutStatus.unlockAt) {
+        const minutesRemaining = Math.ceil(
+          (lockoutStatus.unlockAt - Date.now()) / (60 * 1000)
+        )
+        logger.security("Account locked after failed attempts", { email })
+        return {
+          error: `Account temporarily locked due to multiple failed login attempts. Please try again in ${minutesRemaining} minute${minutesRemaining === 1 ? "" : "s"}.`,
+        }
+      }
+
       switch (error.type) {
         case "CredentialsSignin":
+          // Don't reveal remaining attempts to avoid information leakage
           return { error: "Invalid email or password" }
         default:
           return { error: "Something went wrong" }
