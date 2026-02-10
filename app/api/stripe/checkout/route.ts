@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { authService } from "@/lib/grpc/client"
 import { stripe, STRIPE_PRICE_ID } from "@/lib/stripe"
+import { isSameOrigin } from "@/lib/security"
+import logger from "@/lib/logger"
 
 function getGrpcApiKey(): string {
   const key = process.env.GRPC_API_KEY
@@ -11,7 +13,19 @@ function getGrpcApiKey(): string {
   return key
 }
 
-export async function POST() {
+export async function POST(request: Request) {
+  // CSRF protection: verify origin
+  if (!isSameOrigin(request)) {
+    logger.security("Stripe checkout CSRF attempt detected", {
+      origin: request.headers.get("origin"),
+      referer: request.headers.get("referer"),
+    })
+    return NextResponse.json(
+      { error: "Invalid request origin" },
+      { status: 403 }
+    )
+  }
+
   if (!stripe || !STRIPE_PRICE_ID) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 503 })
   }
@@ -59,7 +73,9 @@ export async function POST() {
 
     return NextResponse.json({ url: checkoutSession.url })
   } catch (error) {
-    console.error("Stripe checkout error:", error)
+    logger.error("Stripe checkout error", error, {
+      userId: session.user.id,
+    })
     return NextResponse.json({ error: "Failed to create checkout" }, { status: 500 })
   }
 }
