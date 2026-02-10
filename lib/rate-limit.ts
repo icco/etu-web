@@ -139,6 +139,10 @@ export function resetRateLimit(identifier: string) {
 }
 
 // Helper to get client identifier from request headers
+// NOTE: This implementation trusts the x-forwarded-for header which requires
+// a trusted reverse proxy (e.g., Vercel, Cloudflare, nginx) that properly sets
+// these headers. If your deployment doesn't have a trusted proxy, consider
+// using a different identifier or implementing additional validation.
 export function getClientIdentifier(headers?: Headers): string {
   if (!headers) {
     return "unknown"
@@ -148,6 +152,7 @@ export function getClientIdentifier(headers?: Headers): string {
   const forwardedFor = headers.get("x-forwarded-for")
   if (forwardedFor) {
     // x-forwarded-for can contain multiple IPs, take the first one
+    // In a trusted proxy setup, this is the original client IP
     return forwardedFor.split(",")[0].trim()
   }
 

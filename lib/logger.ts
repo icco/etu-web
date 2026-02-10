@@ -111,16 +111,29 @@ class Logger {
   }
 
   /**
-   * Log security events (always logged with full context)
-   * WARNING: Only pass non-sensitive data to the context parameter.
-   * This method does NOT sanitize context data as it's meant for
-   * security audit trails that need precise information.
-   * Examples: IP addresses, user IDs, timestamps, action types.
-   * Never pass: passwords, tokens, API keys, PII, or error objects.
+   * Log security events (always logged with sanitized context)
+   * NOTE: Security logs should contain audit trail information like:
+   * IP addresses, user IDs, timestamps, action types.
+   * Context is automatically sanitized to remove common sensitive fields.
    */
   security(event: string, context?: LogContext) {
     const timestamp = new Date().toISOString()
-    console.warn(`[${timestamp}] [SECURITY] ${event}`, context || {})
+    
+    // Basic sanitization of context to remove common sensitive fields
+    let sanitizedContext = context || {}
+    if (context) {
+      const sensitiveKeys = ['password', 'token', 'secret', 'key', 'credential', 'apiKey']
+      sanitizedContext = Object.entries(context).reduce((acc, [key, value]) => {
+        if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk))) {
+          acc[key] = '[REDACTED]'
+        } else {
+          acc[key] = value
+        }
+        return acc
+      }, {} as LogContext)
+    }
+    
+    console.warn(`[${timestamp}] [SECURITY] ${event}`, sanitizedContext)
   }
 }
 

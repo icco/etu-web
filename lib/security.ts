@@ -107,6 +107,9 @@ export function containsSensitiveData(str: string): boolean {
 
 /**
  * Redact sensitive information from a string
+ * NOTE: This provides basic protection against common sensitive data patterns.
+ * The patterns may have false positives (e.g., matching dates as credit cards).
+ * For production use, consider more sophisticated validation or dedicated libraries.
  * 
  * @param str - String to redact
  * @returns Redacted string
@@ -114,24 +117,25 @@ export function containsSensitiveData(str: string): boolean {
 export function redactSensitiveData(str: string): string {
   let redacted = str
 
-  // Redact emails
+  // Redact emails (simplified pattern, may have false positives)
   redacted = redacted.replace(
-    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
+    /\b[\w.!#$%&'*+/=?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+\b/g,
     "[EMAIL_REDACTED]"
   )
 
-  // Redact potential tokens/keys (long alphanumeric strings)
+  // Redact potential tokens/keys (long alphanumeric strings, 32+ chars)
   redacted = redacted.replace(
     /\b[A-Za-z0-9_-]{32,}\b/g,
     "[TOKEN_REDACTED]"
   )
 
-  // Redact SSN-like patterns
+  // Redact SSN-like patterns (XXX-XX-XXXX)
   redacted = redacted.replace(/\b\d{3}-\d{2}-\d{4}\b/g, "[SSN_REDACTED]")
 
-  // Redact credit card-like patterns
+  // Redact potential credit card patterns (note: may have false positives)
+  // Only matches if it looks like a credit card with spaces or dashes
   redacted = redacted.replace(
-    /\b(?:\d{4}[-\s]?){3}\d{4}\b/g,
+    /\b\d{4}[-\s]\d{4}[-\s]\d{4}[-\s]\d{4}\b/g,
     "[CARD_REDACTED]"
   )
 

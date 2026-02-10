@@ -119,8 +119,8 @@ export async function login(formData: FormData) {
 
   try {
     await signIn("credentials", {
-      email: parsed.data.email,
-      password: parsed.data.password,
+      email,
+      password,
       redirectTo: "/notes",
     })
 
