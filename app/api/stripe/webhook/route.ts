@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 import { authService, Timestamp } from "@/lib/grpc/client"
 import { stripe } from "@/lib/stripe"
+import logger from "@/lib/logger"
 
 function getGrpcApiKey(): string {
   const key = process.env.GRPC_API_KEY
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
   } catch (err) {
-    console.error("Webhook signature verification failed:", err)
+    logger.error("Webhook signature verification failed", err)
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
   }
 
@@ -116,7 +117,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    console.error("Webhook handler error:", error)
+    logger.error("Webhook handler error", error, {
+      eventType: event.type,
+    })
     return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 })
   }
 }
