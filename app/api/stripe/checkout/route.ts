@@ -16,7 +16,7 @@ function getGrpcApiKey(): string {
 export async function POST(request: Request) {
   // CSRF protection: verify origin
   if (!isSameOrigin(request)) {
-    logger.warn({
+    logger.error({
       origin: request.headers.get("origin"),
       referer: request.headers.get("referer"),
     }, "Stripe checkout CSRF attempt detected")
