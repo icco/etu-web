@@ -210,9 +210,9 @@
   integrity sha512-NmXRccUJMk2AWA5A7e5a//3bCIMyOu2hAtdRYrhPPHjDxINuCwX1w6rnIZ4xjLcp0ayv6h8Pc3X0eJUGiAAXHQ==
 
 "@csstools/css-calc@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@csstools/css-calc/-/css-calc-3.0.0.tgz#ca91f701626c49a45d82047ad3149ac3379a8228"
-  integrity sha512-q4d82GTl8BIlh/dTnVsWmxnbWJeb3kiU8eUH71UxlxnS+WIaALmtzTL8gR15PkYOexMQYVk0CO4qIG93C1IvPA==
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@csstools/css-calc/-/css-calc-3.0.1.tgz#a8c1301c91b249d5ea445f90f3f8b03b2b7eb87f"
+  integrity sha512-bsDKIP6f4ta2DO9t+rAbSSwv4EMESXy5ZIvzQl1afmD6Z1XHkVu9ijcG9QR/qSgQS1dVa+RaQ/MfQ7FIB/Dn1Q==
 
 "@csstools/css-color-parser@^4.0.1":
   version "4.0.1"
@@ -361,9 +361,9 @@
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
 "@icco/etu-proto@^2026.2.0":
-  version "2026.2.43408"
-  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/2026.2.43408/b4e1299a37a51b067a6f8cac62f66b4aaa611739#b4e1299a37a51b067a6f8cac62f66b4aaa611739"
-  integrity sha512-IiJpImS4xusCE6va44Xd3nGqTxiLN0B3gOQp7zizswxt7r2YzZ1KlOjmwC5tkf6ir3C4uZ9a7qtrpnNVSZk44g==
+  version "2026.2.175709"
+  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/2026.2.175709/7286b83c06dbd78c874f7b06009d527d1311e7a2#7286b83c06dbd78c874f7b06009d527d1311e7a2"
+  integrity sha512-eaDitIHc7ZTPb+YGOuN+8ckhF6s5/KV85jeBXHo3DL0xUbfsKpJowvqjraqj81MeIQXbLS4kocHBRBXn/8c49g==
   dependencies:
     "@bufbuild/protobuf" "^2.0.0"
 
@@ -819,9 +819,9 @@
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
 
 "@types/node@^25.2.2":
-  version "25.2.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-25.2.2.tgz#0ddfe326c326afcb3422d32bfe5eb2938e1cb5db"
-  integrity sha512-BkmoP5/FhRYek5izySdkOneRyXYN35I860MFAGupTdebyE66uZaR+bXLHq8k4DirE5DwQi3NuhvRU1jqTVwUrQ==
+  version "25.2.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-25.2.3.tgz#9c18245be768bdb4ce631566c7da303a5c99a7f8"
+  integrity sha512-m0jEgYlYz+mDJZ2+F4v8D1AyQb+QzsNqRuI7xg1VQX/KlKS0qT9r1Mo16yo5F/MtifXFgaofIFsdFMox2SxIbQ==
   dependencies:
     undici-types "~7.16.0"
 
@@ -2622,9 +2622,9 @@ loose-envify@^1.4.0:
     js-tokens "^3.0.0 || ^4.0.0"
 
 lru-cache@^11.2.4, lru-cache@^11.2.5:
-  version "11.2.5"
-  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-11.2.5.tgz#6811ae01652ae5d749948cdd80bcc22218c6744f"
-  integrity sha512-vFrFJkWtJvJnD5hg+hJvVE8Lh/TcMzKnTgCWmtBipwI5yLX/iX+5UB2tfuyODF5E7k9xEzMdYgGqaSb1c0c5Yw==
+  version "11.2.6"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-11.2.6.tgz#356bf8a29e88a7a2945507b31f6429a65a192c58"
+  integrity sha512-ESL2CrkS/2wTPfuend7Zhkzo2u0daGJ/A2VucJOgQ/C48S/zB8MMeMHSGKYpXhIjbPxfuezITkaBH1wqv00DDQ==
 
 lru-cache@^5.1.1:
   version "5.1.1"
@@ -3285,9 +3285,9 @@ side-channel@^1.1.0:
     side-channel-weakmap "^1.0.2"
 
 sonic-boom@^4.0.1:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/sonic-boom/-/sonic-boom-4.2.0.tgz#e59a525f831210fa4ef1896428338641ac1c124d"
-  integrity sha512-INb7TM37/mAcsGmc9hyyI6+QR3rR1zVRu36B0NeGXKnOOLiZOfER5SA+N7X7k3yUYRzLWafduTDvJAfDswwEww==
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/sonic-boom/-/sonic-boom-4.2.1.tgz#28598250df4899c0ac572d7e2f0460690ba6a030"
+  integrity sha512-w6AxtubXa2wTXAUsZMMWERrsIRAdrK0Sc+FUytWvYAhBJLyuI4llrMIC1DtlNSdI99EI86KZum2MMq3EAZlF9Q==
   dependencies:
     atomic-sleep "^1.0.0"
 
