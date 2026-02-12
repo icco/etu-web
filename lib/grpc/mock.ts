@@ -63,8 +63,24 @@ const mockNotes: Note[] = [
     content:
       "This is my first thought about **building** something great. I have many ideas for new features.\n\nIt has multiple paragraphs and supports markdown.",
     tags: ["ideas", "projects"],
-    images: [],
-    audios: [],
+    images: [
+      {
+        id: "mock-image-1",
+        url: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==",
+        extractedText: "This is a sample extracted text from an image. It demonstrates how the CollapsibleTranscript component handles long text that exceeds the maxLength threshold. The user can click 'Show more' to expand and read the full content, then click 'Show less' to collapse it again.",
+        mimeType: "image/png",
+        createdAt: mockTimestamp(new Date("2026-01-25T10:00:00Z")),
+      },
+    ],
+    audios: [
+      {
+        id: "mock-audio-1",
+        url: "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7v////////////////////////////////////////////////////////////////AAAAAExhdmM1OC4xMzQAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//tQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tQZAkP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
+        transcribedText: "Welcome to this audio transcription. This demonstrates the CollapsibleTranscript component working with audio files. The transcription can be quite long, spanning multiple sentences and containing detailed information about what was discussed in the audio recording. Users can expand to read the full transcript or collapse it to save space.",
+        mimeType: "audio/mp3",
+        createdAt: mockTimestamp(new Date("2026-01-25T10:00:00Z")),
+      },
+    ],
     createdAt: mockTimestamp(new Date("2026-01-25T10:00:00Z")),
     updatedAt: mockTimestamp(new Date("2026-01-25T10:00:00Z")),
   },
@@ -72,7 +88,15 @@ const mockNotes: Note[] = [
     id: "mock-note-2",
     content: "Meeting notes from today:\n- Discussed roadmap\n- Aligned on priorities\n- Next steps identified",
     tags: ["work", "meetings"],
-    images: [],
+    images: [
+      {
+        id: "mock-image-2",
+        url: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+        extractedText: "Short extracted text.",
+        mimeType: "image/png",
+        createdAt: mockTimestamp(new Date("2026-01-24T14:30:00Z")),
+      },
+    ],
     audios: [],
     createdAt: mockTimestamp(new Date("2026-01-24T14:30:00Z")),
     updatedAt: mockTimestamp(new Date("2026-01-24T14:30:00Z")),

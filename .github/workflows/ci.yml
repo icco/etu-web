@@ -144,7 +144,7 @@ jobs:
         run: exit 1
   merge:
     needs: e2e
-    if: always() && github.event_name == 'pull_request'
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -153,7 +153,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.ref }}
           fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -165,14 +165,31 @@ jobs:
         with:
           pattern: e2e-screenshots-*
           merge-multiple: true
-      - name: Commit screenshots to PR branch
-        if: always()
+      - name: Commit screenshots to main branch
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: 'chore: update e2e screenshots'
           file_pattern: e2e/**/*.png
+      - name: Fail if tests failed
+        if: needs.e2e.result == 'failure'
+        run: exit 1
+  pr-comment:
+    needs: e2e
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
       - name: Comment PR with screenshots
-        if: always()
         run: node .github/scripts/comment-screenshots.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -247,7 +264,7 @@ jobs:
       - lint
       - dockerfmt
       - build-and-push-image
-      - e2e
+      - pr-comment
       - build-docs
       - misspell
     runs-on: ubuntu-latest
