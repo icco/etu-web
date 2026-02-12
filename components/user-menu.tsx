@@ -16,7 +16,13 @@ import { usePathname } from "next/navigation"
 export function UserMenu() {
   const pathname = usePathname()
 
-  const isActive = (href: string) => pathname === href || pathname?.startsWith(`${href}/`)
+  const isActive = (href: string) => {
+    if (!pathname) return false
+    if (pathname === href) return true
+    // Match subpaths: /notes matches /notes/123 but not /notes-archive
+    if (pathname.startsWith(`${href}/`)) return true
+    return false
+  }
 
   return (
     <div className="dropdown dropdown-end">
