@@ -29,6 +29,7 @@ export function CollapsibleTranscript({ text, label = "Transcription:", maxLengt
         {isExpanded ? text : `${text.slice(0, maxLength)}...`}
       </p>
       <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         className="btn btn-ghost btn-xs mt-2 gap-1"
       >
