@@ -8,8 +8,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { NavSearch } from "@/components/nav-search"
 import { UserMenu } from "@/components/user-menu"
-import { AppNav } from "@/components/app-nav"
-import { MobileNav } from "@/components/mobile-nav"
 import { useNoteActions } from "@/lib/hooks/use-note-actions"
 import { groupNotesByDate } from "@/lib/utils/group-notes"
 import type { Tag } from "@/lib/grpc/client"
@@ -40,8 +38,7 @@ export function SearchView({ initialNotes, initialTags, query }: SearchViewProps
   return (
     <>
       <div className="min-h-screen bg-base-200 flex flex-col">
-        <Header logoHref="/" nav={<AppNav />}>
-          <MobileNav />
+        <Header logoHref="/">
           <NavSearch defaultValue={query} />
           <UserMenu />
         </Header>

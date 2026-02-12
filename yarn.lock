@@ -328,9 +328,9 @@
     levn "^0.4.1"
 
 "@exodus/bytes@^1.11.0", "@exodus/bytes@^1.6.0":
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/@exodus/bytes/-/bytes-1.13.0.tgz#0164f26e542b606ab25dd29671ba2c9697426abe"
-  integrity sha512-VnfL2lS43Z9F8li1faMH9hDZwqfrF5JvOePmrF8oESfo0ijaujnT81zYtienQRpoFa+FJbq0E5rrnMWEW73gOw==
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@exodus/bytes/-/bytes-1.14.0.tgz#d6bbe4449e0762d65fca2543abd6ca1532de9cf9"
+  integrity sha512-YiY1OmY6Qhkvmly8vZiD8wZRpW/npGZNg+0Sk8mstxirRHCg6lolHt5tSODCfuNPE/fBsAqRwDJE417x7jDDHA==
 
 "@heroicons/react@^2.2.0":
   version "2.2.0"

@@ -35,16 +35,17 @@ test.describe("Tags Page", () => {
     await expect(page.locator(".badge").first()).toBeVisible()
   })
 
-  test("has navigation links", async ({ page, viewport }) => {
-    // Skip on mobile - mobile nav is tested separately in mobile-navigation.spec.ts
-    test.skip(viewport !== null && viewport.width < 768, "Mobile navigation tested separately")
-
+  test("has navigation links in user menu", async ({ page }) => {
     await expect(page.locator("h1").filter({ hasText: "Tags" })).toBeVisible({ timeout: 10000 })
 
-    // Check for nav links
-    await expect(page.getByRole("link", { name: /notes/i })).toBeVisible()
-    await expect(page.getByRole("link", { name: /history/i })).toBeVisible()
-    await expect(page.getByRole("link", { name: /search/i })).toBeVisible()
+    // Open user menu dropdown
+    await page.getByRole("button", { name: "Open user menu" }).click()
+
+    // Check for nav links inside the dropdown
+    const dropdown = page.locator('.dropdown-content')
+    await expect(dropdown.getByRole("link", { name: /^notes$/i })).toBeVisible()
+    await expect(dropdown.getByRole("link", { name: /^history$/i })).toBeVisible()
+    await expect(dropdown.getByRole("link", { name: /^search$/i })).toBeVisible()
   })
 
   test("clicking tag navigates to search", async ({ page }) => {

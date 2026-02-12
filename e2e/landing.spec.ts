@@ -51,16 +51,11 @@ test.describe("Landing Page (Authenticated)", () => {
     await page.waitForURL("/notes")
   })
 
-  test("shows navigation links when logged in", async ({ page, viewport }) => {
-    // Skip on mobile - mobile nav is tested separately in mobile-navigation.spec.ts
-    test.skip(viewport !== null && viewport.width < 768, "Mobile navigation tested separately")
-
+  test("redirects logged-in users to /notes", async ({ page }) => {
+    // Try to visit the landing page
     await page.goto("/")
-    // Check for app navigation links
-    await expect(page.getByRole("link", { name: /notes/i })).toBeVisible()
-    await expect(page.getByRole("link", { name: /history/i })).toBeVisible()
-    await expect(page.getByRole("link", { name: /search/i })).toBeVisible()
-    await expect(page.getByRole("link", { name: /tags/i })).toBeVisible()
-    await expect(page).toHaveScreenshot("landing-authenticated.png")
+    
+    // Should be redirected to /notes
+    await expect(page).toHaveURL("/notes")
   })
 })
