@@ -17,8 +17,9 @@ test.describe("Notes Page", () => {
     await expect(page.locator("text=ideas").first()).toBeVisible({ timeout: 10000 })
 
     // Verify mock notes are displayed (3x2 grid + latest blip section)
-    await expect(page.locator("text=projects").first()).toBeVisible()
-    await expect(page.locator("text=work").first()).toBeVisible()
+    // Scope to .card to avoid matching hidden text inside <dialog> modals
+    await expect(page.locator(".card").filter({ hasText: "projects" }).first()).toBeVisible()
+    await expect(page.locator(".card").filter({ hasText: "work" }).first()).toBeVisible()
     await expect(page).toHaveScreenshot("notes-list.png")
   })
 
