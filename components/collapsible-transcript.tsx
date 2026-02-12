@@ -34,7 +34,6 @@ export function CollapsibleTranscript({ text, label = "Transcription:", maxLengt
         className="btn btn-ghost btn-xs mt-2 gap-1"
         aria-label={isExpanded ? "Collapse transcription" : "Expand transcription"}
         aria-expanded={isExpanded}
-        aria-expanded={isExpanded}
       >
         {isExpanded ? (
           <>
