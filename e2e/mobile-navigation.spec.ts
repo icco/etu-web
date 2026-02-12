@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test"
 
 test.describe("Mobile Navigation", () => {
-  // Skip tests on desktop - mobile nav is hidden with md:hidden
+  // Skip tests on desktop - user menu dropdown is optimized for mobile too
   test.skip(({ viewport }) => {
     return viewport !== null && viewport.width >= 768
-  }, "Mobile navigation only visible on mobile viewports")
+  }, "Testing navigation on mobile viewports")
 
   test.beforeEach(async ({ page }) => {
     // Authenticate via the login page
@@ -15,49 +15,50 @@ test.describe("Mobile Navigation", () => {
     await page.waitForURL("/notes")
   })
 
-  test("mobile menu button is visible on home page", async ({ page }) => {
-    await page.goto("/")
-
-    // Check that the mobile menu button is visible using test ID
-    const mobileMenuButton = page.getByTestId("mobile-nav").getByRole("button", { name: "Open navigation menu" })
-    await expect(mobileMenuButton).toBeVisible()
-  })
-
-  test("can navigate to /notes from home page using mobile menu", async ({ page }) => {
-    await page.goto("/")
-
-    // Click the mobile menu button using test ID
-    await page.getByTestId("mobile-nav").getByRole("button", { name: "Open navigation menu" }).click()
-
-    // Wait for dropdown to appear and click Notes link
-    await page.getByTestId("mobile-nav").locator('.dropdown-content').getByRole("link", { name: /notes/i }).click()
-
-    // Verify we navigated to /notes
-    await expect(page).toHaveURL("/notes")
-  })
-
-  test("mobile menu shows all navigation options", async ({ page }) => {
-    await page.goto("/")
-
-    // Click the mobile menu button
-    await page.getByTestId("mobile-nav").getByRole("button", { name: "Open navigation menu" }).click()
-
-    // Check all navigation links are visible in the menu
-    const dropdown = page.getByTestId("mobile-nav").locator('.dropdown-content')
-    await expect(dropdown.getByRole("link", { name: /notes/i })).toBeVisible()
-    await expect(dropdown.getByRole("link", { name: /history/i })).toBeVisible()
-    await expect(dropdown.getByRole("link", { name: /search/i })).toBeVisible()
-    await expect(dropdown.getByRole("link", { name: /tags/i })).toBeVisible()
-  })
-
-  test("mobile menu works on /notes page", async ({ page }) => {
+  test("user menu button is visible on notes page", async ({ page }) => {
     await page.goto("/notes")
 
-    // Click the mobile menu button
-    await page.getByTestId("mobile-nav").getByRole("button", { name: "Open navigation menu" }).click()
+    // Check that the user menu button is visible
+    const userMenuButton = page.getByRole("button", { name: "Open user menu" })
+    await expect(userMenuButton).toBeVisible()
+  })
 
-    // Navigate to History
-    await page.getByTestId("mobile-nav").locator('.dropdown-content').getByRole("link", { name: /history/i }).click()
+  test("can navigate to /history from notes page using user menu", async ({ page }) => {
+    await page.goto("/notes")
+
+    // Click the user menu button
+    await page.getByRole("button", { name: "Open user menu" }).click()
+
+    // Wait for dropdown to appear and click History link
+    await page.getByRole("link", { name: /history/i }).first().click()
+
+    // Verify we navigated to /history
     await expect(page).toHaveURL("/history")
+  })
+
+  test("user menu shows all navigation options", async ({ page }) => {
+    await page.goto("/notes")
+
+    // Click the user menu button
+    await page.getByRole("button", { name: "Open user menu" }).click()
+
+    // Check all navigation links are visible in the menu
+    await expect(page.getByRole("link", { name: /^notes$/i }).first()).toBeVisible()
+    await expect(page.getByRole("link", { name: /^history$/i }).first()).toBeVisible()
+    await expect(page.getByRole("link", { name: /^search$/i }).first()).toBeVisible()
+    await expect(page.getByRole("link", { name: /^tags$/i }).first()).toBeVisible()
+    await expect(page.getByRole("link", { name: /settings/i }).first()).toBeVisible()
+    await expect(page.getByRole("button", { name: /logout/i })).toBeVisible()
+  })
+
+  test("user menu works on /history page", async ({ page }) => {
+    await page.goto("/history")
+
+    // Click the user menu button
+    await page.getByRole("button", { name: "Open user menu" }).click()
+
+    // Navigate to Search
+    await page.getByRole("link", { name: /^search$/i }).first().click()
+    await expect(page).toHaveURL("/search")
   })
 })
