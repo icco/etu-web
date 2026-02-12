@@ -5,6 +5,7 @@ import { marked } from "marked"
 import DOMPurify from "dompurify"
 import { XMarkIcon, PhotoIcon, MusicalNoteIcon } from "@heroicons/react/24/outline"
 import type { NoteImage as GrpcNoteImage, NoteAudio as GrpcNoteAudio } from "@/lib/grpc/client"
+import { TranscriptCollapse } from "@/components/transcript-collapse"
 
 // Pick only the fields this component uses
 type NoteImage = Pick<GrpcNoteImage, "id" | "url" | "mimeType">
@@ -457,16 +458,14 @@ export function NoteDialog({
                     return (
                       <div key={audio.id} className="flex items-center gap-2 p-2 bg-base-200 rounded-lg">
                         <MusicalNoteIcon className="h-5 w-5 text-base-content/60 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 space-y-2">
                           <audio controls className="w-full h-8" src={audio.url}>
                             {captionUrl && (
                               <track kind="captions" src={captionUrl} srcLang="en" label="Transcription" default />
                             )}
                           </audio>
                           {audio.transcribedText && (
-                            <p className="text-xs text-base-content/60 mt-1 line-clamp-2">
-                              {audio.transcribedText}
-                            </p>
+                            <TranscriptCollapse text={audio.transcribedText} label="Transcription:" maxLength={200} />
                           )}
                         </div>
                       </div>
