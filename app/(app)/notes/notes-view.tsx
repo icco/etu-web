@@ -6,8 +6,6 @@ import { NoteDialog } from "@/components/note-dialog"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { UserMenu } from "@/components/user-menu"
-import { AppNav } from "@/components/app-nav"
-import { MobileNav } from "@/components/mobile-nav"
 import { useNoteActions } from "@/lib/hooks/use-note-actions"
 import type { Tag } from "@/lib/grpc/client"
 import type { Note } from "@/lib/types"
@@ -38,8 +36,7 @@ export function NotesView({ initialRandomNotes, initialRecentNote, initialTags }
   return (
     <>
       <div className="min-h-screen bg-base-200 flex flex-col">
-        <Header logoHref="/" nav={<AppNav />}>
-          <MobileNav />
+        <Header logoHref="/">
           <UserMenu />
         </Header>
 

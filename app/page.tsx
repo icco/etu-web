@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import {
   LightBulbIcon,
   ArrowPathIcon,
@@ -10,32 +11,24 @@ import {
 import { auth } from "@/lib/auth"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { UserMenu } from "@/components/user-menu"
-import { AppNav } from "@/components/app-nav"
-import { MobileNav } from "@/components/mobile-nav"
 
 export default async function LandingPage() {
   const session = await auth()
+  
+  // Redirect logged-in users to /notes
+  if (session?.user) {
+    redirect("/notes")
+  }
 
   return (
     <div className="min-h-screen bg-base-200 flex flex-col">
-      <Header
-        logoHref="/"
-        nav={session?.user ? <AppNav /> : undefined}
-      >
-        {session?.user && <MobileNav />}
-        {session?.user ? (
-          <UserMenu />
-        ) : (
-          <>
-            <Link href="/docs" className="btn btn-ghost">
-              Docs
-            </Link>
-            <Link href="/login" className="btn btn-ghost">
-              Sign In
-            </Link>
-          </>
-        )}
+      <Header logoHref="/">
+        <Link href="/docs" className="btn btn-ghost">
+          Docs
+        </Link>
+        <Link href="/login" className="btn btn-ghost">
+          Sign In
+        </Link>
       </Header>
 
       <main className="flex-1">
@@ -49,7 +42,7 @@ export default async function LandingPage() {
               Etu brings your notes back when you need them. Capture thoughts in seconds,
               and the system resurfaces them over time—turning scattered ideas into creative breakthroughs.
             </p>
-            <Link href={session ? "/notes" : "/register"} className="btn btn-primary btn-lg px-8">
+            <Link href="/register" className="btn btn-primary btn-lg px-8">
               Start Free for 14 Days
             </Link>
             <p className="text-sm text-base-content/50 mt-4">No credit card required</p>
@@ -316,7 +309,7 @@ export default async function LandingPage() {
             <p className="text-lg text-base-content/70 mb-10">
               Start capturing thoughts today. Watch them resurface and evolve into something bigger.
             </p>
-            <Link href={session?.user ? "/notes" : "/register"} className="btn btn-primary btn-lg px-8">
+            <Link href="/register" className="btn btn-primary btn-lg px-8">
               Try Etu Free
             </Link>
             <p className="text-sm text-base-content/50 mt-4">14-day free trial, then $5/year</p>
