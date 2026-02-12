@@ -116,4 +116,90 @@ test.describe("Notes Page", () => {
     const attachedImage = page.locator("dialog.modal-open .grid img")
     await expect(attachedImage).toBeVisible()
   })
+
+  test("displays image with extracted text and audio with transcription", async ({ page }) => {
+    await expect(page.locator("text=ideas").first()).toBeVisible({ timeout: 10000 })
+
+    // Click on the first note card which has image and audio with transcripts (mock-note-1)
+    const noteWithMedia = page.locator(".card", { hasText: "building" }).first()
+    await expect(noteWithMedia).toBeVisible()
+    await noteWithMedia.click()
+
+    // Wait for the modal to open
+    await expect(page.locator("dialog.modal-open")).toBeVisible({ timeout: 5000 })
+
+    // Verify image section exists
+    await expect(page.locator("dialog.modal-open").getByText("Attached Images")).toBeVisible()
+    
+    // Verify extracted text is shown with CollapsibleTranscript component
+    const extractedTextLabel = page.locator("dialog.modal-open").getByText("Extracted text:")
+    await expect(extractedTextLabel).toBeVisible()
+    
+    // Verify the "Show more" button exists for long extracted text
+    const extractedTextShowMore = page.locator("dialog.modal-open").getByRole("button", { name: /Show more/ }).first()
+    await expect(extractedTextShowMore).toBeVisible()
+    
+    // Click to expand and verify full text is visible
+    await extractedTextShowMore.click()
+    await expect(page.locator("dialog.modal-open").getByText(/CollapsibleTranscript component handles/)).toBeVisible()
+    
+    // Verify "Show less" button appears after expanding
+    const extractedTextShowLess = page.locator("dialog.modal-open").getByRole("button", { name: /Show less/ }).first()
+    await expect(extractedTextShowLess).toBeVisible()
+    
+    // Collapse it again
+    await extractedTextShowLess.click()
+    await expect(extractedTextShowMore).toBeVisible()
+
+    // Verify audio section exists
+    await expect(page.locator("dialog.modal-open").getByText("Attached Audio Files")).toBeVisible()
+    
+    // Verify audio player is present
+    const audioPlayer = page.locator("dialog.modal-open audio")
+    await expect(audioPlayer).toBeVisible()
+    
+    // Verify transcription is shown with CollapsibleTranscript component
+    const transcriptionLabel = page.locator("dialog.modal-open").getByText("Transcription:")
+    await expect(transcriptionLabel).toBeVisible()
+    
+    // Verify the "Show more" button exists for long transcription
+    const transcriptionShowMore = page.locator("dialog.modal-open").getByRole("button", { name: /Show more/ }).last()
+    await expect(transcriptionShowMore).toBeVisible()
+    
+    // Click to expand transcription
+    await transcriptionShowMore.click()
+    await expect(page.locator("dialog.modal-open").getByText(/audio transcription/)).toBeVisible()
+
+    // Take a screenshot
+    await expect(page).toHaveScreenshot("notes-with-transcripts.png")
+  })
+
+  test("displays short transcripts without collapse button", async ({ page }) => {
+    await expect(page.locator("text=ideas").first()).toBeVisible({ timeout: 10000 })
+
+    // Click on the note with short extracted text (mock-note-2)
+    const noteWithShortText = page.locator(".card", { hasText: "Meeting notes" }).first()
+    await expect(noteWithShortText).toBeVisible()
+    await noteWithShortText.click()
+
+    // Wait for the modal to open
+    await expect(page.locator("dialog.modal-open")).toBeVisible({ timeout: 5000 })
+
+    // Verify image section exists
+    await expect(page.locator("dialog.modal-open").getByText("Attached Images")).toBeVisible()
+    
+    // Verify extracted text is shown
+    const extractedTextLabel = page.locator("dialog.modal-open").getByText("Extracted text:")
+    await expect(extractedTextLabel).toBeVisible()
+    
+    // Verify short text is displayed
+    await expect(page.locator("dialog.modal-open").getByText("Short extracted text.")).toBeVisible()
+    
+    // Verify NO "Show more" button exists for short text
+    const showMoreButtons = page.locator("dialog.modal-open").getByRole("button", { name: /Show more/ })
+    await expect(showMoreButtons).toHaveCount(0)
+
+    // Take a screenshot
+    await expect(page).toHaveScreenshot("notes-with-short-transcript.png")
+  })
 })
