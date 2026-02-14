@@ -202,24 +202,23 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
                 <h4 className="text-sm font-medium text-base-content/60">Attached Images</h4>
                 <div className="grid grid-cols-2 gap-4">
                   {safeImages.map((img) => (
-                    <a
-                      key={img.id}
-                      href={img.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block"
-                    >
-                      <img
-                        src={img.url}
-                        alt={img.extractedText || "Attached image"}
-                        className="w-full rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
-                      />
+                    <div key={img.id} className="space-y-2">
+                      <a
+                        href={img.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        <img
+                          src={img.url}
+                          alt={img.extractedText || "Attached image"}
+                          className="w-full rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
+                        />
+                      </a>
                       {img.extractedText && (
-                        <div className="mt-2">
-                          <CollapsibleTranscript text={img.extractedText} label="Extracted text:" maxLength={150} />
-                        </div>
+                        <CollapsibleTranscript text={img.extractedText} label="Extracted text:" maxLength={150} />
                       )}
-                    </a>
+                    </div>
                   ))}
                 </div>
               </div>
