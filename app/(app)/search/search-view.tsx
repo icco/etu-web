@@ -39,7 +39,6 @@ export function SearchView({ initialNotes, initialTags, query }: SearchViewProps
     <>
       <div className="min-h-screen bg-base-200 flex flex-col">
         <Header logoHref="/">
-          <NavSearch defaultValue={query} />
           <UserMenu />
         </Header>
 
