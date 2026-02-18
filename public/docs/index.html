@@ -409,7 +409,7 @@
 
       
         <h3 id="etu.ApiKey">ApiKey</h3>
-        <p>API Key message</p>
+        <p>ApiKey represents API key metadata returned to clients.</p>
 
         
           <table class="field-table">
@@ -422,35 +422,35 @@
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>id is the unique identifier of the API key record. </p></td>
                 </tr>
               
                 <tr>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>name is a client-defined label for the API key. </p></td>
                 </tr>
               
                 <tr>
                   <td>key_prefix</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>key_prefix is the non-secret prefix used for lookup and display. </p></td>
                 </tr>
               
                 <tr>
                   <td>created_at</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>created_at is when the API key was created. </p></td>
                 </tr>
               
                 <tr>
                   <td>last_used</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>last_used is when the API key was most recently used. </p></td>
                 </tr>
               
             </tbody>
@@ -461,7 +461,7 @@
         
       
         <h3 id="etu.AudioUpload">AudioUpload</h3>
-        <p>AudioUpload message for uploading audio files (client -> server)</p>
+        <p>AudioUpload contains raw audio bytes provided by the client for upload.</p>
 
         
           <table class="field-table">
@@ -474,14 +474,14 @@
                   <td>data</td>
                   <td><a href="#bytes">bytes</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>data is the raw binary payload of the audio file. </p></td>
                 </tr>
               
                 <tr>
                   <td>mime_type</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>mime_type is the audio media type, for example &#34;audio/mpeg&#34;. </p></td>
                 </tr>
               
             </tbody>
@@ -492,7 +492,7 @@
         
       
         <h3 id="etu.AuthenticateRequest">AuthenticateRequest</h3>
-        <p></p>
+        <p>AuthenticateRequest contains login credentials.</p>
 
         
           <table class="field-table">
@@ -505,14 +505,14 @@
                   <td>email</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>email is the account email used for authentication. </p></td>
                 </tr>
               
                 <tr>
                   <td>password</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>password is the plaintext password supplied for verification. </p></td>
                 </tr>
               
             </tbody>
@@ -523,7 +523,7 @@
         
       
         <h3 id="etu.AuthenticateResponse">AuthenticateResponse</h3>
-        <p></p>
+        <p>AuthenticateResponse reports authentication status and user context.</p>
 
         
           <table class="field-table">
@@ -536,14 +536,14 @@
                   <td>success</td>
                   <td><a href="#bool">bool</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>success indicates whether authentication succeeded. </p></td>
                 </tr>
               
                 <tr>
                   <td>user</td>
                   <td><a href="#etu.User">User</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>user is set when authentication succeeds and user data is returned. </p></td>
                 </tr>
               
             </tbody>
@@ -554,7 +554,7 @@
         
       
         <h3 id="etu.CreateApiKeyRequest">CreateApiKeyRequest</h3>
-        <p></p>
+        <p>CreateApiKeyRequest creates a named API key for a user.</p>
 
         
           <table class="field-table">
@@ -585,7 +585,7 @@
         
       
         <h3 id="etu.CreateApiKeyResponse">CreateApiKeyResponse</h3>
-        <p></p>
+        <p>CreateApiKeyResponse returns key metadata and a one-time raw key value.</p>
 
         
           <table class="field-table">
@@ -605,7 +605,7 @@
                   <td>raw_key</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>raw_key is only returned at creation time and should be stored securely. </p></td>
                 </tr>
               
             </tbody>
@@ -616,7 +616,7 @@
         
       
         <h3 id="etu.CreateNoteRequest">CreateNoteRequest</h3>
-        <p></p>
+        <p>CreateNoteRequest defines payload required to create a note.</p>
 
         
           <table class="field-table">
@@ -629,35 +629,35 @@
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Required for auth context </p></td>
+                  <td><p>user_id is the target user identifier. </p></td>
                 </tr>
               
                 <tr>
                   <td>content</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>content is the note body text to store. </p></td>
                 </tr>
               
                 <tr>
                   <td>tags</td>
                   <td><a href="#string">string</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>tags are initial tag names to associate with the note. </p></td>
                 </tr>
               
                 <tr>
                   <td>images</td>
                   <td><a href="#etu.ImageUpload">ImageUpload</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>images are image files to attach during note creation. </p></td>
                 </tr>
               
                 <tr>
                   <td>audios</td>
                   <td><a href="#etu.AudioUpload">AudioUpload</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>audios are audio files to attach during note creation. </p></td>
                 </tr>
               
             </tbody>
@@ -668,7 +668,7 @@
         
       
         <h3 id="etu.CreateNoteResponse">CreateNoteResponse</h3>
-        <p></p>
+        <p>CreateNoteResponse returns the created note.</p>
 
         
           <table class="field-table">
@@ -692,7 +692,7 @@
         
       
         <h3 id="etu.DeleteApiKeyRequest">DeleteApiKeyRequest</h3>
-        <p></p>
+        <p>DeleteApiKeyRequest identifies an API key to revoke.</p>
 
         
           <table class="field-table">
@@ -723,7 +723,7 @@
         
       
         <h3 id="etu.DeleteApiKeyResponse">DeleteApiKeyResponse</h3>
-        <p></p>
+        <p>DeleteApiKeyResponse reports whether an API key deletion occurred.</p>
 
         
           <table class="field-table">
@@ -747,7 +747,7 @@
         
       
         <h3 id="etu.DeleteNoteRequest">DeleteNoteRequest</h3>
-        <p></p>
+        <p>DeleteNoteRequest identifies a note to delete.</p>
 
         
           <table class="field-table">
@@ -760,14 +760,14 @@
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Required for auth context </p></td>
+                  <td><p>user_id is the target user identifier. </p></td>
                 </tr>
               
                 <tr>
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>id is the unique identifier of the note to delete. </p></td>
                 </tr>
               
             </tbody>
@@ -778,7 +778,7 @@
         
       
         <h3 id="etu.DeleteNoteResponse">DeleteNoteResponse</h3>
-        <p></p>
+        <p>DeleteNoteResponse reports whether a note deletion occurred.</p>
 
         
           <table class="field-table">
@@ -802,7 +802,7 @@
         
       
         <h3 id="etu.GetNoteRequest">GetNoteRequest</h3>
-        <p></p>
+        <p>GetNoteRequest identifies a note to fetch by id.</p>
 
         
           <table class="field-table">
@@ -815,14 +815,14 @@
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Required for auth context </p></td>
+                  <td><p>user_id is the target user identifier. </p></td>
                 </tr>
               
                 <tr>
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>id is the unique identifier of the note to fetch. </p></td>
                 </tr>
               
             </tbody>
@@ -833,7 +833,7 @@
         
       
         <h3 id="etu.GetNoteResponse">GetNoteResponse</h3>
-        <p></p>
+        <p>GetNoteResponse returns the requested note when found.</p>
 
         
           <table class="field-table">
@@ -857,7 +857,7 @@
         
       
         <h3 id="etu.GetRandomNotesRequest">GetRandomNotesRequest</h3>
-        <p></p>
+        <p>GetRandomNotesRequest requests a random sample of notes.</p>
 
         
           <table class="field-table">
@@ -870,14 +870,14 @@
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Required for auth context </p></td>
+                  <td><p>user_id is the target user identifier. </p></td>
                 </tr>
               
                 <tr>
                   <td>count</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p>Number of random notes to return (default: 5) </p></td>
+                  <td><p>count is the number of random notes requested. </p></td>
                 </tr>
               
             </tbody>
@@ -888,7 +888,7 @@
         
       
         <h3 id="etu.GetRandomNotesResponse">GetRandomNotesResponse</h3>
-        <p></p>
+        <p>GetRandomNotesResponse returns a random sample of notes.</p>
 
         
           <table class="field-table">
@@ -912,7 +912,7 @@
         
       
         <h3 id="etu.GetStatsRequest">GetStatsRequest</h3>
-        <p></p>
+        <p>GetStatsRequest requests aggregate statistics.</p>
 
         
           <table class="field-table">
@@ -925,7 +925,7 @@
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>If empty or omitted, returns stats for all users </p></td>
+                  <td><p>user_id scopes stats to a single user when provided. </p></td>
                 </tr>
               
             </tbody>
@@ -936,7 +936,7 @@
         
       
         <h3 id="etu.GetStatsResponse">GetStatsResponse</h3>
-        <p></p>
+        <p>GetStatsResponse contains aggregate note and tag metrics.</p>
 
         
           <table class="field-table">
@@ -949,21 +949,21 @@
                   <td>total_blips</td>
                   <td><a href="#int64">int64</a></td>
                   <td></td>
-                  <td><p>Total number of notes (blips) </p></td>
+                  <td><p>total_blips is the total number of notes. </p></td>
                 </tr>
               
                 <tr>
                   <td>unique_tags</td>
                   <td><a href="#int64">int64</a></td>
                   <td></td>
-                  <td><p>Number of unique tags </p></td>
+                  <td><p>unique_tags is the number of distinct tags. </p></td>
                 </tr>
               
                 <tr>
                   <td>words_written</td>
                   <td><a href="#int64">int64</a></td>
                   <td></td>
-                  <td><p>Total word count across all notes </p></td>
+                  <td><p>words_written is the total word count across matching notes. </p></td>
                 </tr>
               
             </tbody>
@@ -974,7 +974,7 @@
         
       
         <h3 id="etu.GetUserByStripeCustomerIdRequest">GetUserByStripeCustomerIdRequest</h3>
-        <p></p>
+        <p>GetUserByStripeCustomerIdRequest fetches a user by Stripe customer id.</p>
 
         
           <table class="field-table">
@@ -998,7 +998,7 @@
         
       
         <h3 id="etu.GetUserByStripeCustomerIdResponse">GetUserByStripeCustomerIdResponse</h3>
-        <p></p>
+        <p>GetUserByStripeCustomerIdResponse returns the matching user when found.</p>
 
         
           <table class="field-table">
@@ -1022,7 +1022,7 @@
         
       
         <h3 id="etu.GetUserRequest">GetUserRequest</h3>
-        <p></p>
+        <p>GetUserRequest fetches a user by id.</p>
 
         
           <table class="field-table">
@@ -1046,7 +1046,7 @@
         
       
         <h3 id="etu.GetUserResponse">GetUserResponse</h3>
-        <p></p>
+        <p>GetUserResponse returns a user record.</p>
 
         
           <table class="field-table">
@@ -1070,7 +1070,7 @@
         
       
         <h3 id="etu.GetUserSettingsRequest">GetUserSettingsRequest</h3>
-        <p></p>
+        <p>GetUserSettingsRequest fetches mutable user settings fields.</p>
 
         
           <table class="field-table">
@@ -1094,7 +1094,7 @@
         
       
         <h3 id="etu.GetUserSettingsResponse">GetUserSettingsResponse</h3>
-        <p></p>
+        <p>GetUserSettingsResponse returns settings on the User message.</p>
 
         
           <table class="field-table">
@@ -1118,7 +1118,7 @@
         
       
         <h3 id="etu.ImageUpload">ImageUpload</h3>
-        <p>ImageUpload message for uploading images (client -> server)</p>
+        <p>ImageUpload contains raw image bytes provided by the client for upload.</p>
 
         
           <table class="field-table">
@@ -1131,14 +1131,14 @@
                   <td>data</td>
                   <td><a href="#bytes">bytes</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>data is the raw binary payload of the image file. </p></td>
                 </tr>
               
                 <tr>
                   <td>mime_type</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>mime_type is the image media type, for example &#34;image/jpeg&#34;. </p></td>
                 </tr>
               
             </tbody>
@@ -1149,7 +1149,7 @@
         
       
         <h3 id="etu.ListApiKeysRequest">ListApiKeysRequest</h3>
-        <p></p>
+        <p>ListApiKeysRequest requests API keys for a user.</p>
 
         
           <table class="field-table">
@@ -1173,7 +1173,7 @@
         
       
         <h3 id="etu.ListApiKeysResponse">ListApiKeysResponse</h3>
-        <p></p>
+        <p>ListApiKeysResponse returns all API key metadata for a user.</p>
 
         
           <table class="field-table">
@@ -1197,7 +1197,7 @@
         
       
         <h3 id="etu.ListNotesRequest">ListNotesRequest</h3>
-        <p></p>
+        <p>ListNotesRequest defines filters and pagination for listing notes.</p><p>user_id is currently accepted for compatibility but is expected to match the</p><p>authenticated principal from server auth context.</p>
 
         
           <table class="field-table">
@@ -1210,49 +1210,49 @@
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Required for auth context </p></td>
+                  <td><p>user_id is the target user identifier. </p></td>
                 </tr>
               
                 <tr>
                   <td>search</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>search is free-text search input and may include tag: filters. </p></td>
                 </tr>
               
                 <tr>
                   <td>tags</td>
                   <td><a href="#string">string</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>tags are additional tag names to filter by. </p></td>
                 </tr>
               
                 <tr>
                   <td>start_date</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>ISO 8601 format </p></td>
+                  <td><p>start_date is an inclusive lower bound timestamp in ISO 8601 format. </p></td>
                 </tr>
               
                 <tr>
                   <td>end_date</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>ISO 8601 format </p></td>
+                  <td><p>end_date is an inclusive upper bound timestamp in ISO 8601 format. </p></td>
                 </tr>
               
                 <tr>
                   <td>limit</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>limit is the maximum number of results to return. </p></td>
                 </tr>
               
                 <tr>
                   <td>offset</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>offset is the number of results to skip before returning rows. </p></td>
                 </tr>
               
             </tbody>
@@ -1263,7 +1263,7 @@
         
       
         <h3 id="etu.ListNotesResponse">ListNotesResponse</h3>
-        <p></p>
+        <p>ListNotesResponse returns a page of notes and paging metadata.</p>
 
         
           <table class="field-table">
@@ -1276,28 +1276,28 @@
                   <td>notes</td>
                   <td><a href="#etu.Note">Note</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>notes is the requested page of notes. </p></td>
                 </tr>
               
                 <tr>
                   <td>total</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>total is the total result count across all pages. </p></td>
                 </tr>
               
                 <tr>
                   <td>limit</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>limit echoes the effective page size. </p></td>
                 </tr>
               
                 <tr>
                   <td>offset</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>offset echoes the page offset. </p></td>
                 </tr>
               
             </tbody>
@@ -1308,7 +1308,7 @@
         
       
         <h3 id="etu.ListTagsRequest">ListTagsRequest</h3>
-        <p></p>
+        <p>ListTagsRequest requests all tags for a user.</p>
 
         
           <table class="field-table">
@@ -1321,7 +1321,7 @@
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Required for auth context </p></td>
+                  <td><p>user_id is the target user identifier. </p></td>
                 </tr>
               
             </tbody>
@@ -1332,7 +1332,7 @@
         
       
         <h3 id="etu.ListTagsResponse">ListTagsResponse</h3>
-        <p></p>
+        <p>ListTagsResponse returns all tags for a user.</p>
 
         
           <table class="field-table">
@@ -1356,7 +1356,7 @@
         
       
         <h3 id="etu.Note">Note</h3>
-        <p>Note message</p>
+        <p>Note represents a user-authored note and its associated metadata.</p>
 
         
           <table class="field-table">
@@ -1369,49 +1369,49 @@
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>id is the unique identifier of the note. </p></td>
                 </tr>
               
                 <tr>
                   <td>content</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>content is the note body text. </p></td>
                 </tr>
               
                 <tr>
                   <td>tags</td>
                   <td><a href="#string">string</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>tags lists normalized tag names associated with the note. </p></td>
                 </tr>
               
                 <tr>
                   <td>created_at</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>created_at is when the note was created. </p></td>
                 </tr>
               
                 <tr>
                   <td>updated_at</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>updated_at is when the note was last modified. </p></td>
                 </tr>
               
                 <tr>
                   <td>images</td>
                   <td><a href="#etu.NoteImage">NoteImage</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>images lists image attachments associated with the note. </p></td>
                 </tr>
               
                 <tr>
                   <td>audios</td>
                   <td><a href="#etu.NoteAudio">NoteAudio</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>audios lists audio attachments associated with the note. </p></td>
                 </tr>
               
             </tbody>
@@ -1422,7 +1422,7 @@
         
       
         <h3 id="etu.NoteAudio">NoteAudio</h3>
-        <p>NoteAudio message for audio files attached to notes (server -> client)</p>
+        <p>NoteAudio represents an audio attachment associated with a note.</p>
 
         
           <table class="field-table">
@@ -1435,35 +1435,35 @@
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>id is the unique identifier of the note audio attachment. </p></td>
                 </tr>
               
                 <tr>
                   <td>url</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>url is the publicly accessible URL for the stored audio object. </p></td>
                 </tr>
               
                 <tr>
                   <td>transcribed_text</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>transcribed_text contains transcription output when available. </p></td>
                 </tr>
               
                 <tr>
                   <td>mime_type</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>mime_type is the media type of the stored audio. </p></td>
                 </tr>
               
                 <tr>
                   <td>created_at</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>created_at is when the audio attachment was created. </p></td>
                 </tr>
               
             </tbody>
@@ -1474,7 +1474,7 @@
         
       
         <h3 id="etu.NoteImage">NoteImage</h3>
-        <p>NoteImage message for images attached to notes (server -> client)</p>
+        <p>NoteImage represents an image attachment associated with a note.</p>
 
         
           <table class="field-table">
@@ -1487,35 +1487,35 @@
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>id is the unique identifier of the note image. </p></td>
                 </tr>
               
                 <tr>
                   <td>url</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>url is the publicly accessible URL for the stored image object. </p></td>
                 </tr>
               
                 <tr>
                   <td>extracted_text</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>extracted_text contains OCR output for the image when available. </p></td>
                 </tr>
               
                 <tr>
                   <td>mime_type</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>mime_type is the media type of the stored image. </p></td>
                 </tr>
               
                 <tr>
                   <td>created_at</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>created_at is when the image attachment was created. </p></td>
                 </tr>
               
             </tbody>
@@ -1526,7 +1526,7 @@
         
       
         <h3 id="etu.RegisterRequest">RegisterRequest</h3>
-        <p></p>
+        <p>RegisterRequest contains account registration credentials.</p>
 
         
           <table class="field-table">
@@ -1539,14 +1539,14 @@
                   <td>email</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>email is the unique email for the new account. </p></td>
                 </tr>
               
                 <tr>
                   <td>password</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>password is the plaintext password supplied at registration. </p></td>
                 </tr>
               
             </tbody>
@@ -1557,7 +1557,7 @@
         
       
         <h3 id="etu.RegisterResponse">RegisterResponse</h3>
-        <p></p>
+        <p>RegisterResponse returns the created user record.</p>
 
         
           <table class="field-table">
@@ -1581,7 +1581,7 @@
         
       
         <h3 id="etu.Tag">Tag</h3>
-        <p>Tag message</p>
+        <p>Tag represents a user tag and optional usage count in list responses.</p>
 
         
           <table class="field-table">
@@ -1594,28 +1594,28 @@
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>id is the unique identifier of the tag. </p></td>
                 </tr>
               
                 <tr>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>name is the normalized tag name. </p></td>
                 </tr>
               
                 <tr>
                   <td>count</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>count is the number of notes currently using the tag. </p></td>
                 </tr>
               
                 <tr>
                   <td>created_at</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>created_at is when the tag was created. </p></td>
                 </tr>
               
             </tbody>
@@ -1626,7 +1626,7 @@
         
       
         <h3 id="etu.UpdateNoteRequest">UpdateNoteRequest</h3>
-        <p></p>
+        <p>UpdateNoteRequest defines partial note updates and attachment additions.</p>
 
         
           <table class="field-table">
@@ -1639,49 +1639,49 @@
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Required for auth context </p></td>
+                  <td><p>user_id is the target user identifier. </p></td>
                 </tr>
               
                 <tr>
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>id is the unique identifier of the note to update. </p></td>
                 </tr>
               
                 <tr>
                   <td>content</td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>content updates the note body when provided. </p></td>
                 </tr>
               
                 <tr>
                   <td>tags</td>
                   <td><a href="#string">string</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>tags is the tag list used when update_tags is true. </p></td>
                 </tr>
               
                 <tr>
                   <td>update_tags</td>
                   <td><a href="#bool">bool</a></td>
                   <td></td>
-                  <td><p>Flag to indicate if tags should be updated </p></td>
+                  <td><p>update_tags controls whether existing tags are replaced from tags. </p></td>
                 </tr>
               
                 <tr>
                   <td>add_images</td>
                   <td><a href="#etu.ImageUpload">ImageUpload</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>add_images appends new image attachments to the note. </p></td>
                 </tr>
               
                 <tr>
                   <td>add_audios</td>
                   <td><a href="#etu.AudioUpload">AudioUpload</a></td>
                   <td>repeated</td>
-                  <td><p> </p></td>
+                  <td><p>add_audios appends new audio attachments to the note. </p></td>
                 </tr>
               
             </tbody>
@@ -1692,7 +1692,7 @@
         
       
         <h3 id="etu.UpdateNoteResponse">UpdateNoteResponse</h3>
-        <p></p>
+        <p>UpdateNoteResponse returns the updated note.</p>
 
         
           <table class="field-table">
@@ -1716,7 +1716,7 @@
         
       
         <h3 id="etu.UpdateUserSettingsRequest">UpdateUserSettingsRequest</h3>
-        <p></p>
+        <p>UpdateUserSettingsRequest updates profile and integration settings.</p>
 
         
           <table class="field-table">
@@ -1775,7 +1775,7 @@
         
       
         <h3 id="etu.UpdateUserSettingsResponse">UpdateUserSettingsResponse</h3>
-        <p></p>
+        <p>UpdateUserSettingsResponse returns the updated user settings view.</p>
 
         
           <table class="field-table">
@@ -1799,7 +1799,7 @@
         
       
         <h3 id="etu.UpdateUserSubscriptionRequest">UpdateUserSubscriptionRequest</h3>
-        <p></p>
+        <p>UpdateUserSubscriptionRequest updates subscription billing fields.</p>
 
         
           <table class="field-table">
@@ -1844,7 +1844,7 @@
         
       
         <h3 id="etu.UpdateUserSubscriptionResponse">UpdateUserSubscriptionResponse</h3>
-        <p></p>
+        <p>UpdateUserSubscriptionResponse returns the updated user record.</p>
 
         
           <table class="field-table">
@@ -1868,7 +1868,7 @@
         
       
         <h3 id="etu.User">User</h3>
-        <p>User message</p>
+        <p>User represents account profile and subscription settings.</p>
 
         
           <table class="field-table">
@@ -1881,91 +1881,91 @@
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>id is the unique identifier of the user. </p></td>
                 </tr>
               
                 <tr>
                   <td>email</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>email is the user&#39;s primary login email. </p></td>
                 </tr>
               
                 <tr>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>name is the user&#39;s display name when set. </p></td>
                 </tr>
               
                 <tr>
                   <td>image</td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>image is an optional avatar URL. </p></td>
                 </tr>
               
                 <tr>
                   <td>subscription_status</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>subscription_status is the billing tier, such as &#34;free&#34; or &#34;pro&#34;. </p></td>
                 </tr>
               
                 <tr>
                   <td>subscription_end</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>subscription_end is when the current subscription period ends. </p></td>
                 </tr>
               
                 <tr>
                   <td>created_at</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>created_at is when the user account was created. </p></td>
                 </tr>
               
                 <tr>
                   <td>stripe_customer_id</td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>stripe_customer_id links the user to a Stripe customer record. </p></td>
                 </tr>
               
                 <tr>
                   <td>notion_key</td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>notion_key is an optional Notion API token for sync features. </p></td>
                 </tr>
               
                 <tr>
                   <td>updated_at</td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>updated_at is when the user record was last updated. </p></td>
                 </tr>
               
                 <tr>
                   <td>disabled</td>
                   <td><a href="#bool">bool</a></td>
                   <td></td>
-                  <td><p> </p></td>
+                  <td><p>disabled reports whether account access is currently disabled. </p></td>
                 </tr>
               
                 <tr>
                   <td>disabled_reason</td>
                   <td><a href="#etu.DisabledReason">DisabledReason</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>disabled_reason explains why the account is disabled when disabled is true. </p></td>
                 </tr>
               
                 <tr>
                   <td>notion_database_name</td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
-                  <td><p> </p></td>
+                  <td><p>notion_database_name is the Notion database used for sync. </p></td>
                 </tr>
               
             </tbody>
@@ -1976,7 +1976,7 @@
         
       
         <h3 id="etu.VerifyApiKeyRequest">VerifyApiKeyRequest</h3>
-        <p></p>
+        <p>VerifyApiKeyRequest verifies a raw API key value.</p>
 
         
           <table class="field-table">
@@ -2000,7 +2000,7 @@
         
       
         <h3 id="etu.VerifyApiKeyResponse">VerifyApiKeyResponse</h3>
-        <p></p>
+        <p>VerifyApiKeyResponse reports verification status and associated user.</p>
 
         
           <table class="field-table">
@@ -2033,7 +2033,7 @@
 
       
         <h3 id="etu.DisabledReason">DisabledReason</h3>
-        <p>DisabledReason enum for account disable reasons</p>
+        <p>DisabledReason describes why an account was disabled.</p>
         <table class="enum-table">
           <thead>
             <tr><td>Name</td><td>Number</td><td>Description</td></tr>
@@ -2043,37 +2043,37 @@
               <tr>
                 <td>UNSPECIFIED</td>
                 <td>0</td>
-                <td><p></p></td>
+                <td><p>UNSPECIFIED indicates no disable reason was provided.</p></td>
               </tr>
             
               <tr>
                 <td>TERMS_VIOLATION</td>
                 <td>1</td>
-                <td><p></p></td>
+                <td><p>TERMS_VIOLATION indicates the account was disabled for policy violations.</p></td>
               </tr>
             
               <tr>
                 <td>SECURITY_CONCERN</td>
                 <td>2</td>
-                <td><p></p></td>
+                <td><p>SECURITY_CONCERN indicates suspicious or unsafe account activity.</p></td>
               </tr>
             
               <tr>
                 <td>USER_REQUEST</td>
                 <td>3</td>
-                <td><p></p></td>
+                <td><p>USER_REQUEST indicates the user requested account disablement.</p></td>
               </tr>
             
               <tr>
                 <td>PAYMENT_ISSUE</td>
                 <td>4</td>
-                <td><p></p></td>
+                <td><p>PAYMENT_ISSUE indicates account disablement due to billing problems.</p></td>
               </tr>
             
               <tr>
                 <td>OTHER</td>
                 <td>5</td>
-                <td><p></p></td>
+                <td><p>OTHER indicates a disable reason not covered by predefined values.</p></td>
               </tr>
             
           </tbody>
@@ -2084,7 +2084,7 @@
 
       
         <h3 id="etu.ApiKeysService">ApiKeysService</h3>
-        <p></p>
+        <p>ApiKeysService manages API key lifecycle and verification.</p>
         <table class="enum-table">
           <thead>
             <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
@@ -2095,28 +2095,28 @@
                 <td>CreateApiKey</td>
                 <td><a href="#etu.CreateApiKeyRequest">CreateApiKeyRequest</a></td>
                 <td><a href="#etu.CreateApiKeyResponse">CreateApiKeyResponse</a></td>
-                <td><p></p></td>
+                <td><p>CreateApiKey creates a new API key.</p></td>
               </tr>
             
               <tr>
                 <td>ListApiKeys</td>
                 <td><a href="#etu.ListApiKeysRequest">ListApiKeysRequest</a></td>
                 <td><a href="#etu.ListApiKeysResponse">ListApiKeysResponse</a></td>
-                <td><p></p></td>
+                <td><p>ListApiKeys lists API keys for a user.</p></td>
               </tr>
             
               <tr>
                 <td>DeleteApiKey</td>
                 <td><a href="#etu.DeleteApiKeyRequest">DeleteApiKeyRequest</a></td>
                 <td><a href="#etu.DeleteApiKeyResponse">DeleteApiKeyResponse</a></td>
-                <td><p></p></td>
+                <td><p>DeleteApiKey revokes an API key.</p></td>
               </tr>
             
               <tr>
                 <td>VerifyApiKey</td>
                 <td><a href="#etu.VerifyApiKeyRequest">VerifyApiKeyRequest</a></td>
                 <td><a href="#etu.VerifyApiKeyResponse">VerifyApiKeyResponse</a></td>
-                <td><p></p></td>
+                <td><p>VerifyApiKey validates an API key and resolves its user.</p></td>
               </tr>
             
           </tbody>
@@ -2124,7 +2124,7 @@
 
         
         <h3 id="etu.AuthService">AuthService</h3>
-        <p></p>
+        <p>AuthService manages user auth, identity lookups, and subscription updates.</p>
         <table class="enum-table">
           <thead>
             <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
@@ -2135,35 +2135,35 @@
                 <td>Register</td>
                 <td><a href="#etu.RegisterRequest">RegisterRequest</a></td>
                 <td><a href="#etu.RegisterResponse">RegisterResponse</a></td>
-                <td><p></p></td>
+                <td><p>Register creates a new user account.</p></td>
               </tr>
             
               <tr>
                 <td>Authenticate</td>
                 <td><a href="#etu.AuthenticateRequest">AuthenticateRequest</a></td>
                 <td><a href="#etu.AuthenticateResponse">AuthenticateResponse</a></td>
-                <td><p></p></td>
+                <td><p>Authenticate validates credentials and returns user context.</p></td>
               </tr>
             
               <tr>
                 <td>GetUser</td>
                 <td><a href="#etu.GetUserRequest">GetUserRequest</a></td>
                 <td><a href="#etu.GetUserResponse">GetUserResponse</a></td>
-                <td><p></p></td>
+                <td><p>GetUser fetches a user by id.</p></td>
               </tr>
             
               <tr>
                 <td>GetUserByStripeCustomerId</td>
                 <td><a href="#etu.GetUserByStripeCustomerIdRequest">GetUserByStripeCustomerIdRequest</a></td>
                 <td><a href="#etu.GetUserByStripeCustomerIdResponse">GetUserByStripeCustomerIdResponse</a></td>
-                <td><p></p></td>
+                <td><p>GetUserByStripeCustomerId fetches a user by Stripe customer id.</p></td>
               </tr>
             
               <tr>
                 <td>UpdateUserSubscription</td>
                 <td><a href="#etu.UpdateUserSubscriptionRequest">UpdateUserSubscriptionRequest</a></td>
                 <td><a href="#etu.UpdateUserSubscriptionResponse">UpdateUserSubscriptionResponse</a></td>
-                <td><p></p></td>
+                <td><p>UpdateUserSubscription updates billing-related subscription state.</p></td>
               </tr>
             
           </tbody>
@@ -2171,7 +2171,7 @@
 
         
         <h3 id="etu.NotesService">NotesService</h3>
-        <p></p>
+        <p>NotesService manages note CRUD, attachment uploads, and note queries.</p>
         <table class="enum-table">
           <thead>
             <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
@@ -2182,42 +2182,42 @@
                 <td>ListNotes</td>
                 <td><a href="#etu.ListNotesRequest">ListNotesRequest</a></td>
                 <td><a href="#etu.ListNotesResponse">ListNotesResponse</a></td>
-                <td><p></p></td>
+                <td><p>ListNotes returns notes matching filters and pagination options.</p></td>
               </tr>
             
               <tr>
                 <td>CreateNote</td>
                 <td><a href="#etu.CreateNoteRequest">CreateNoteRequest</a></td>
                 <td><a href="#etu.CreateNoteResponse">CreateNoteResponse</a></td>
-                <td><p></p></td>
+                <td><p>CreateNote creates a new note with optional tags and attachments.</p></td>
               </tr>
             
               <tr>
                 <td>GetNote</td>
                 <td><a href="#etu.GetNoteRequest">GetNoteRequest</a></td>
                 <td><a href="#etu.GetNoteResponse">GetNoteResponse</a></td>
-                <td><p></p></td>
+                <td><p>GetNote returns one note by id.</p></td>
               </tr>
             
               <tr>
                 <td>UpdateNote</td>
                 <td><a href="#etu.UpdateNoteRequest">UpdateNoteRequest</a></td>
                 <td><a href="#etu.UpdateNoteResponse">UpdateNoteResponse</a></td>
-                <td><p></p></td>
+                <td><p>UpdateNote updates note content, tags, and adds attachments.</p></td>
               </tr>
             
               <tr>
                 <td>DeleteNote</td>
                 <td><a href="#etu.DeleteNoteRequest">DeleteNoteRequest</a></td>
                 <td><a href="#etu.DeleteNoteResponse">DeleteNoteResponse</a></td>
-                <td><p></p></td>
+                <td><p>DeleteNote deletes one note by id.</p></td>
               </tr>
             
               <tr>
                 <td>GetRandomNotes</td>
                 <td><a href="#etu.GetRandomNotesRequest">GetRandomNotesRequest</a></td>
                 <td><a href="#etu.GetRandomNotesResponse">GetRandomNotesResponse</a></td>
-                <td><p></p></td>
+                <td><p>GetRandomNotes returns a random sample of notes.</p></td>
               </tr>
             
           </tbody>
@@ -2225,7 +2225,7 @@
 
         
         <h3 id="etu.StatsService">StatsService</h3>
-        <p></p>
+        <p>StatsService provides aggregate usage metrics.</p>
         <table class="enum-table">
           <thead>
             <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
@@ -2236,7 +2236,7 @@
                 <td>GetStats</td>
                 <td><a href="#etu.GetStatsRequest">GetStatsRequest</a></td>
                 <td><a href="#etu.GetStatsResponse">GetStatsResponse</a></td>
-                <td><p></p></td>
+                <td><p>GetStats returns aggregate note, tag, and word-count statistics.</p></td>
               </tr>
             
           </tbody>
@@ -2244,7 +2244,7 @@
 
         
         <h3 id="etu.TagsService">TagsService</h3>
-        <p></p>
+        <p>TagsService provides tag listing for notes.</p>
         <table class="enum-table">
           <thead>
             <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
@@ -2255,7 +2255,7 @@
                 <td>ListTags</td>
                 <td><a href="#etu.ListTagsRequest">ListTagsRequest</a></td>
                 <td><a href="#etu.ListTagsResponse">ListTagsResponse</a></td>
-                <td><p></p></td>
+                <td><p>ListTags returns all tags for a user.</p></td>
               </tr>
             
           </tbody>
@@ -2263,7 +2263,7 @@
 
         
         <h3 id="etu.UserSettingsService">UserSettingsService</h3>
-        <p></p>
+        <p>UserSettingsService reads and updates profile and integration settings.</p>
         <table class="enum-table">
           <thead>
             <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
@@ -2274,14 +2274,14 @@
                 <td>GetUserSettings</td>
                 <td><a href="#etu.GetUserSettingsRequest">GetUserSettingsRequest</a></td>
                 <td><a href="#etu.GetUserSettingsResponse">GetUserSettingsResponse</a></td>
-                <td><p></p></td>
+                <td><p>GetUserSettings returns settings represented in the User message.</p></td>
               </tr>
             
               <tr>
                 <td>UpdateUserSettings</td>
                 <td><a href="#etu.UpdateUserSettingsRequest">UpdateUserSettingsRequest</a></td>
                 <td><a href="#etu.UpdateUserSettingsResponse">UpdateUserSettingsResponse</a></td>
-                <td><p></p></td>
+                <td><p>UpdateUserSettings updates mutable user settings fields.</p></td>
               </tr>
             
           </tbody>
