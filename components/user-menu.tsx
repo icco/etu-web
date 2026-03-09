@@ -36,7 +36,8 @@ export function UserMenu() {
         {session?.user?.image ? (
           <img
             src={session.user.image}
-            alt="Profile"
+            alt=""
+            aria-hidden="true"
             className="h-8 w-8 rounded-full object-cover"
           />
         ) : (
