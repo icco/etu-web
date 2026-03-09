@@ -12,9 +12,11 @@ import {
 import { signOut } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useUserImage } from "./user-image-context"
 
 export function UserMenu() {
   const pathname = usePathname()
+  const userImage = useUserImage()
 
   const isActive = (href: string) => {
     if (!pathname) return false
@@ -32,7 +34,16 @@ export function UserMenu() {
         className="btn btn-ghost btn-circle btn-lg"
         aria-label="Open user menu"
       >
-        <UserCircleIcon className="h-8 w-8" />
+        {userImage ? (
+          <img
+            src={userImage}
+            alt=""
+            aria-hidden="true"
+            className="h-8 w-8 rounded-full object-cover"
+          />
+        ) : (
+          <UserCircleIcon className="h-8 w-8" />
+        )}
       </div>
       <ul
         tabIndex={0}

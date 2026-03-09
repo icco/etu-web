@@ -1,4 +1,5 @@
 import { createClient } from "@connectrpc/connect"
+import type { DescService } from "@bufbuild/protobuf"
 import { createGrpcTransport } from "@connectrpc/connect-node"
 import { Code, ConnectError } from "@connectrpc/connect"
 import {
@@ -32,49 +33,22 @@ const rawGrpcUrl = process.env.GRPC_BACKEND_URL || "http://localhost:50051"
 // Ensure URL has protocol prefix
 const GRPC_URL = rawGrpcUrl.startsWith("http") ? rawGrpcUrl : `http://${rawGrpcUrl}`
 
-// Create gRPC transport (uses HTTP/2 by default)
-function createTransport() {
-  return createGrpcTransport({
-    baseUrl: GRPC_URL,
-  })
-}
-
-// Create transport per-request to avoid stale connections
+// Create gRPC transport per-request to avoid stale connections
 function getTransport() {
-  return createTransport()
+  return createGrpcTransport({ baseUrl: GRPC_URL })
 }
 
-// Create service clients
-function getNotesClient() {
-  return createClient(NotesService, getTransport())
-}
-
-function getTagsClient() {
-  return createClient(TagsService, getTransport())
-}
-
-function getAuthClient() {
-  return createClient(AuthService, getTransport())
-}
-
-function getApiKeysClient() {
-  return createClient(ApiKeysService, getTransport())
-}
-
-function getUserSettingsClient() {
-  return createClient(UserSettingsService, getTransport())
-}
-
-function getStatsClient() {
-  return createClient(StatsService, getTransport())
+// Generic client factory - replaces per-service getXxxClient() boilerplate
+function getClient<S extends DescService>(service: S) {
+  return createClient(service, getTransport())
 }
 
 // =============================================================================
 // Plain interface types for use in the application
 // =============================================================================
-// These are plain object interfaces that mirror the proto types but use a simpler
-// Timestamp format. Proto types extend Message<...> which adds protobuf-specific
-// properties, so we define plain interfaces for application use.
+// These are plain object interfaces that strip the protobuf Message<> base class.
+// Request/response types are NOT redefined here — the service wrapper functions
+// use inline types, and the proto types from @icco/etu-proto are the source of truth.
 
 // Simple Timestamp type (converted from @bufbuild/protobuf/wkt Timestamp)
 export interface Timestamp {
@@ -146,210 +120,6 @@ export interface ImageUpload {
 export interface AudioUpload {
   data: Uint8Array
   mimeType: string
-}
-
-// Request/Response types
-export interface ListNotesRequest {
-  userId: string
-  search?: string
-  tags?: string[]
-  startDate?: string
-  endDate?: string
-  limit?: number
-  offset?: number
-}
-
-export interface ListNotesResponse {
-  notes: Note[]
-  total: number
-  limit: number
-  offset: number
-}
-
-export interface CreateNoteRequest {
-  userId: string
-  content: string
-  tags?: string[]
-  images?: ImageUpload[]
-  audios?: AudioUpload[]
-}
-
-export interface CreateNoteResponse {
-  note: Note
-}
-
-export interface GetNoteRequest {
-  userId: string
-  id: string
-}
-
-export interface GetNoteResponse {
-  note: Note
-}
-
-export interface UpdateNoteRequest {
-  userId: string
-  id: string
-  content?: string
-  tags?: string[]
-  updateTags?: boolean
-  addImages?: ImageUpload[]
-  addAudios?: AudioUpload[]
-}
-
-export interface UpdateNoteResponse {
-  note: Note
-}
-
-export interface DeleteNoteRequest {
-  userId: string
-  id: string
-}
-
-export interface DeleteNoteResponse {
-  success: boolean
-}
-
-export interface GetRandomNotesRequest {
-  userId: string
-  count?: number
-}
-
-export interface GetRandomNotesResponse {
-  notes: Note[]
-}
-
-export interface SearchNotesRequest {
-  userId: string
-  query: string
-  limit?: number
-  offset?: number
-}
-
-export interface SearchNotesResponse {
-  notes: Note[]
-  total: number
-}
-
-export interface ListTagsRequest {
-  userId: string
-}
-
-export interface ListTagsResponse {
-  tags: Tag[]
-}
-
-export interface RegisterRequest {
-  email: string
-  password: string
-}
-
-export interface RegisterResponse {
-  user: User
-}
-
-export interface AuthenticateRequest {
-  email: string
-  password: string
-}
-
-export interface AuthenticateResponse {
-  success: boolean
-  user?: User
-}
-
-export interface GetUserRequest {
-  userId: string
-}
-
-export interface GetUserResponse {
-  user: User
-}
-
-export interface GetUserSettingsRequest {
-  userId: string
-}
-
-export interface GetUserSettingsResponse {
-  user: User
-}
-
-export interface UpdateUserSettingsRequest {
-  userId: string
-  notionKey?: string
-  name?: string
-  password?: string
-  profileImageUpload?: ImageUpload
-  clearProfileImage?: boolean
-}
-
-export interface UpdateUserSettingsResponse {
-  user: User
-}
-
-export interface GetUserByStripeCustomerIdRequest {
-  stripeCustomerId: string
-}
-
-export interface GetUserByStripeCustomerIdResponse {
-  user?: User
-}
-
-export interface UpdateUserSubscriptionRequest {
-  userId: string
-  subscriptionStatus: string
-  stripeCustomerId?: string
-  subscriptionEnd?: Timestamp
-}
-
-export interface UpdateUserSubscriptionResponse {
-  user: User
-}
-
-export interface CreateApiKeyRequest {
-  userId: string
-  name: string
-}
-
-export interface CreateApiKeyResponse {
-  apiKey: ApiKey
-  rawKey: string
-}
-
-export interface ListApiKeysRequest {
-  userId: string
-}
-
-export interface ListApiKeysResponse {
-  apiKeys: ApiKey[]
-}
-
-export interface DeleteApiKeyRequest {
-  userId: string
-  keyId: string
-}
-
-export interface DeleteApiKeyResponse {
-  success: boolean
-}
-
-export interface VerifyApiKeyRequest {
-  rawKey: string
-}
-
-export interface VerifyApiKeyResponse {
-  valid: boolean
-  userId?: string
-}
-
-export interface GetStatsRequest {
-  userId?: string
-}
-
-export interface GetStatsResponse {
-  totalBlips: bigint
-  uniqueTags: bigint
-  wordsWritten: bigint
 }
 
 // Helper to create headers with API key
@@ -466,9 +236,9 @@ async function withErrorHandling<T>(fn: () => Promise<T>, methodName?: string): 
 
 // Notes Service
 const realNotesService = {
-  async listNotes(request: ListNotesRequest, apiKey: string): Promise<ListNotesResponse> {
+  async listNotes(request: { userId: string; search?: string; tags?: string[]; startDate?: string; endDate?: string; limit?: number; offset?: number }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getNotesClient()
+      const client = getClient(NotesService)
       const response = await client.listNotes(
         {
           userId: request.userId,
@@ -490,9 +260,9 @@ const realNotesService = {
     }, "NotesService.listNotes")
   },
 
-  async createNote(request: CreateNoteRequest, apiKey: string): Promise<CreateNoteResponse> {
+  async createNote(request: { userId: string; content: string; tags?: string[]; images?: ImageUpload[]; audios?: AudioUpload[] }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getNotesClient()
+      const client = getClient(NotesService)
       const response = await client.createNote(
         {
           userId: request.userId,
@@ -507,9 +277,9 @@ const realNotesService = {
     }, "NotesService.createNote")
   },
 
-  async getNote(request: GetNoteRequest, apiKey: string): Promise<GetNoteResponse> {
+  async getNote(request: { userId: string; id: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getNotesClient()
+      const client = getClient(NotesService)
       const response = await client.getNote(
         {
           userId: request.userId,
@@ -521,9 +291,9 @@ const realNotesService = {
     }, "NotesService.getNote")
   },
 
-  async updateNote(request: UpdateNoteRequest, apiKey: string): Promise<UpdateNoteResponse> {
+  async updateNote(request: { userId: string; id: string; content?: string; tags?: string[]; updateTags?: boolean; addImages?: ImageUpload[]; addAudios?: AudioUpload[] }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getNotesClient()
+      const client = getClient(NotesService)
       const response = await client.updateNote(
         {
           userId: request.userId,
@@ -540,9 +310,9 @@ const realNotesService = {
     }, "NotesService.updateNote")
   },
 
-  async deleteNote(request: DeleteNoteRequest, apiKey: string): Promise<DeleteNoteResponse> {
+  async deleteNote(request: { userId: string; id: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getNotesClient()
+      const client = getClient(NotesService)
       const response = await client.deleteNote(
         {
           userId: request.userId,
@@ -554,9 +324,9 @@ const realNotesService = {
     }, "NotesService.deleteNote")
   },
 
-  async getRandomNotes(request: GetRandomNotesRequest, apiKey: string): Promise<GetRandomNotesResponse> {
+  async getRandomNotes(request: { userId: string; count?: number }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getNotesClient()
+      const client = getClient(NotesService)
       const response = await client.getRandomNotes(
         {
           userId: request.userId,
@@ -570,9 +340,9 @@ const realNotesService = {
     }, "NotesService.getRandomNotes")
   },
 
-  async searchNotes(request: SearchNotesRequest, apiKey: string): Promise<SearchNotesResponse> {
+  async searchNotes(request: { userId: string; query: string; limit?: number; offset?: number }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getNotesClient()
+      const client = getClient(NotesService)
       const searchRpc = (client as { searchNotes?: (req: { userId: string; query: string; limit?: number; offset?: number }, opts: { headers: HeadersInit }) => Promise<{ notes: ProtoNote[]; total: number }> }).searchNotes
       if (typeof searchRpc === "function") {
         const response = await searchRpc(
@@ -609,9 +379,9 @@ const realNotesService = {
 
 // Tags Service
 const realTagsService = {
-  async listTags(request: ListTagsRequest, apiKey: string): Promise<ListTagsResponse> {
+  async listTags(request: { userId: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getTagsClient()
+      const client = getClient(TagsService)
       const response = await client.listTags(
         { userId: request.userId },
         { headers: createHeaders(apiKey) }
@@ -623,9 +393,9 @@ const realTagsService = {
 
 // Auth Service
 const realAuthService = {
-  async register(request: RegisterRequest, apiKey: string): Promise<RegisterResponse> {
+  async register(request: { email: string; password: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getAuthClient()
+      const client = getClient(AuthService)
       const response = await client.register(
         {
           email: request.email,
@@ -637,9 +407,9 @@ const realAuthService = {
     }, "AuthService.register")
   },
 
-  async authenticate(request: AuthenticateRequest, apiKey: string): Promise<AuthenticateResponse> {
+  async authenticate(request: { email: string; password: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getAuthClient()
+      const client = getClient(AuthService)
       const response = await client.authenticate(
         {
           email: request.email,
@@ -654,9 +424,9 @@ const realAuthService = {
     }, "AuthService.authenticate")
   },
 
-  async getUser(request: GetUserRequest, apiKey: string): Promise<GetUserResponse> {
+  async getUser(request: { userId: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getAuthClient()
+      const client = getClient(AuthService)
       const response = await client.getUser(
         { userId: request.userId },
         { headers: createHeaders(apiKey) }
@@ -665,12 +435,9 @@ const realAuthService = {
     }, "AuthService.getUser")
   },
 
-  async getUserByStripeCustomerId(
-    request: GetUserByStripeCustomerIdRequest,
-    apiKey: string
-  ): Promise<GetUserByStripeCustomerIdResponse> {
+  async getUserByStripeCustomerId(request: { stripeCustomerId: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getAuthClient()
+      const client = getClient(AuthService)
       const response = await client.getUserByStripeCustomerId(
         { stripeCustomerId: request.stripeCustomerId },
         { headers: createHeaders(apiKey) }
@@ -680,11 +447,11 @@ const realAuthService = {
   },
 
   async updateUserSubscription(
-    request: UpdateUserSubscriptionRequest,
+    request: { userId: string; subscriptionStatus: string; stripeCustomerId?: string; subscriptionEnd?: Timestamp },
     apiKey: string
-  ): Promise<UpdateUserSubscriptionResponse> {
+  ) {
     return withErrorHandling(async () => {
-      const client = getAuthClient()
+      const client = getClient(AuthService)
       const response = await client.updateUserSubscription(
         {
           userId: request.userId,
@@ -707,9 +474,9 @@ const realAuthService = {
 
 // API Keys Service
 const realApiKeysService = {
-  async createApiKey(request: CreateApiKeyRequest, apiKey: string): Promise<CreateApiKeyResponse> {
+  async createApiKey(request: { userId: string; name: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getApiKeysClient()
+      const client = getClient(ApiKeysService)
       const response = await client.createApiKey(
         {
           userId: request.userId,
@@ -724,9 +491,9 @@ const realApiKeysService = {
     }, "ApiKeysService.createApiKey")
   },
 
-  async listApiKeys(request: ListApiKeysRequest, apiKey: string): Promise<ListApiKeysResponse> {
+  async listApiKeys(request: { userId: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getApiKeysClient()
+      const client = getClient(ApiKeysService)
       const response = await client.listApiKeys(
         { userId: request.userId },
         { headers: createHeaders(apiKey) }
@@ -735,9 +502,9 @@ const realApiKeysService = {
     }, "ApiKeysService.listApiKeys")
   },
 
-  async deleteApiKey(request: DeleteApiKeyRequest, apiKey: string): Promise<DeleteApiKeyResponse> {
+  async deleteApiKey(request: { userId: string; keyId: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getApiKeysClient()
+      const client = getClient(ApiKeysService)
       const response = await client.deleteApiKey(
         {
           userId: request.userId,
@@ -749,9 +516,9 @@ const realApiKeysService = {
     }, "ApiKeysService.deleteApiKey")
   },
 
-  async verifyApiKey(request: VerifyApiKeyRequest, apiKey: string): Promise<VerifyApiKeyResponse> {
+  async verifyApiKey(request: { rawKey: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getApiKeysClient()
+      const client = getClient(ApiKeysService)
       const response = await client.verifyApiKey(
         { rawKey: request.rawKey },
         { headers: createHeaders(apiKey) }
@@ -818,6 +585,12 @@ function grpcStatusToMessage(code: Code, details: string): string {
   }
 }
 
+// Service API types — derived from the real implementations so mock.ts stays in sync
+export type NotesServiceApi = typeof realNotesService
+export type TagsServiceApi = typeof realTagsService
+export type AuthServiceApi = typeof realAuthService
+export type ApiKeysServiceApi = typeof realApiKeysService
+
 // Export services - use mock in E2E test mode
 export const notesService = isMockMode() ? mockNotesService : realNotesService
 export const tagsService = isMockMode() ? mockTagsService : realTagsService
@@ -826,12 +599,9 @@ export const apiKeysService = isMockMode() ? mockApiKeysService : realApiKeysSer
 
 // User Settings Service
 const realUserSettingsService = {
-  async getUserSettings(
-    request: GetUserSettingsRequest,
-    apiKey: string
-  ): Promise<GetUserSettingsResponse> {
+  async getUserSettings(request: { userId: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getUserSettingsClient()
+      const client = getClient(UserSettingsService)
       const response = await client.getUserSettings(
         { userId: request.userId },
         { headers: createHeaders(apiKey) }
@@ -841,11 +611,11 @@ const realUserSettingsService = {
   },
 
   async updateUserSettings(
-    request: UpdateUserSettingsRequest,
+    request: { userId: string; notionKey?: string; name?: string; password?: string; profileImageUpload?: ImageUpload; clearProfileImage?: boolean },
     apiKey: string
-  ): Promise<UpdateUserSettingsResponse> {
+  ) {
     return withErrorHandling(async () => {
-      const client = getUserSettingsClient()
+      const client = getClient(UserSettingsService)
       const response = await client.updateUserSettings(
         {
           userId: request.userId,
@@ -862,13 +632,14 @@ const realUserSettingsService = {
   },
 }
 
+export type UserSettingsServiceApi = typeof realUserSettingsService
 export const userSettingsService = isMockMode() ? mockUserSettingsService : realUserSettingsService
 
 // Stats Service
 const realStatsService = {
-  async getStats(request: GetStatsRequest, apiKey: string): Promise<GetStatsResponse> {
+  async getStats(request: { userId?: string }, apiKey: string) {
     return withErrorHandling(async () => {
-      const client = getStatsClient()
+      const client = getClient(StatsService)
       const response = await client.getStats(
         { userId: request.userId ?? "" },
         { headers: createHeaders(apiKey) }
@@ -882,4 +653,5 @@ const realStatsService = {
   },
 }
 
+export type StatsServiceApi = typeof realStatsService
 export const statsService = isMockMode() ? mockStatsService : realStatsService
