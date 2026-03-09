@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
-import { SessionProvider } from "next-auth/react"
 import { auth } from "@/lib/auth"
+import { UserImageProvider } from "@/components/user-image-context"
 
 export default async function AppLayout({
   children,
@@ -13,5 +13,9 @@ export default async function AppLayout({
     redirect("/login")
   }
 
-  return <SessionProvider session={session}>{children}</SessionProvider>
+  return (
+    <UserImageProvider image={session.user.image}>
+      {children}
+    </UserImageProvider>
+  )
 }

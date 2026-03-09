@@ -9,13 +9,14 @@ import {
   MagnifyingGlassIcon,
   TagIcon,
 } from "@heroicons/react/24/outline"
-import { signOut, useSession } from "next-auth/react"
+import { signOut } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useUserImage } from "./user-image-context"
 
 export function UserMenu() {
   const pathname = usePathname()
-  const { data: session } = useSession()
+  const userImage = useUserImage()
 
   const isActive = (href: string) => {
     if (!pathname) return false
@@ -33,9 +34,9 @@ export function UserMenu() {
         className="btn btn-ghost btn-circle btn-lg"
         aria-label="Open user menu"
       >
-        {session?.user?.image ? (
+        {userImage ? (
           <img
-            src={session.user.image}
+            src={userImage}
             alt=""
             aria-hidden="true"
             className="h-8 w-8 rounded-full object-cover"
