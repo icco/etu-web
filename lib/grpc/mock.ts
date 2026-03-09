@@ -2,46 +2,6 @@
 // Used when E2E_MOCK=true environment variable is set
 
 import type {
-  ListNotesRequest,
-  ListNotesResponse,
-  CreateNoteRequest,
-  CreateNoteResponse,
-  GetNoteRequest,
-  GetNoteResponse,
-  UpdateNoteRequest,
-  UpdateNoteResponse,
-  DeleteNoteRequest,
-  DeleteNoteResponse,
-  GetRandomNotesRequest,
-  GetRandomNotesResponse,
-  SearchNotesRequest,
-  SearchNotesResponse,
-  ListTagsRequest,
-  ListTagsResponse,
-  RegisterRequest,
-  RegisterResponse,
-  AuthenticateRequest,
-  AuthenticateResponse,
-  GetUserRequest,
-  GetUserResponse,
-  UpdateUserSubscriptionRequest,
-  UpdateUserSubscriptionResponse,
-  GetUserByStripeCustomerIdRequest,
-  GetUserByStripeCustomerIdResponse,
-  GetUserSettingsRequest,
-  GetUserSettingsResponse,
-  UpdateUserSettingsRequest,
-  UpdateUserSettingsResponse,
-  CreateApiKeyRequest,
-  CreateApiKeyResponse,
-  ListApiKeysRequest,
-  ListApiKeysResponse,
-  DeleteApiKeyRequest,
-  DeleteApiKeyResponse,
-  VerifyApiKeyRequest,
-  VerifyApiKeyResponse,
-  GetStatsRequest,
-  GetStatsResponse,
   ApiKey,
   Note,
   NoteImage,
@@ -49,6 +9,12 @@ import type {
   Tag,
   User,
   Timestamp,
+  NotesServiceApi,
+  TagsServiceApi,
+  AuthServiceApi,
+  UserSettingsServiceApi,
+  ApiKeysServiceApi,
+  StatsServiceApi,
 } from "./client"
 
 // Mock data
@@ -161,8 +127,8 @@ const mockApiKeys: ApiKey[] = [
 
 
 // Mock Notes Service
-export const mockNotesService = {
-  async listNotes(request: ListNotesRequest, _apiKey: string): Promise<ListNotesResponse> {
+export const mockNotesService: NotesServiceApi = {
+  async listNotes(request, _apiKey) {
     let filtered = [...mockNotes]
 
     // Filter by search
@@ -188,7 +154,7 @@ export const mockNotesService = {
     }
   },
 
-  async createNote(request: CreateNoteRequest, _apiKey: string): Promise<CreateNoteResponse> {
+  async createNote(request, _apiKey) {
     const now = new Date()
     // Convert uploaded images to NoteImage objects (mock URLs)
     const images: NoteImage[] = (request.images || []).map((img, idx) => ({
@@ -219,7 +185,7 @@ export const mockNotesService = {
     return { note }
   },
 
-  async getNote(request: GetNoteRequest, _apiKey: string): Promise<GetNoteResponse> {
+  async getNote(request, _apiKey) {
     const note = mockNotes.find((n) => n.id === request.id)
     if (!note) {
       throw new Error("Note not found")
@@ -227,7 +193,7 @@ export const mockNotesService = {
     return { note }
   },
 
-  async updateNote(request: UpdateNoteRequest, _apiKey: string): Promise<UpdateNoteResponse> {
+  async updateNote(request, _apiKey) {
     const index = mockNotes.findIndex((n) => n.id === request.id)
     if (index === -1) {
       throw new Error("Note not found")
@@ -266,7 +232,7 @@ export const mockNotesService = {
     return { note }
   },
 
-  async deleteNote(request: DeleteNoteRequest, _apiKey: string): Promise<DeleteNoteResponse> {
+  async deleteNote(request, _apiKey) {
     const index = mockNotes.findIndex((n) => n.id === request.id)
     if (index === -1) {
       throw new Error("Note not found")
@@ -275,14 +241,14 @@ export const mockNotesService = {
     return { success: true }
   },
 
-  async getRandomNotes(request: GetRandomNotesRequest, _apiKey: string): Promise<GetRandomNotesResponse> {
+  async getRandomNotes(request, _apiKey) {
     const count = request.count || 5
     // Return random notes - server is responsible for randomization
     // Just return the first N notes from mock data for testing
     return { notes: mockNotes.slice(0, Math.min(count, mockNotes.length)) }
   },
 
-  async searchNotes(request: SearchNotesRequest, _apiKey: string): Promise<SearchNotesResponse> {
+  async searchNotes(request, _apiKey) {
     const query = (request.query || "").toLowerCase()
     const filtered = query
       ? mockNotes.filter((n) => n.content.toLowerCase().includes(query))
@@ -295,15 +261,15 @@ export const mockNotesService = {
 }
 
 // Mock Tags Service
-export const mockTagsService = {
-  async listTags(_request: ListTagsRequest, _apiKey: string): Promise<ListTagsResponse> {
+export const mockTagsService: TagsServiceApi = {
+  async listTags(_request, _apiKey) {
     return { tags: mockTags }
   },
 }
 
 // Mock Auth Service
-export const mockAuthService = {
-  async register(request: RegisterRequest, _apiKey: string): Promise<RegisterResponse> {
+export const mockAuthService: AuthServiceApi = {
+  async register(request, _apiKey) {
     return {
       user: {
         ...mockUser,
@@ -312,7 +278,7 @@ export const mockAuthService = {
     }
   },
 
-  async authenticate(request: AuthenticateRequest, _apiKey: string): Promise<AuthenticateResponse> {
+  async authenticate(request, _apiKey) {
     // Accept any credentials in mock mode
     return {
       success: true,
@@ -323,21 +289,15 @@ export const mockAuthService = {
     }
   },
 
-  async getUser(_request: GetUserRequest, _apiKey: string): Promise<GetUserResponse> {
+  async getUser(_request, _apiKey) {
     return { user: mockUser }
   },
 
-  async getUserByStripeCustomerId(
-    _request: GetUserByStripeCustomerIdRequest,
-    _apiKey: string
-  ): Promise<GetUserByStripeCustomerIdResponse> {
+  async getUserByStripeCustomerId(_request, _apiKey) {
     return { user: mockUser }
   },
 
-  async updateUserSubscription(
-    request: UpdateUserSubscriptionRequest,
-    _apiKey: string
-  ): Promise<UpdateUserSubscriptionResponse> {
+  async updateUserSubscription(request, _apiKey) {
     // Update mock user subscription status
     const updatedUser = {
       ...mockUser,
@@ -351,18 +311,12 @@ export const mockAuthService = {
 }
 
 // Mock User Settings Service
-export const mockUserSettingsService = {
-  async getUserSettings(
-    _request: GetUserSettingsRequest,
-    _apiKey: string
-  ): Promise<GetUserSettingsResponse> {
+export const mockUserSettingsService: UserSettingsServiceApi = {
+  async getUserSettings(_request, _apiKey) {
     return { user: mockUser }
   },
 
-  async updateUserSettings(
-    request: UpdateUserSettingsRequest,
-    _apiKey: string
-  ): Promise<UpdateUserSettingsResponse> {
+  async updateUserSettings(request, _apiKey) {
     // Update mock user with new settings
     let image = mockUser.image
     if (request.clearProfileImage) {
@@ -383,11 +337,8 @@ export const mockUserSettingsService = {
 }
 
 // Mock API Keys Service
-export const mockApiKeysService = {
-  async createApiKey(
-    request: CreateApiKeyRequest,
-    _apiKey: string
-  ): Promise<CreateApiKeyResponse> {
+export const mockApiKeysService: ApiKeysServiceApi = {
+  async createApiKey(request, _apiKey) {
     const newKey: ApiKey = {
       id: `mock-key-${Date.now()}`,
       name: request.name,
@@ -401,17 +352,11 @@ export const mockApiKeysService = {
     }
   },
 
-  async listApiKeys(
-    _request: ListApiKeysRequest,
-    _apiKey: string
-  ): Promise<ListApiKeysResponse> {
+  async listApiKeys(_request, _apiKey) {
     return { apiKeys: mockApiKeys }
   },
 
-  async deleteApiKey(
-    request: DeleteApiKeyRequest,
-    _apiKey: string
-  ): Promise<DeleteApiKeyResponse> {
+  async deleteApiKey(request, _apiKey) {
     const index = mockApiKeys.findIndex((k) => k.id === request.keyId)
     if (index !== -1) {
       mockApiKeys.splice(index, 1)
@@ -419,23 +364,18 @@ export const mockApiKeysService = {
     return { success: true }
   },
 
-  async verifyApiKey(
-    _request: VerifyApiKeyRequest,
-    _apiKey: string
-  ): Promise<VerifyApiKeyResponse> {
+  async verifyApiKey(_request, _apiKey) {
     return { valid: true, userId: mockUser.id }
   },
 }
 
 // Mock Stats Service
-export const mockStatsService = {
-  async getStats(_request: GetStatsRequest, _apiKey: string): Promise<GetStatsResponse> {
+export const mockStatsService: StatsServiceApi = {
+  async getStats(_request, _apiKey) {
     // Calculate mock stats based on mock data
-    // Note: This mock ignores userId and always returns stats for all mock data
-    // In a real implementation, you might filter by userId when provided
     const totalBlips = BigInt(mockNotes.length)
     const uniqueTags = BigInt(mockTags.length)
-    
+
     // Calculate total words
     const wordsWritten = BigInt(
       mockNotes.reduce((total, note) => {
