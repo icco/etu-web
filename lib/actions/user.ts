@@ -126,9 +126,8 @@ export async function uploadProfileImage(data: { data: string; mimeType: string 
   }
 
   try {
-    const buffer = Buffer.from(data.data, "base64")
     const profileImageUpload: ImageUpload = {
-      data: new Uint8Array(buffer),
+      data: Buffer.from(data.data, "base64"),
       mimeType: data.mimeType,
     }
 

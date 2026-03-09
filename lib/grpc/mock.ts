@@ -369,7 +369,7 @@ export const mockUserSettingsService = {
       image = undefined
     } else if (request.profileImageUpload) {
       const bytes = request.profileImageUpload.data
-      const base64 = Buffer.from(bytes).toString("base64")
+      const base64 = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64")
       image = `data:${request.profileImageUpload.mimeType};base64,${base64}`
     }
     mockUser = {
