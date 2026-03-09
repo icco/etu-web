@@ -364,10 +364,16 @@ export const mockUserSettingsService = {
     _apiKey: string
   ): Promise<UpdateUserSettingsResponse> {
     // Update mock user with new settings
+    let image = request.image ?? mockUser.image
+    if (request.profileImageUpload) {
+      const bytes = request.profileImageUpload.data
+      const base64 = Buffer.from(bytes).toString("base64")
+      image = `data:${request.profileImageUpload.mimeType};base64,${base64}`
+    }
     mockUser = {
       ...mockUser,
       name: request.name ?? mockUser.name,
-      image: request.image ?? mockUser.image,
+      image,
       notionKey: request.notionKey ?? mockUser.notionKey,
     }
     return { user: mockUser }
