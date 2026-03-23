@@ -32,7 +32,7 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
   const SAFE_URL_SCHEMES = ["http:", "https:", "blob:", "data:"]
   const isSafeUrl = (url: string): boolean => {
     try {
-      const parsed = new URL(url, window.location.origin)
+      const parsed = new URL(url)
       return SAFE_URL_SCHEMES.some((scheme) => parsed.protocol === scheme)
     } catch {
       return false
