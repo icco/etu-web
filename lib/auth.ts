@@ -39,7 +39,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       logger.warn({ code }, "auth warning")
     },
     debug(message, metadata) {
-      logger.debug({ ...(metadata as object | undefined) }, message)
+      logger.debug({ metadata }, message)
     },
   },
   providers: [
