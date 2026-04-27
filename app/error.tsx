@@ -11,12 +11,27 @@ export default function Error({
 }) {
   // Stale Server Action IDs from older deployments cannot be recovered by
   // retrying the same request, but a fresh client render resolves to the
-  // current build's IDs. Reset once on mount so users don't see an error
-  // state for a transient deploy-window mismatch.
+  // current build's IDs. Auto-reset only once per page load so users don't
+  // see an error state for a transient deploy-window mismatch, but still
+  // fall back to the UI if the problem persists.
   useEffect(() => {
-    if (error?.message?.includes("Failed to find Server Action")) {
-      reset()
+    const isStaleServerActionError = error?.message?.includes(
+      "Failed to find Server Action"
+    )
+
+    if (!isStaleServerActionError) {
+      return
     }
+
+    const autoResetKey = "app-error:auto-reset:failed-to-find-server-action"
+    const hasAutoReset = window.sessionStorage.getItem(autoResetKey) === "true"
+
+    if (hasAutoReset) {
+      return
+    }
+
+    window.sessionStorage.setItem(autoResetKey, "true")
+    reset()
   }, [error, reset])
 
   return (
