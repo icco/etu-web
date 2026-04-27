@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, { AuthError } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { z } from "zod"
 import { authConfig } from "./auth.config"
@@ -20,6 +20,28 @@ const loginSchema = z.object({
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  logger: {
+    error(error) {
+      // Demote UnknownAction (typically bot probes hitting /api/auth/<bad>)
+      // to a structured warn-level pino log so it doesn't show up as raw
+      // ANSI-coded stderr in container logs.
+      if (
+        error instanceof AuthError
+          ? error.type === "UnknownAction"
+          : error?.name === "UnknownAction"
+      ) {
+        logger.warn({ err: error }, "auth: unknown action")
+        return
+      }
+      logger.error({ err: error }, "auth error")
+    },
+    warn(code) {
+      logger.warn({ code }, "auth warning")
+    },
+    debug(message, metadata) {
+      logger.debug({ metadata }, message)
+    },
+  },
   providers: [
     Credentials({
       name: "credentials",
