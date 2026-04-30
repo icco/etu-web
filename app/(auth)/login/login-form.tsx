@@ -3,8 +3,6 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useFormStatus } from "react-dom"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { login } from "@/lib/actions/auth"
 import { toast } from "sonner"
 
@@ -31,9 +29,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200 flex flex-col">
-      <Header />
-      <div className="flex-1 flex items-center justify-center p-4">
+    <main className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body p-8 sm:p-10">
@@ -88,9 +84,6 @@ export function LoginForm() {
         </div>
 
       </div>
-      </div>
-
-      <Footer />
-    </div>
+    </main>
   )
 }

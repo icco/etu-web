@@ -3,9 +3,6 @@
 import { DocumentTextIcon, PlusIcon } from "@heroicons/react/24/outline"
 import { NoteCard } from "@/components/note-card"
 import { NoteDialog } from "@/components/note-dialog"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { UserMenu } from "@/components/user-menu"
 import { useNoteActions } from "@/lib/hooks/use-note-actions"
 import type { Tag } from "@/lib/grpc/client"
 import type { Note } from "@/lib/types"
@@ -35,74 +32,66 @@ export function NotesView({ initialRandomNotes, initialRecentNote, initialTags }
 
   return (
     <>
-      <div className="min-h-screen bg-base-200 flex flex-col">
-        <Header logoHref="/">
-          <UserMenu />
-        </Header>
-
-        <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-6 flex items-center gap-2">
-              <DocumentTextIcon className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold">Notes</h1>
-            </div>
+      <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6 flex items-center gap-2">
+            <DocumentTextIcon className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Notes</h1>
           </div>
-
-          {!hasNotes ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <DocumentTextIcon className="h-16 w-16 text-base-content/40 mb-4" />
-              <h2 className="text-2xl font-semibold mb-2">No blips yet</h2>
-              <p className="text-base-content/60 mb-6 max-w-md">
-                Start your interstitial journaling journey by capturing your first thought.
-              </p>
-              <button onClick={() => setDialogOpen(true)} className="btn btn-primary gap-2" type="button">
-                <PlusIcon className="h-5 w-5" />
-                Create Your First Blip
-              </button>
-            </div>
-          ) : (
-            <div className="max-w-4xl mx-auto space-y-8">
-              {/* Most recent blip in full form */}
-              {mostRecent && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Latest blip</h3>
-                  <NoteCard
-                    note={mostRecent}
-                    onEdit={handleEditNote}
-                    onDelete={handleDeleteNote}
-                  />
-                </div>
-              )}
-
-              {/* 3×2 grid of truncated blips */}
-              <h3 className="text-lg font-semibold mb-4">Random blips</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {gridNotes.map((note) => (
-                  <NoteCard
-                    key={note.id}
-                    note={note}
-                    onEdit={handleEditNote}
-                    onDelete={handleDeleteNote}
-                    compact
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </main>
-
-        <div className="fab">
-          <button
-            onClick={openNewNoteDialog}
-            className="btn btn-lg btn-circle btn-primary"
-            aria-label="Create new note"
-            type="button"
-          >
-            <PlusIcon className="h-6 w-6" />
-          </button>
         </div>
 
-        <Footer />
+        {!hasNotes ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <DocumentTextIcon className="h-16 w-16 text-base-content/40 mb-4" />
+            <h2 className="text-2xl font-semibold mb-2">No blips yet</h2>
+            <p className="text-base-content/60 mb-6 max-w-md">
+              Start your interstitial journaling journey by capturing your first thought.
+            </p>
+            <button onClick={() => setDialogOpen(true)} className="btn btn-primary gap-2" type="button">
+              <PlusIcon className="h-5 w-5" />
+              Create Your First Blip
+            </button>
+          </div>
+        ) : (
+          <div className="max-w-4xl mx-auto space-y-8">
+            {/* Most recent blip in full form */}
+            {mostRecent && (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Latest blip</h3>
+                <NoteCard
+                  note={mostRecent}
+                  onEdit={handleEditNote}
+                  onDelete={handleDeleteNote}
+                />
+              </div>
+            )}
+
+            {/* 3×2 grid of truncated blips */}
+            <h3 className="text-lg font-semibold mb-4">Random blips</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {gridNotes.map((note) => (
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  onEdit={handleEditNote}
+                  onDelete={handleDeleteNote}
+                  compact
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </main>
+
+      <div className="fab">
+        <button
+          onClick={openNewNoteDialog}
+          className="btn btn-lg btn-circle btn-primary"
+          aria-label="Create new note"
+          type="button"
+        >
+          <PlusIcon className="h-6 w-6" />
+        </button>
       </div>
 
       <NoteDialog
