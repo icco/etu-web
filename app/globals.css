@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "@wooorm/starry-night/style/dimmed";
 
+@source "../node_modules/@icco/react-common/dist/lib/{Footer,SiteHeader,ThemeToggle,Logo,WebVitals,RecurseLogo,Social,XXIIVVLogo,XXIIVVRing,RecurseRing}.js";
+
 @plugin "daisyui" {
   themes:
     light --default,

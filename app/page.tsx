@@ -8,9 +8,8 @@ import {
   CheckIcon,
   CommandLineIcon,
 } from "@heroicons/react/24/outline"
+import { SiteHeader } from "@icco/react-common/SiteHeader"
 import { auth } from "@/lib/auth"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 
 export default async function LandingPage() {
   const session = await auth()
@@ -21,15 +20,18 @@ export default async function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200 flex flex-col">
-      <Header logoHref="/">
-        <Link href="/docs" className="btn btn-ghost">
-          Docs
-        </Link>
-        <Link href="/login" className="btn btn-ghost">
-          Sign In
-        </Link>
-      </Header>
+    <>
+      <SiteHeader
+        brand={
+          <Link href="/" className="btn btn-ghost text-xl">
+            Etu
+          </Link>
+        }
+        links={[
+          { name: "Docs", href: "/docs" },
+          { name: "Sign In", href: "/login" },
+        ]}
+      />
 
       <main className="flex-1">
         {/* Hero Section - Clear value prop, single CTA */}
@@ -316,8 +318,6 @@ export default async function LandingPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
-    </div>
+    </>
   )
 }
