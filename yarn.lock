@@ -362,6 +362,14 @@
   dependencies:
     "@bufbuild/protobuf" "^2.0.0"
 
+"@icco/react-common@^2026.430.1":
+  version "2026.430.1"
+  resolved "https://npm.pkg.github.com/download/@icco/react-common/2026.430.1/36885424816801ca56fce83bb5b621f08ad9c352#36885424816801ca56fce83bb5b621f08ad9c352"
+  integrity sha512-69x0XpmkQcGkZzVkjx1a5xJcUst98o1sttfdeeudoYJ1FLHI+Fytb9U2IcGvOZ7t3EpmkMYOC9FHFHEpBX4WYA==
+  dependencies:
+    "@wrksz/themes" "^0.9.0"
+    vivus "^0.4.6"
+
 "@img/colour@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@img/colour/-/colour-1.1.0.tgz#b0c2c2fa661adf75effd6b4964497cd80010bb9d"
@@ -1047,6 +1055,11 @@
     import-meta-resolve "^4.0.0"
     vscode-oniguruma "^2.0.0"
     vscode-textmate "^9.0.0"
+
+"@wrksz/themes@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@wrksz/themes/-/themes-0.9.0.tgz#4a0d09d024663e55a9d74a3f4b9245bc7889e78a"
+  integrity sha512-z0gOEbzP+95CJ79LfGnEnem21a+faweUEhsbNNEElUo6sBin6Wi5ASLqo4FmoVrPISUElG7c0IY33fXqXvhJSw==
 
 acorn-jsx@^5.3.2:
   version "5.3.2"
@@ -2618,11 +2631,6 @@ next-auth@^5.0.0-beta.30:
   dependencies:
     "@auth/core" "0.41.2"
 
-next-themes@^0.4.6:
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/next-themes/-/next-themes-0.4.6.tgz#8d7e92d03b8fea6582892a50a928c9b23502e8b6"
-  integrity sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==
-
 next@^16.1.2:
   version "16.2.4"
   resolved "https://registry.yarnpkg.com/next/-/next-16.2.4.tgz#b1f708a283052e8ccb86ef16001d69e558e6ef5f"
@@ -3526,6 +3534,11 @@ util-deprecate@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
+
+vivus@^0.4.6:
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/vivus/-/vivus-0.4.6.tgz#60661b43d08aaa70efc1854dfd2f1583f2066608"
+  integrity sha512-q6cDPTGqw/bq9sKF2h2T6GJ9PlwAFncHq7MdaK95WTSyd/7gz//UHTZbJ3B+r8f7AhcISPTC3sv9+u65BmmFbw==
 
 vscode-oniguruma@^2.0.0:
   version "2.0.1"

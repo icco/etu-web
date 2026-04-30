@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Toaster } from "sonner"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@icco/react-common/ThemeProvider"
+import { WebVitals } from "@icco/react-common/WebVitals"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -24,12 +25,8 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen antialiased">
-        <ThemeProvider
-          attribute="data-theme"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider>
+          <WebVitals analyticsPath="/analytics/etu-web" />
           {children}
           <Toaster position="top-right" />
         </ThemeProvider>
