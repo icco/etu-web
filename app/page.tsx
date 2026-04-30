@@ -22,7 +22,11 @@ export default async function LandingPage() {
   return (
     <>
       <SiteHeader
-        showLogo={false}
+        brand={
+          <Link href="/" className="btn btn-ghost text-xl">
+            Etu
+          </Link>
+        }
         links={[
           { name: "Docs", href: "/docs" },
           { name: "Sign In", href: "/login" },

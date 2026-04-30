@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { SiteHeader } from "@icco/react-common/SiteHeader"
 
 export default function AuthLayout({
@@ -7,7 +8,13 @@ export default function AuthLayout({
 }) {
   return (
     <>
-      <SiteHeader showLogo={false} />
+      <SiteHeader
+        brand={
+          <Link href="/" className="btn btn-ghost text-xl">
+            Etu
+          </Link>
+        }
+      />
       {children}
     </>
   )

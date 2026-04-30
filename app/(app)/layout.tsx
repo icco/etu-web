@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { redirect } from "next/navigation"
 import { SiteHeader } from "@icco/react-common/SiteHeader"
 import { auth } from "@/lib/auth"
@@ -17,7 +18,13 @@ export default async function AppLayout({
 
   return (
     <UserImageProvider image={session.user.image}>
-      <SiteHeader showLogo={false}>
+      <SiteHeader
+        brand={
+          <Link href="/" className="btn btn-ghost text-xl">
+            Etu
+          </Link>
+        }
+      >
         <UserMenu />
       </SiteHeader>
       {children}
