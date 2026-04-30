@@ -58,6 +58,12 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: true,
   reactStrictMode: true,
+  // Pin Turbopack's workspace root so a stray lockfile higher up the tree
+  // (e.g. an accidental ~/yarn.lock) can't trick it into picking the wrong
+  // directory. https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory
+  turbopack: {
+    root: __dirname,
+  },
   experimental: {
     serverActions: {
       // Increased to support image uploads (base64 adds ~33% overhead)
