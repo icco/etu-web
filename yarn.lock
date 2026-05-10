@@ -362,10 +362,10 @@
   dependencies:
     "@bufbuild/protobuf" "^2.0.0"
 
-"@icco/react-common@^2026.430.3":
-  version "2026.430.3"
-  resolved "https://npm.pkg.github.com/download/@icco/react-common/2026.430.3/b7829a20bbfb1ba58fb83ceaee783a136c8951b9#b7829a20bbfb1ba58fb83ceaee783a136c8951b9"
-  integrity sha512-d67dBml2zRYSMNQqLQEG6gNsemitlQ4oJu2DrcRFP7XY9R/uyIGRAPvFuU2HBOr45Nq9aXZpTgMctQK8Xvhowg==
+"@icco/react-common@^2026.510.2":
+  version "2026.510.2"
+  resolved "https://npm.pkg.github.com/download/@icco/react-common/2026.510.2/148b54b2cb740bc174ba2550796c8cfa82d64a0d#148b54b2cb740bc174ba2550796c8cfa82d64a0d"
+  integrity sha512-U5rihytjY3+lGKV3kbrVlT+buSQNc6gxSQIQ+McR7icb5hiXJmfwNeaSor7wEkv4SdKe2vGLcYlWoBwLvCYAHw==
   dependencies:
     "@wrksz/themes" "^0.9.0"
     vivus "^0.4.6"

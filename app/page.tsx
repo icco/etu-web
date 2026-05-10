@@ -3,7 +3,9 @@ import { redirect } from "next/navigation"
 import {
   LightBulbIcon,
   ArrowPathIcon,
+  ArrowRightOnRectangleIcon,
   BoltIcon,
+  BookOpenIcon,
   LockClosedIcon,
   CheckIcon,
   CommandLineIcon,
@@ -28,8 +30,16 @@ export default async function LandingPage() {
           </Link>
         }
         links={[
-          { name: "Docs", href: "/docs" },
-          { name: "Sign In", href: "/login" },
+          {
+            name: "Docs",
+            href: "/docs",
+            icon: <BookOpenIcon className="h-5 w-5" />,
+          },
+          {
+            name: "Sign In",
+            href: "/login",
+            icon: <ArrowRightOnRectangleIcon className="h-5 w-5" />,
+          },
         ]}
       />
 
