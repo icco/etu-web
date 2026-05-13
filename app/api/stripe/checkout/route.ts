@@ -14,6 +14,12 @@ function getGrpcApiKey(): string {
 }
 
 export async function POST(request: Request) {
+  const authUrl = process.env.AUTH_URL
+  if (!authUrl) {
+    logger.error("AUTH_URL environment variable is required")
+    return NextResponse.json({ error: "Server misconfigured" }, { status: 503 })
+  }
+
   // CSRF protection: verify origin
   if (!isSameOrigin(request)) {
     logger.error({
@@ -66,8 +72,8 @@ export async function POST(request: Request) {
       payment_method_types: ["card"],
       line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
       mode: "subscription",
-      success_url: `${process.env.AUTH_URL}/settings/subscription?subscription=success`,
-      cancel_url: `${process.env.AUTH_URL}/settings/subscription?subscription=canceled`,
+      success_url: `${authUrl}/settings/subscription?subscription=success`,
+      cancel_url: `${authUrl}/settings/subscription?subscription=canceled`,
       metadata: { userId: user.id },
     })
 

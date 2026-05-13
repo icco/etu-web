@@ -14,6 +14,12 @@ function getGrpcApiKey(): string {
 }
 
 export async function POST(request: Request) {
+  const authUrl = process.env.AUTH_URL
+  if (!authUrl) {
+    logger.error("AUTH_URL environment variable is required")
+    return NextResponse.json({ error: "Server misconfigured" }, { status: 503 })
+  }
+
   if (!isSameOrigin(request)) {
     logger.error({
       origin: request.headers.get("origin"),
@@ -50,7 +56,7 @@ export async function POST(request: Request) {
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${process.env.AUTH_URL}/settings/subscription`,
+      return_url: `${authUrl}/settings/subscription`,
     })
 
     return NextResponse.json({ url: portalSession.url })
