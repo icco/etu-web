@@ -1,16 +1,60 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { format } from "date-fns"
 import { CreditCardIcon } from "@heroicons/react/24/outline"
+import { toast } from "sonner"
 
 interface SubscriptionViewProps {
   user: {
     subscriptionStatus: string
     subscriptionEnd: Date | null
+    hasStripeCustomer: boolean
   }
 }
 
 export function SubscriptionView({ user }: SubscriptionViewProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const result = searchParams.get("subscription")
+    if (!result) return
+    if (result === "success") {
+      toast.success("Subscription updated")
+      router.refresh()
+    } else if (result === "cancelled") {
+      toast.info("Subscription change cancelled")
+    }
+    // Strip the query param so the toast doesn't re-fire on refresh
+    router.replace("/settings/subscription")
+  }, [searchParams, router])
+
+  const handleManage = async () => {
+    setIsLoading(true)
+    try {
+      const endpoint = user.hasStripeCustomer
+        ? "/api/stripe/portal"
+        : "/api/stripe/checkout"
+      const res = await fetch(endpoint, { method: "POST" })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || "Failed to open subscription")
+      }
+      const { url } = await res.json()
+      if (!url) throw new Error("No redirect URL returned")
+      window.location.href = url
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Something went wrong"
+      toast.error(message)
+      setIsLoading(false)
+    }
+  }
+
+  const buttonLabel = user.hasStripeCustomer ? "Manage Subscription" : "Subscribe"
+
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
@@ -45,9 +89,17 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
             <span className="text-3xl font-bold">$5</span>
             <span className="text-base-content/60">/ year</span>
           </div>
-          <button className="btn btn-ghost w-full gap-2">
-            <CreditCardIcon className="h-5 w-5" />
-            Manage Subscription
+          <button
+            className="btn btn-ghost w-full gap-2"
+            onClick={handleManage}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <span className="loading loading-spinner loading-sm" />
+            ) : (
+              <CreditCardIcon className="h-5 w-5" />
+            )}
+            {buttonLabel}
           </button>
           <p className="text-xs text-base-content/60 text-center mt-2">
             Powered by Stripe

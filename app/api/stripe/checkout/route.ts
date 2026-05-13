@@ -66,8 +66,8 @@ export async function POST(request: Request) {
       payment_method_types: ["card"],
       line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
       mode: "subscription",
-      success_url: `${process.env.AUTH_URL}/settings?subscription=success`,
-      cancel_url: `${process.env.AUTH_URL}/settings?subscription=cancelled`,
+      success_url: `${process.env.AUTH_URL}/settings/subscription?subscription=success`,
+      cancel_url: `${process.env.AUTH_URL}/settings/subscription?subscription=cancelled`,
       metadata: { userId: user.id },
     })
 

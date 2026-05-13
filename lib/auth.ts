@@ -103,6 +103,7 @@ export async function getCurrentUser() {
         ? timestampToDate(response.user.updatedAt)
         : null,
       hasNotionKey: Boolean(response.user.notionKey),
+      hasStripeCustomer: Boolean(response.user.stripeCustomerId),
     }
   } catch (error) {
     logger.error({ error }, "Get current user error")
