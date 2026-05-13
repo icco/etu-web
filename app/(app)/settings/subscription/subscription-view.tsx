@@ -21,10 +21,14 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
               ? "badge-success"
               : user.subscriptionStatus === "trial"
                 ? "bg-warning text-black"
-                : "badge-ghost"
+                : user.subscriptionStatus === "past_due"
+                  ? "badge-error"
+                  : "badge-ghost"
               }`}
           >
-            {user.subscriptionStatus.charAt(0).toUpperCase() + user.subscriptionStatus.slice(1)}
+            {user.subscriptionStatus === "past_due"
+              ? "Past due"
+              : user.subscriptionStatus.charAt(0).toUpperCase() + user.subscriptionStatus.slice(1)}
           </span>
           {user.subscriptionEnd && (
             <span className="text-sm text-base-content/60" suppressHydrationWarning>
