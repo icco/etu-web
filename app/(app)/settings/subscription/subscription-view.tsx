@@ -25,8 +25,8 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
     if (result === "success") {
       toast.success("Subscription updated")
       router.refresh()
-    } else if (result === "cancelled") {
-      toast.info("Subscription change cancelled")
+    } else if (result === "canceled") {
+      toast.info("Subscription change canceled")
     }
     // Strip the query param so the toast doesn't re-fire on refresh
     router.replace("/settings/subscription")

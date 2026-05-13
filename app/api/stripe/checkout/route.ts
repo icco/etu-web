@@ -67,7 +67,7 @@ export async function POST(request: Request) {
       line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
       mode: "subscription",
       success_url: `${process.env.AUTH_URL}/settings/subscription?subscription=success`,
-      cancel_url: `${process.env.AUTH_URL}/settings/subscription?subscription=cancelled`,
+      cancel_url: `${process.env.AUTH_URL}/settings/subscription?subscription=canceled`,
       metadata: { userId: user.id },
     })
 
