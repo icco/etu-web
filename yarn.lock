@@ -356,16 +356,16 @@
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
 "@icco/etu-proto@^2026.2.0":
-  version "2026.5.144607"
-  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/2026.5.144607/10017071c356182272d30b8e569f3b449291a270#10017071c356182272d30b8e569f3b449291a270"
-  integrity sha512-rpSyCX0rCHmq7dAMag4XwWPQpc2Zo04C6lSPj+/UG2vJbjkkZj2cjKk41AjZ5tpRojXvnKGD+sHR6Fjy9EmKmg==
+  version "2026.5.212626"
+  resolved "https://npm.pkg.github.com/download/@icco/etu-proto/2026.5.212626/7108b989307bca1265a254998123b9df76e68fe4#7108b989307bca1265a254998123b9df76e68fe4"
+  integrity sha512-RWMP9wTDaj5anRp5CoKXxql/Wp3+uuXZ5tL09+w9lQmGKEZrM23dEUaHoGVwxt2C2curCVJgy5NiURNqauKr4w==
   dependencies:
     "@bufbuild/protobuf" "^2.0.0"
 
 "@icco/react-common@^2026.510.2":
-  version "2026.10510.1"
-  resolved "https://npm.pkg.github.com/download/@icco/react-common/2026.10510.1/bfa79ee2a6aef3216007a61e883a82bfe7cf30a7#bfa79ee2a6aef3216007a61e883a82bfe7cf30a7"
-  integrity sha512-I/LER85TnMCxgNhxW3imVHyNmtoNrH6ahsBBKIvyzXrCdWAVleb1mADyT9RXc0QcN6mnelvuHgs9eFESThpiZg==
+  version "2026.10513.1"
+  resolved "https://npm.pkg.github.com/download/@icco/react-common/2026.10513.1/36a4cd212fc79e3675b582804718a7124a3933c0#36a4cd212fc79e3675b582804718a7124a3933c0"
+  integrity sha512-5tgaI8oUaT1WfDNfLsanckUJl6Q/DmqOZwgwB0TRO4fClm/IaRNHL9YmEZbjYUmXScr05Y4fdsXZjSnOT2tg3g==
   dependencies:
     "@wrksz/themes" "^0.9.0"
     vivus "^0.4.6"
