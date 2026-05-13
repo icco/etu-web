@@ -74,6 +74,8 @@ export async function POST(req: NextRequest) {
               ? "active"
               : subscription.status === "trialing"
               ? "trial"
+              : subscription.status === "past_due"
+              ? "past_due"
               : "inactive"
 
           // In Stripe SDK v20+, current_period_end is on subscription items
@@ -86,6 +88,27 @@ export async function POST(req: NextRequest) {
               subscriptionEnd: periodEnd
                 ? dateToTimestamp(new Date(periodEnd * 1000))
                 : undefined,
+            },
+            getGrpcApiKey()
+          )
+        }
+        break
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice
+        const customerId = invoice.customer as string
+
+        const userResponse = await authService.getUserByStripeCustomerId(
+          { stripeCustomerId: customerId },
+          getGrpcApiKey()
+        )
+
+        if (userResponse.user) {
+          await authService.updateUserSubscription(
+            {
+              userId: userResponse.user.id,
+              subscriptionStatus: "past_due",
             },
             getGrpcApiKey()
           )
