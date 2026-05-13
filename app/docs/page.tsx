@@ -66,7 +66,7 @@ export default function DocsPage() {
                 <code className="block text-sm bg-base-300 px-4 py-2 rounded whitespace-pre">
 {`{
   "api_key": "your-64-char-hex-api-key",
-  "grpc_target": "grpc.etu.natwelch.com:443"
+  "grpc_target": "grpc.etu.timeclimbers.com:443"
 }`}
                 </code>
               </div>
@@ -74,7 +74,7 @@ export default function DocsPage() {
                 <p className="text-sm font-medium mb-2">Option 2: Environment variables</p>
                 <code className="block text-sm bg-base-300 px-4 py-2 rounded">
                   export ETU_API_KEY=&quot;your-api-key&quot;<br />
-                  export ETU_GRPC_TARGET=&quot;grpc.etu.natwelch.com:443&quot;
+                  export ETU_GRPC_TARGET=&quot;grpc.etu.timeclimbers.com:443&quot;
                 </code>
               </div>
             </div>
