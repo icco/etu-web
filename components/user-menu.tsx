@@ -9,6 +9,7 @@ import {
   MagnifyingGlassIcon,
   TagIcon,
 } from "@heroicons/react/24/outline"
+import Image from "next/image"
 import { signOut } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -35,10 +36,12 @@ export function UserMenu() {
         aria-label="Open user menu"
       >
         {userImage ? (
-          <img
-            src="/api/avatar/me"
+          <Image
+            src={`${userImage.key}?v=${userImage.version}`}
             alt=""
             aria-hidden="true"
+            width={32}
+            height={32}
             className="h-8 w-8 rounded-full object-cover"
           />
         ) : (

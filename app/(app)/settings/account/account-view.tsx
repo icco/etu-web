@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import {
@@ -337,13 +338,24 @@ export function AccountView({ user }: AccountViewProps) {
               {isEditingImage ? (
                 <div className="space-y-3 mt-1">
                   <div className="flex items-center gap-4">
-                    {(imagePreview || user.image) && (
-                      <img
-                        src={imagePreview || "/api/avatar/me"}
+                    {imagePreview ? (
+                      <Image
+                        src={imagePreview}
                         alt="Preview"
+                        width={64}
+                        height={64}
+                        unoptimized
                         className="w-16 h-16 rounded-full object-cover"
                       />
-                    )}
+                    ) : user.image ? (
+                      <Image
+                        src={`${user.image}?v=${user.updatedAt ? user.updatedAt.getTime() : 0}`}
+                        alt="Preview"
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    ) : null}
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/gif,image/webp"
@@ -386,9 +398,11 @@ export function AccountView({ user }: AccountViewProps) {
                 <div className="flex items-center justify-between">
                   <div className="py-2">
                     {user.image ? (
-                      <img
-                        src="/api/avatar/me"
+                      <Image
+                        src={`${user.image}?v=${user.updatedAt ? user.updatedAt.getTime() : 0}`}
                         alt="Profile"
+                        width={64}
+                        height={64}
                         className="w-16 h-16 rounded-full object-cover"
                       />
                     ) : (

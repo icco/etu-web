@@ -79,6 +79,14 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  images: {
+    loader: 'custom',
+    loaderFile: './lib/imgix-loader.ts',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'etu.imgix.net' },
+    ],
+    qualities: [50, 75, 90],
+  },
   async headers() {
     return [
       {

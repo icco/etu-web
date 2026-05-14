@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useMemo } from "react"
+import Image from "next/image"
 import { marked } from "marked"
 import DOMPurify from "dompurify"
 import { XMarkIcon, PhotoIcon, MusicalNoteIcon } from "@heroicons/react/24/outline"
@@ -382,9 +383,11 @@ export function NoteDialog({
                 <div className="flex flex-wrap gap-2">
                   {initialImages.map((img) => (
                     <div key={img.id} className="relative group">
-                      <img
+                      <Image
                         src={img.url}
                         alt=""
+                        width={80}
+                        height={80}
                         className="h-16 w-16 md:h-20 md:w-20 object-cover rounded-lg border border-base-300"
                       />
                     </div>
@@ -400,9 +403,12 @@ export function NoteDialog({
                 <div className="flex flex-wrap gap-2">
                   {pendingImages.map((img) => (
                     <div key={img.id} className="relative group">
-                      <img
+                      <Image
                         src={img.previewUrl}
                         alt=""
+                        width={80}
+                        height={80}
+                        unoptimized
                         className="h-16 w-16 md:h-20 md:w-20 object-cover rounded-lg border border-base-300"
                       />
                       <button

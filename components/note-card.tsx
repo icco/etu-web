@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { format } from "date-fns"
 import { marked } from "marked"
@@ -138,9 +139,11 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
             <div className="flex flex-wrap gap-2 mt-3">
               {safeImages.slice(0, 4).map((img, idx) => (
                 <div key={img.id} className="relative">
-                  <img
+                  <Image
                     src={img.url}
                     alt={img.extractedText || "Attached image"}
+                    width={64}
+                    height={64}
                     className="h-16 w-16 object-cover rounded-lg border border-base-300"
                   />
                   {idx === 3 && safeImages.length > 4 && (
@@ -209,10 +212,13 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
                         rel="noopener noreferrer"
                         className="block"
                       >
-                        <img
+                        <Image
                           src={img.url}
                           alt={img.extractedText || "Attached image"}
-                          className="w-full rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
+                          width={1200}
+                          height={1200}
+                          sizes="(max-width: 768px) 50vw, 600px"
+                          className="w-full h-auto rounded-lg border border-base-300 hover:opacity-90 transition-opacity"
                         />
                       </a>
                       {img.extractedText && (

@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { SiteHeader } from "@icco/react-common/SiteHeader"
-import { auth } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/auth"
 import { UserImageProvider } from "@/components/user-image-context"
 import { UserMenu } from "@/components/user-menu"
 
@@ -10,14 +10,14 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
+  const user = await getCurrentUser()
 
-  if (!session?.user) {
+  if (!user) {
     redirect("/login")
   }
 
   return (
-    <UserImageProvider image={session.user.image}>
+    <UserImageProvider image={user.image} updatedAt={user.updatedAt}>
       <SiteHeader
         brand={
           <Link href="/" className="btn btn-ghost text-xl">
