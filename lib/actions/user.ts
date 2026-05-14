@@ -127,19 +127,8 @@ export async function uploadProfileImage(data: { data: string; mimeType: string 
 
   try {
     const buffer = Buffer.from(data.data, "base64")
-    const bytes = new Uint8Array(buffer)
-    logger.info(
-      {
-        userId: session.user.id,
-        base64Len: data.data.length,
-        decodedBytes: bytes.byteLength,
-        mimeType: data.mimeType,
-        ctor: bytes.constructor.name,
-      },
-      "uploadProfileImage: sending to backend"
-    )
     const profileImageUpload: ImageUpload = {
-      data: bytes,
+      data: new Uint8Array(buffer),
       mimeType: data.mimeType,
     }
 
@@ -151,10 +140,6 @@ export async function uploadProfileImage(data: { data: string; mimeType: string 
       getGrpcApiKey()
     )
 
-    logger.info(
-      { userId: session.user.id, decodedBytes: bytes.byteLength },
-      "uploadProfileImage: gRPC call returned"
-    )
     revalidatePath("/settings")
     return { success: true }
   } catch (error) {
