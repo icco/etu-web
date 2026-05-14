@@ -36,7 +36,7 @@ export function UserMenu() {
       >
         {userImage ? (
           <img
-            src={userImage}
+            src="/api/avatar/me"
             alt=""
             aria-hidden="true"
             className="h-8 w-8 rounded-full object-cover"

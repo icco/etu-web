@@ -235,6 +235,14 @@
                 </li>
               
                 <li>
+                  <a href="#etu.GetProfileImageURLRequest"><span class="badge">M</span>GetProfileImageURLRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#etu.GetProfileImageURLResponse"><span class="badge">M</span>GetProfileImageURLResponse</a>
+                </li>
+              
+                <li>
                   <a href="#etu.GetRandomNotesRequest"><span class="badge">M</span>GetRandomNotesRequest</a>
                 </li>
               
@@ -845,6 +853,54 @@
                 <tr>
                   <td>note</td>
                   <td><a href="#etu.Note">Note</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="etu.GetProfileImageURLRequest">GetProfileImageURLRequest</h3>
+        <p>GetProfileImageURLRequest resolves a stored avatar key to a URL.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>key</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>key is the storage object key returned in User.image. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="etu.GetProfileImageURLResponse">GetProfileImageURLResponse</h3>
+        <p>GetProfileImageURLResponse returns a short-lived URL for the image.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>url</td>
+                  <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p> </p></td>
                 </tr>
@@ -1909,7 +1965,9 @@
                   <td>image</td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
-                  <td><p>image is an optional avatar URL. </p></td>
+                  <td><p>image is the storage object key for the user&#39;s avatar. Resolve it to a
+URL via UserSettingsService.GetProfileImageURL — never use directly as
+an &lt;img src&gt;. </p></td>
                 </tr>
               
                 <tr>
@@ -2289,6 +2347,13 @@
                 <td><a href="#etu.UpdateUserSettingsRequest">UpdateUserSettingsRequest</a></td>
                 <td><a href="#etu.UpdateUserSettingsResponse">UpdateUserSettingsResponse</a></td>
                 <td><p>UpdateUserSettings updates mutable user settings fields.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GetProfileImageURL</td>
+                <td><a href="#etu.GetProfileImageURLRequest">GetProfileImageURLRequest</a></td>
+                <td><a href="#etu.GetProfileImageURLResponse">GetProfileImageURLResponse</a></td>
+                <td><p>GetProfileImageURL resolves a profile image key to a short-lived URL.</p></td>
               </tr>
             
           </tbody>

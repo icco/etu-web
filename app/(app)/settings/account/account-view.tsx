@@ -339,7 +339,7 @@ export function AccountView({ user }: AccountViewProps) {
                   <div className="flex items-center gap-4">
                     {(imagePreview || user.image) && (
                       <img
-                        src={imagePreview || user.image || ""}
+                        src={imagePreview || "/api/avatar/me"}
                         alt="Preview"
                         className="w-16 h-16 rounded-full object-cover"
                       />
@@ -387,7 +387,7 @@ export function AccountView({ user }: AccountViewProps) {
                   <div className="py-2">
                     {user.image ? (
                       <img
-                        src={user.image}
+                        src="/api/avatar/me"
                         alt="Profile"
                         className="w-16 h-16 rounded-full object-cover"
                       />

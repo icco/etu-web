@@ -630,6 +630,17 @@ const realUserSettingsService = {
       return { user: convertUser(response.user) }
     }, "UserSettingsService.updateUserSettings")
   },
+
+  async getProfileImageURL(request: { key: string }, apiKey: string) {
+    return withErrorHandling(async () => {
+      const client = getClient(UserSettingsService)
+      const response = await client.getProfileImageURL(
+        { key: request.key },
+        { headers: createHeaders(apiKey) }
+      )
+      return { url: response.url }
+    }, "UserSettingsService.getProfileImageURL")
+  },
 }
 
 export type UserSettingsServiceApi = typeof realUserSettingsService
