@@ -305,6 +305,24 @@ export const mockAuthService: AuthServiceApi = {
       subscriptionStatus: request.subscriptionStatus || mockUser.subscriptionStatus,
       stripeCustomerId: request.stripeCustomerId,
       subscriptionEnd: request.subscriptionEnd,
+      stripeSubscriptionId: request.stripeSubscriptionId,
+      stripePriceId: request.stripePriceId,
+      cancelAtPeriodEnd: request.cancelAtPeriodEnd,
+      currentPeriodStart: request.currentPeriodStart,
+    }
+    return { user: updatedUser }
+  },
+
+  async updateUserStripeCustomer(request, _apiKey) {
+    const updatedUser = {
+      ...mockUser,
+      name: request.name ?? mockUser.name,
+      billingLine1: request.billingLine1,
+      billingLine2: request.billingLine2,
+      billingCity: request.billingCity,
+      billingState: request.billingState,
+      billingPostalCode: request.billingPostalCode,
+      billingCountry: request.billingCountry,
     }
     return { user: updatedUser }
   },

@@ -12,10 +12,71 @@ function getGrpcApiKey(): string {
   return key
 }
 
-function dateToTimestamp(date: Date): Timestamp {
-  const seconds = Math.floor(date.getTime() / 1000)
-  const nanos = (date.getTime() % 1000) * 1000000
-  return { seconds: seconds.toString(), nanos }
+function unixToTimestamp(unixSeconds: number): Timestamp {
+  return { seconds: Math.floor(unixSeconds).toString(), nanos: 0 }
+}
+
+function mapSubscriptionStatus(stripeStatus: Stripe.Subscription.Status): string {
+  switch (stripeStatus) {
+    case "active":
+      return "active"
+    case "trialing":
+      return "trial"
+    case "past_due":
+      return "past_due"
+    case "canceled":
+      return "cancelled"
+    default:
+      return "inactive"
+  }
+}
+
+async function syncSubscription(subscription: Stripe.Subscription) {
+  const customerId = subscription.customer as string
+  const userResponse = await authService.getUserByStripeCustomerId(
+    { stripeCustomerId: customerId },
+    getGrpcApiKey()
+  )
+  if (!userResponse.user) return
+
+  const item = subscription.items.data[0]
+  const periodEnd = item?.current_period_end
+  const periodStart = item?.current_period_start
+  const priceId = item?.price?.id
+
+  await authService.updateUserSubscription(
+    {
+      userId: userResponse.user.id,
+      subscriptionStatus: mapSubscriptionStatus(subscription.status),
+      stripeSubscriptionId: subscription.id,
+      stripePriceId: priceId,
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      subscriptionEnd: periodEnd ? unixToTimestamp(periodEnd) : undefined,
+      currentPeriodStart: periodStart ? unixToTimestamp(periodStart) : undefined,
+    },
+    getGrpcApiKey()
+  )
+}
+
+async function syncCustomerProfile(customer: Stripe.Customer) {
+  if (customer.deleted) return
+  const userId = customer.metadata?.userId
+  if (!userId) return
+
+  const address = customer.address ?? undefined
+  await authService.updateUserStripeCustomer(
+    {
+      userId,
+      name: customer.name ?? undefined,
+      billingLine1: address?.line1 ?? undefined,
+      billingLine2: address?.line2 ?? undefined,
+      billingCity: address?.city ?? undefined,
+      billingState: address?.state ?? undefined,
+      billingPostalCode: address?.postal_code ?? undefined,
+      billingCountry: address?.country ?? undefined,
+    },
+    getGrpcApiKey()
+  )
 }
 
 export async function POST(req: NextRequest) {
@@ -46,6 +107,9 @@ export async function POST(req: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session
         const userId = session.metadata?.userId
         if (userId) {
+          // Stripe will follow with customer.subscription.created which fills
+          // in price/period fields. Here we just stamp the customer id and
+          // status so the user sees a paid state immediately.
           await authService.updateUserSubscription(
             {
               userId,
@@ -60,34 +124,24 @@ export async function POST(req: NextRequest) {
 
       case "customer.subscription.updated":
       case "customer.subscription.created": {
+        await syncSubscription(event.data.object as Stripe.Subscription)
+        break
+      }
+
+      case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription
         const customerId = subscription.customer as string
-
         const userResponse = await authService.getUserByStripeCustomerId(
           { stripeCustomerId: customerId },
           getGrpcApiKey()
         )
-
         if (userResponse.user) {
-          const status =
-            subscription.status === "active"
-              ? "active"
-              : subscription.status === "trialing"
-              ? "trial"
-              : subscription.status === "past_due"
-              ? "past_due"
-              : "inactive"
-
-          // In Stripe SDK v20+, current_period_end is on subscription items
-          const periodEnd = subscription.items.data[0]?.current_period_end
-
           await authService.updateUserSubscription(
             {
               userId: userResponse.user.id,
-              subscriptionStatus: status,
-              subscriptionEnd: periodEnd
-                ? dateToTimestamp(new Date(periodEnd * 1000))
-                : undefined,
+              subscriptionStatus: "cancelled",
+              stripeSubscriptionId: subscription.id,
+              cancelAtPeriodEnd: false,
             },
             getGrpcApiKey()
           )
@@ -98,12 +152,10 @@ export async function POST(req: NextRequest) {
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice
         const customerId = invoice.customer as string
-
         const userResponse = await authService.getUserByStripeCustomerId(
           { stripeCustomerId: customerId },
           getGrpcApiKey()
         )
-
         if (userResponse.user) {
           await authService.updateUserSubscription(
             {
@@ -116,20 +168,40 @@ export async function POST(req: NextRequest) {
         break
       }
 
-      case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription
-        const customerId = subscription.customer as string
+      case "invoice.paid":
+      case "invoice.payment_succeeded": {
+        // A successful payment can clear a past_due state. Re-sync from the
+        // subscription if one is attached to the invoice.
+        const invoice = event.data.object as Stripe.Invoice
+        const lineSub = invoice.lines?.data?.[0]?.subscription
+        const subId =
+          typeof lineSub === "string"
+            ? lineSub
+            : lineSub && "id" in lineSub
+              ? lineSub.id
+              : undefined
+        if (subId) {
+          const subscription = await stripe.subscriptions.retrieve(subId)
+          await syncSubscription(subscription)
+        }
+        break
+      }
 
-        const userResponse = await authService.getUserByStripeCustomerId(
-          { stripeCustomerId: customerId },
-          getGrpcApiKey()
-        )
+      case "customer.created":
+      case "customer.updated": {
+        await syncCustomerProfile(event.data.object as Stripe.Customer)
+        break
+      }
 
-        if (userResponse.user) {
+      case "customer.deleted": {
+        const customer = event.data.object as Stripe.Customer
+        const userId = customer.metadata?.userId
+        if (userId) {
           await authService.updateUserSubscription(
             {
-              userId: userResponse.user.id,
+              userId,
               subscriptionStatus: "cancelled",
+              cancelAtPeriodEnd: false,
             },
             getGrpcApiKey()
           )

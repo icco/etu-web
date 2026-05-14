@@ -53,6 +53,7 @@ export async function POST(request: Request) {
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email || undefined,
+        name: user.name || undefined,
         metadata: { userId: user.id },
       })
       customerId = customer.id
@@ -72,6 +73,8 @@ export async function POST(request: Request) {
       payment_method_types: ["card"],
       line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
       mode: "subscription",
+      billing_address_collection: "required",
+      customer_update: { name: "auto", address: "auto" },
       success_url: `${authUrl}/settings/subscription?subscription=success`,
       cancel_url: `${authUrl}/settings/subscription?subscription=canceled`,
       metadata: { userId: user.id },
