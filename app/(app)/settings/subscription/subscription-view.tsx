@@ -11,6 +11,7 @@ interface SubscriptionViewProps {
     subscriptionStatus: string
     subscriptionEnd: Date | null
     hasStripeCustomer: boolean
+    cancelAtPeriodEnd: boolean
   }
 }
 
@@ -76,7 +77,9 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
           </span>
           {user.subscriptionEnd && (
             <span className="text-sm text-base-content/60" suppressHydrationWarning>
-              {user.subscriptionStatus === "active" ? "Renews" : "Ends"}{" "}
+              {user.subscriptionStatus === "active" && !user.cancelAtPeriodEnd
+                ? "Renews"
+                : "Ends"}{" "}
               {format(new Date(user.subscriptionEnd), "MMMM d, yyyy")}
             </span>
           )}

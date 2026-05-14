@@ -104,6 +104,7 @@ export async function getCurrentUser() {
         : null,
       hasNotionKey: Boolean(response.user.notionKey),
       hasStripeCustomer: Boolean(response.user.stripeCustomerId),
+      cancelAtPeriodEnd: Boolean(response.user.cancelAtPeriodEnd),
     }
   } catch (error) {
     logger.error({ error }, "Get current user error")

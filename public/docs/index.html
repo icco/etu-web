@@ -351,6 +351,14 @@
                 </li>
               
                 <li>
+                  <a href="#etu.UpdateUserStripeCustomerRequest"><span class="badge">M</span>UpdateUserStripeCustomerRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#etu.UpdateUserStripeCustomerResponse"><span class="badge">M</span>UpdateUserStripeCustomerResponse</a>
+                </li>
+              
+                <li>
                   <a href="#etu.UpdateUserSubscriptionRequest"><span class="badge">M</span>UpdateUserSubscriptionRequest</a>
                 </li>
               
@@ -1861,8 +1869,105 @@
 
         
       
+        <h3 id="etu.UpdateUserStripeCustomerRequest">UpdateUserStripeCustomerRequest</h3>
+        <p>UpdateUserStripeCustomerRequest updates customer-level Stripe profile</p><p>fields (name, billing address) synced from Stripe webhook events.</p><p>All optional fields are only persisted when set; pass an empty/null value</p><p>to leave the existing column unchanged. Empty strings explicitly clear</p><p>the field.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>user_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>name is the customer&#39;s display name on the Stripe customer record. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_line1</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_line1 is the first line of the billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_line2</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_line2 is the second line of the billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_city</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_city is the city of the billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_state</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_state is the state or region of the billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_postal_code</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_postal_code is the postal code of the billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_country</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_country is the ISO-3166-1 alpha-2 country code. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="etu.UpdateUserStripeCustomerResponse">UpdateUserStripeCustomerResponse</h3>
+        <p>UpdateUserStripeCustomerResponse returns the updated user record.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>user</td>
+                  <td><a href="#etu.User">User</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="etu.UpdateUserSubscriptionRequest">UpdateUserSubscriptionRequest</h3>
-        <p>UpdateUserSubscriptionRequest updates subscription billing fields.</p>
+        <p>UpdateUserSubscriptionRequest updates subscription billing fields.</p><p>Optional fields are only persisted when set; pass an empty/null value to</p><p>leave the existing column unchanged. cancel_at_period_end is always written.</p>
 
         
           <table class="field-table">
@@ -1897,6 +2002,35 @@
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td>optional</td>
                   <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>stripe_subscription_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>stripe_subscription_id sets the Stripe subscription resource id. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>stripe_price_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>stripe_price_id sets the Stripe price id the user is subscribed to. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>cancel_at_period_end</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>cancel_at_period_end sets whether the subscription will cancel at the
+end of the current billing period. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>current_period_start</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td>optional</td>
+                  <td><p>current_period_start sets the start of the current billing period. </p></td>
                 </tr>
               
             </tbody>
@@ -2031,6 +2165,78 @@ an &lt;img src&gt;. </p></td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
                   <td><p>notion_database_name is the Notion database used for sync. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>stripe_subscription_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>stripe_subscription_id is the Stripe subscription resource id. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>stripe_price_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>stripe_price_id is the Stripe price the user is currently subscribed to. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>cancel_at_period_end</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>cancel_at_period_end reports whether the subscription will cancel at
+the end of the current billing period. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>current_period_start</td>
+                  <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
+                  <td>optional</td>
+                  <td><p>current_period_start is the start of the current billing period. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_line1</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_line1 is the first line of the user&#39;s billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_line2</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_line2 is the second line of the user&#39;s billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_city</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_city is the city of the user&#39;s billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_state</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_state is the state or region of the user&#39;s billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_postal_code</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_postal_code is the postal code of the user&#39;s billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>billing_country</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_country is the ISO-3166-1 alpha-2 country code of the
+user&#39;s billing address. </p></td>
                 </tr>
               
             </tbody>
@@ -2229,6 +2435,14 @@ an &lt;img src&gt;. </p></td>
                 <td><a href="#etu.UpdateUserSubscriptionRequest">UpdateUserSubscriptionRequest</a></td>
                 <td><a href="#etu.UpdateUserSubscriptionResponse">UpdateUserSubscriptionResponse</a></td>
                 <td><p>UpdateUserSubscription updates billing-related subscription state.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateUserStripeCustomer</td>
+                <td><a href="#etu.UpdateUserStripeCustomerRequest">UpdateUserStripeCustomerRequest</a></td>
+                <td><a href="#etu.UpdateUserStripeCustomerResponse">UpdateUserStripeCustomerResponse</a></td>
+                <td><p>UpdateUserStripeCustomer syncs Stripe customer profile fields
+(name, billing address) from Stripe webhook events.</p></td>
               </tr>
             
           </tbody>

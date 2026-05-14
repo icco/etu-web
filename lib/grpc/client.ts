@@ -100,6 +100,16 @@ export interface User {
   createdAt?: Timestamp
   updatedAt?: Timestamp
   stripeCustomerId?: string
+  stripeSubscriptionId?: string
+  stripePriceId?: string
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Timestamp
+  billingLine1?: string
+  billingLine2?: string
+  billingCity?: string
+  billingState?: string
+  billingPostalCode?: string
+  billingCountry?: string
   notionKey?: string
 }
 
@@ -193,6 +203,16 @@ function convertUser(user: ProtoUser | undefined): User {
     createdAt: user.createdAt ? convertTimestamp(user.createdAt) : undefined,
     updatedAt: user.updatedAt ? convertTimestamp(user.updatedAt) : undefined,
     stripeCustomerId: user.stripeCustomerId,
+    stripeSubscriptionId: user.stripeSubscriptionId,
+    stripePriceId: user.stripePriceId,
+    cancelAtPeriodEnd: user.cancelAtPeriodEnd,
+    currentPeriodStart: user.currentPeriodStart ? convertTimestamp(user.currentPeriodStart) : undefined,
+    billingLine1: user.billingLine1,
+    billingLine2: user.billingLine2,
+    billingCity: user.billingCity,
+    billingState: user.billingState,
+    billingPostalCode: user.billingPostalCode,
+    billingCountry: user.billingCountry,
     notionKey: user.notionKey,
   }
 }
@@ -447,7 +467,16 @@ const realAuthService = {
   },
 
   async updateUserSubscription(
-    request: { userId: string; subscriptionStatus: string; stripeCustomerId?: string; subscriptionEnd?: Timestamp },
+    request: {
+      userId: string
+      subscriptionStatus: string
+      stripeCustomerId?: string
+      subscriptionEnd?: Timestamp
+      stripeSubscriptionId?: string
+      stripePriceId?: string
+      cancelAtPeriodEnd?: boolean
+      currentPeriodStart?: Timestamp
+    },
     apiKey: string
   ) {
     return withErrorHandling(async () => {
@@ -463,11 +492,52 @@ const realAuthService = {
               nanos: request.subscriptionEnd.nanos,
             }
             : undefined,
+          stripeSubscriptionId: request.stripeSubscriptionId,
+          stripePriceId: request.stripePriceId,
+          cancelAtPeriodEnd: request.cancelAtPeriodEnd ?? false,
+          currentPeriodStart: request.currentPeriodStart
+            ? {
+              seconds: BigInt(request.currentPeriodStart.seconds.toString()),
+              nanos: request.currentPeriodStart.nanos,
+            }
+            : undefined,
         },
         { headers: createHeaders(apiKey) }
       )
       return { user: convertUser(response.user) }
     }, "AuthService.updateUserSubscription")
+  },
+
+  async updateUserStripeCustomer(
+    request: {
+      userId: string
+      name?: string
+      billingLine1?: string
+      billingLine2?: string
+      billingCity?: string
+      billingState?: string
+      billingPostalCode?: string
+      billingCountry?: string
+    },
+    apiKey: string
+  ) {
+    return withErrorHandling(async () => {
+      const client = getClient(AuthService)
+      const response = await client.updateUserStripeCustomer(
+        {
+          userId: request.userId,
+          name: request.name,
+          billingLine1: request.billingLine1,
+          billingLine2: request.billingLine2,
+          billingCity: request.billingCity,
+          billingState: request.billingState,
+          billingPostalCode: request.billingPostalCode,
+          billingCountry: request.billingCountry,
+        },
+        { headers: createHeaders(apiKey) }
+      )
+      return { user: convertUser(response.user) }
+    }, "AuthService.updateUserStripeCustomer")
   },
 
 }
