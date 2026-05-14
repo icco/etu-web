@@ -111,6 +111,7 @@ let mockUser: User = {
   email: "test@example.com",
   name: "Test User",
   subscriptionStatus: "active",
+  stripeCustomerId: "cus_mock_123",
   createdAt: mockTimestamp(new Date("2026-01-01T00:00:00Z")),
   notionKey: undefined,
 }

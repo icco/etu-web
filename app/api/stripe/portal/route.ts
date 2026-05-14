@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { authService } from "@/lib/grpc/client"
-import { stripe, STRIPE_PRICE_ID } from "@/lib/stripe"
+import { stripe, STRIPE_PORTAL_CONFIGURATION_ID } from "@/lib/stripe"
 import { isSameOrigin } from "@/lib/security"
 import logger from "@/lib/logger"
 
@@ -20,19 +20,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Server misconfigured" }, { status: 503 })
   }
 
-  // CSRF protection: verify origin
   if (!isSameOrigin(request)) {
     logger.error({
       origin: request.headers.get("origin"),
       referer: request.headers.get("referer"),
-    }, "Stripe checkout CSRF attempt detected")
+    }, "Stripe portal CSRF attempt detected")
     return NextResponse.json(
       { error: "Invalid request origin" },
       { status: 403 }
     )
   }
 
-  if (!stripe || !STRIPE_PRICE_ID) {
+  if (!stripe) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 503 })
   }
 
@@ -46,43 +45,29 @@ export async function POST(request: Request) {
       { userId: session.user.id },
       getGrpcApiKey()
     )
-    const user = userResponse.user
-
-    let customerId = user.stripeCustomerId
+    const customerId = userResponse.user.stripeCustomerId
 
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email || undefined,
-        metadata: { userId: user.id },
-      })
-      customerId = customer.id
-
-      await authService.updateUserSubscription(
-        {
-          userId: user.id,
-          subscriptionStatus: user.subscriptionStatus,
-          stripeCustomerId: customerId,
-        },
-        getGrpcApiKey()
+      return NextResponse.json(
+        { error: "No subscription to manage" },
+        { status: 400 }
       )
     }
 
-    const checkoutSession = await stripe.checkout.sessions.create({
+    const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      payment_method_types: ["card"],
-      line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
-      mode: "subscription",
-      success_url: `${authUrl}/settings/subscription?subscription=success`,
-      cancel_url: `${authUrl}/settings/subscription?subscription=canceled`,
-      metadata: { userId: user.id },
+      return_url: `${authUrl}/settings/subscription`,
+      ...(STRIPE_PORTAL_CONFIGURATION_ID && {
+        configuration: STRIPE_PORTAL_CONFIGURATION_ID,
+      }),
     })
 
-    return NextResponse.json({ url: checkoutSession.url })
+    return NextResponse.json({ url: portalSession.url })
   } catch (error) {
     logger.error({
       error,
       userId: session.user.id,
-    }, "Stripe checkout error")
-    return NextResponse.json({ error: "Failed to create checkout" }, { status: 500 })
+    }, "Stripe portal error")
+    return NextResponse.json({ error: "Failed to open portal" }, { status: 500 })
   }
 }
