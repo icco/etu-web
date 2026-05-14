@@ -43,9 +43,7 @@ export async function GET() {
 
     return NextResponse.redirect(parsed, {
       status: 302,
-      // Don't cache the redirect itself — the underlying signed URL may change
-      // when the user uploads or removes an avatar, and we want updates to
-      // appear immediately after router.refresh().
+      // no-store so avatar upload/remove shows immediately after refresh.
       headers: { "Cache-Control": "no-store" },
     })
   } catch (error) {
