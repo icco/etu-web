@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef, useMemo } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { marked } from "marked"
-import DOMPurify from "dompurify"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import { XMarkIcon, PhotoIcon, MusicalNoteIcon } from "@heroicons/react/24/outline"
 import type { NoteImage as GrpcNoteImage, NoteAudio as GrpcNoteAudio } from "@/lib/grpc/client"
 import { CollapsibleTranscript } from "@/components/collapsible-transcript"
@@ -95,13 +95,6 @@ export function NoteDialog({
   const filteredSuggestions = existingTags.filter(
     (t) => t.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(t)
   )
-
-  // Memoize markdown parsing to only run when preview tab is active
-  // This prevents expensive parsing on every keystroke while typing
-  const parsedContent = useMemo(() => {
-    if (activeTab !== "preview" || !content) return ""
-    return DOMPurify.sanitize(marked.parse(content) as string)
-  }, [content, activeTab])
 
   const handleSave = async () => {
     if (!content.trim()) return
@@ -342,13 +335,10 @@ export function NoteDialog({
               />
             ) : (
               <div className="flex-1 min-h-[150px] md:flex-none p-4 bg-base-200 rounded-lg overflow-auto">
-                {parsedContent ? (
-                  <div
-                    className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: parsedContent,
-                    }}
-                  />
+                {content ? (
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                  </div>
                 ) : (
                   <p className="text-base-content/60 italic">Nothing to preview yet...</p>
                 )}

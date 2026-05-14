@@ -4,8 +4,8 @@ import { useState, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { format } from "date-fns"
-import { marked } from "marked"
-import DOMPurify from "isomorphic-dompurify"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import { EllipsisHorizontalIcon, PencilIcon, TrashIcon, MusicalNoteIcon } from "@heroicons/react/24/outline"
 import type { Note } from "@/lib/types"
 import { CollapsibleTranscript } from "@/components/collapsible-transcript"
@@ -35,10 +35,6 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
   const [isDeleting, setIsDeleting] = useState(false)
 
   const formatNoteDate = (date: Date) => format(new Date(date), "yyyy-MM-dd HH:mm")
-
-  const renderMarkdown = (content: string) => {
-    return DOMPurify.sanitize(marked.parse(content) as string)
-  }
 
   // Compute safe images once to avoid repeated filtering
   const safeImages = useMemo(() => {
@@ -129,10 +125,9 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
             </div>
           </div>
 
-          <div
-            className={compact ? "prose prose-sm max-w-none line-clamp-2 flex-1" : "prose prose-sm max-w-none"}
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
-          />
+          <div className={compact ? "prose prose-sm max-w-none line-clamp-2 flex-1" : "prose prose-sm max-w-none"}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{note.content}</ReactMarkdown>
+          </div>
 
           {/* Image thumbnails - hide in compact mode for dense grid */}
           {!compact && safeImages.length > 0 && (
@@ -194,10 +189,9 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
           </div>
 
           <div className="flex-1 overflow-auto px-6 py-4">
-            <div
-              className="prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
-            />
+            <div className="prose prose-sm max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{note.content}</ReactMarkdown>
+            </div>
 
             {/* Full size images in dialog */}
             {safeImages.length > 0 && (
