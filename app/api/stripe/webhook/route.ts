@@ -25,7 +25,7 @@ function mapSubscriptionStatus(stripeStatus: Stripe.Subscription.Status): string
     case "past_due":
       return "past_due"
     case "canceled":
-      return "cancelled"
+      return "canceled"
     default:
       return "inactive"
   }
@@ -63,17 +63,20 @@ async function syncCustomerProfile(customer: Stripe.Customer) {
   const userId = customer.metadata?.userId
   if (!userId) return
 
-  const address = customer.address ?? undefined
+  // Proto contract: undefined leaves the column unchanged; "" explicitly
+  // clears it. When Stripe reports a null name or address we want the cleared
+  // state to propagate, so map null → "" rather than null → undefined.
+  const address = customer.address
   await authService.updateUserStripeCustomer(
     {
       userId,
-      name: customer.name ?? undefined,
-      billingLine1: address?.line1 ?? undefined,
-      billingLine2: address?.line2 ?? undefined,
-      billingCity: address?.city ?? undefined,
-      billingState: address?.state ?? undefined,
-      billingPostalCode: address?.postal_code ?? undefined,
-      billingCountry: address?.country ?? undefined,
+      name: customer.name ?? "",
+      billingLine1: address?.line1 ?? "",
+      billingLine2: address?.line2 ?? "",
+      billingCity: address?.city ?? "",
+      billingState: address?.state ?? "",
+      billingPostalCode: address?.postal_code ?? "",
+      billingCountry: address?.country ?? "",
     },
     getGrpcApiKey()
   )
@@ -139,7 +142,7 @@ export async function POST(req: NextRequest) {
           await authService.updateUserSubscription(
             {
               userId: userResponse.user.id,
-              subscriptionStatus: "cancelled",
+              subscriptionStatus: "canceled",
               stripeSubscriptionId: subscription.id,
               cancelAtPeriodEnd: false,
             },
@@ -195,12 +198,21 @@ export async function POST(req: NextRequest) {
 
       case "customer.deleted": {
         const customer = event.data.object as Stripe.Customer
-        const userId = customer.metadata?.userId
+        let userId: string | undefined = customer.metadata?.userId
+        if (!userId) {
+          const userResponse = await authService.getUserByStripeCustomerId(
+            { stripeCustomerId: customer.id },
+            getGrpcApiKey()
+          )
+          userId = userResponse.user?.id
+        }
         if (userId) {
           await authService.updateUserSubscription(
             {
               userId,
-              subscriptionStatus: "cancelled",
+              subscriptionStatus: "canceled",
+              // Clear the stale customer id since the Stripe record is gone.
+              stripeCustomerId: "",
               cancelAtPeriodEnd: false,
             },
             getGrpcApiKey()
