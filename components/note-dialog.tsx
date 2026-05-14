@@ -85,7 +85,9 @@ export function NoteDialog({
       previewUrlsRef.current.clear()
       setPendingImages([])
       setPendingAudios([])
-      setTimeout(() => textareaRef.current?.focus(), 100)
+      const focusTimer = setTimeout(() => textareaRef.current?.focus(), 100)
+      prevOpenRef.current = open
+      return () => clearTimeout(focusTimer)
     }
     prevOpenRef.current = open
   }, [open, initialContent, initialTags])

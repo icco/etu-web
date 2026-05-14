@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext } from "react"
+import { createContext, use } from "react"
 
 export interface UserImageInfo {
   key: string
@@ -25,5 +25,5 @@ export function UserImageProvider({
 }
 
 export function useUserImage() {
-  return useContext(UserImageContext)
+  return use(UserImageContext)
 }

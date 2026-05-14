@@ -18,6 +18,17 @@ interface NoteCardProps {
   compact?: boolean
 }
 
+// Validate URL scheme to prevent XSS (e.g., javascript: URLs)
+const SAFE_URL_SCHEMES = ["http:", "https:", "blob:", "data:"]
+const isSafeUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url)
+    return SAFE_URL_SCHEMES.some((scheme) => parsed.protocol === scheme)
+  } catch {
+    return false
+  }
+}
+
 export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
   const [viewOpen, setViewOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -27,17 +38,6 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
 
   const renderMarkdown = (content: string) => {
     return DOMPurify.sanitize(marked.parse(content) as string)
-  }
-
-  // Validate URL scheme to prevent XSS (e.g., javascript: URLs)
-  const SAFE_URL_SCHEMES = ["http:", "https:", "blob:", "data:"]
-  const isSafeUrl = (url: string): boolean => {
-    try {
-      const parsed = new URL(url)
-      return SAFE_URL_SCHEMES.some((scheme) => parsed.protocol === scheme)
-    } catch {
-      return false
-    }
   }
 
   // Compute safe images once to avoid repeated filtering
