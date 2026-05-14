@@ -297,6 +297,7 @@ jobs:
           locale: US
           ignore: Colour,colour
           exclude: yarn.lock
+          fail_level: any
   pr-status:
     if: github.event_name == 'pull_request' && !cancelled()
     needs:
