@@ -31,10 +31,22 @@ export async function GET() {
       getGrpcApiKey()
     )
 
-    return NextResponse.redirect(url, {
+    let parsed: URL
+    try {
+      parsed = new URL(url)
+    } catch {
+      return NextResponse.json({ error: "No avatar" }, { status: 404 })
+    }
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return NextResponse.json({ error: "Invalid avatar URL" }, { status: 502 })
+    }
+
+    return NextResponse.redirect(parsed, {
       status: 302,
-      // Browser may reuse the redirect for 5 minutes before re-checking.
-      headers: { "Cache-Control": "private, max-age=300" },
+      // Don't cache the redirect itself — the underlying signed URL may change
+      // when the user uploads or removes an avatar, and we want updates to
+      // appear immediately after router.refresh().
+      headers: { "Cache-Control": "no-store" },
     })
   } catch (error) {
     logger.error({ error, userId: session.user.id }, "avatar resolution failed")
