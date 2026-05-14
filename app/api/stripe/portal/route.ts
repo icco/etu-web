@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { authService } from "@/lib/grpc/client"
-import { stripe } from "@/lib/stripe"
+import { stripe, STRIPE_PORTAL_CONFIGURATION_ID } from "@/lib/stripe"
 import { isSameOrigin } from "@/lib/security"
 import logger from "@/lib/logger"
 
@@ -57,6 +57,9 @@ export async function POST(request: Request) {
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${authUrl}/settings/subscription`,
+      ...(STRIPE_PORTAL_CONFIGURATION_ID && {
+        configuration: STRIPE_PORTAL_CONFIGURATION_ID,
+      }),
     })
 
     return NextResponse.json({ url: portalSession.url })
