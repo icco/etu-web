@@ -311,6 +311,11 @@ export const mockAuthService: AuthServiceApi = {
 
 }
 
+// Avatar key in the new world is opaque to the frontend; the mock just maps
+// it to a data URL produced from the most recent upload.
+const mockAvatarKey = "profiles/mock-user-1/avatar"
+let mockAvatarDataUrl: string | undefined
+
 // Mock User Settings Service
 export const mockUserSettingsService: UserSettingsServiceApi = {
   async getUserSettings(_request, _apiKey) {
@@ -318,14 +323,15 @@ export const mockUserSettingsService: UserSettingsServiceApi = {
   },
 
   async updateUserSettings(request, _apiKey) {
-    // Update mock user with new settings
     let image = mockUser.image
     if (request.clearProfileImage) {
       image = undefined
+      mockAvatarDataUrl = undefined
     } else if (request.profileImageUpload) {
       const bytes = request.profileImageUpload.data
       const base64 = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64")
-      image = `data:${request.profileImageUpload.mimeType};base64,${base64}`
+      mockAvatarDataUrl = `data:${request.profileImageUpload.mimeType};base64,${base64}`
+      image = mockAvatarKey
     }
     mockUser = {
       ...mockUser,
@@ -334,6 +340,13 @@ export const mockUserSettingsService: UserSettingsServiceApi = {
       notionKey: request.notionKey ?? mockUser.notionKey,
     }
     return { user: mockUser }
+  },
+
+  async getProfileImageURL(request, _apiKey) {
+    if (request.key === mockAvatarKey && mockAvatarDataUrl) {
+      return { url: mockAvatarDataUrl }
+    }
+    return { url: "" }
   },
 }
 
