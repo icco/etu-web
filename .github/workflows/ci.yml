@@ -19,16 +19,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v6
         with:
-          node-version: "22"
-          cache: yarn
+          node-version-file: .nvmrc
+          cache: pnpm
           registry-url: https://npm.pkg.github.com
           scope: '@icco'
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: yarn lint
+      - run: pnpm lint
   dockerfmt:
     runs-on: ubuntu-latest
     permissions:
@@ -108,18 +109,19 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.ref }}
           fetch-depth: 0
+      - uses: pnpm/action-setup@v4
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22"
-          cache: yarn
+          node-version-file: .nvmrc
+          cache: pnpm
           registry-url: https://npm.pkg.github.com
           scope: '@icco'
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install Playwright browsers
-        run: yarn playwright install chromium --with-deps
+        run: pnpm exec playwright install chromium --with-deps
       - name: Run E2E tests
         id: e2e
         # Use --update-snapshots=all so Playwright never decodes the existing
@@ -127,7 +129,7 @@ jobs:
         # any past artifact-merge race) would otherwise fail the test with
         # `Failed to re-generate expected: unrecognized content at end of stream`
         # instead of being quietly rewritten.
-        run: yarn test:e2e --update-snapshots=all --shard=${{ matrix.shard }}/4
+        run: pnpm test:e2e --update-snapshots=all --shard=${{ matrix.shard }}/4
         continue-on-error: true
         env:
           CI: true
@@ -250,14 +252,15 @@ jobs:
         uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@v4
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "25"
-          cache: yarn
+          node-version-file: .nvmrc
+          cache: pnpm
           registry-url: https://npm.pkg.github.com
           scope: '@icco'
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install protoc-gen-doc
@@ -296,7 +299,7 @@ jobs:
         with:
           locale: US
           ignore: Colour,colour
-          exclude: yarn.lock
+          exclude: pnpm-lock.yaml
           fail_level: any
   pr-status:
     if: github.event_name == 'pull_request' && !cancelled()

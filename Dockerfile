@@ -3,7 +3,7 @@
 # Etu Server - Next.js Full Stack Application
 # =============================================================================
 
-FROM node:25-alpine AS base
+FROM node:26-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -12,7 +12,8 @@ WORKDIR /app
 
 # Install dependencies
 # NPM_TOKEN is required for @icco/etu-proto from GitHub Packages (use secrets, not build-args)
-COPY package.json yarn.lock* .npmrc ./
+RUN corepack enable
+COPY package.json pnpm-lock.yaml .npmrc ./
 RUN --mount=type=secret,id=npm_token \
     if [ ! -s /run/secrets/npm_token ]; then \
       echo "ERROR: NPM_TOKEN secret is required for @icco/etu-proto"; \
@@ -20,7 +21,7 @@ RUN --mount=type=secret,id=npm_token \
       exit 1; \
     fi && \
     echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/npm_token)" >> .npmrc && \
-    yarn install --frozen-lockfile && \
+    pnpm install --frozen-lockfile && \
     rm -f .npmrc
 
 # Rebuild the source code only when needed
@@ -32,7 +33,7 @@ COPY . .
 
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN yarn build
+RUN pnpm build
 
 # Production image
 FROM base AS runner
