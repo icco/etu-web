@@ -13,7 +13,7 @@ WORKDIR /app
 
 # Install dependencies
 # NPM_TOKEN is required for @icco/etu-proto from GitHub Packages (use secrets, not build-args)
-COPY package.json pnpm-lock.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN --mount=type=secret,id=npm_token \
     if [ ! -s /run/secrets/npm_token ]; then \
       echo "ERROR: NPM_TOKEN secret is required for @icco/etu-proto"; \
