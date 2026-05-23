@@ -2,3 +2,5 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - date-fns@4.3.0
+  - "@icco/etu-proto"
+  - "@icco/react-common"
