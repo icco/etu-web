@@ -4,6 +4,7 @@
 # =============================================================================
 
 FROM node:26-alpine AS base
+RUN npm install -g pnpm
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -12,7 +13,6 @@ WORKDIR /app
 
 # Install dependencies
 # NPM_TOKEN is required for @icco/etu-proto from GitHub Packages (use secrets, not build-args)
-RUN corepack enable
 COPY package.json pnpm-lock.yaml .npmrc ./
 RUN --mount=type=secret,id=npm_token \
     if [ ! -s /run/secrets/npm_token ]; then \

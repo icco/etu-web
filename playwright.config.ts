@@ -22,7 +22,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "E2E_MOCK=true yarn dev",
+    command: "E2E_MOCK=true pnpm dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     env: {
