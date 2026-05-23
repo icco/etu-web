@@ -24,7 +24,7 @@ importers:
         specifier: ^2026.5.18023646
         version: 2026.5.18023646(@connectrpc/connect@2.1.1(@bufbuild/protobuf@2.12.0))
       '@icco/react-common':
-        specifier: ^2026.510.2
+        specifier: ^2026.10518.1
         version: 2026.10518.1(@heroicons/react@2.2.0(react@19.2.6))(jsdom@29.1.1)(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       '@tailwindcss/typography':
         specifier: ^0.5.19
