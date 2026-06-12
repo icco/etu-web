@@ -16,10 +16,10 @@ Package manager is **pnpm** (`pnpm@11.2.2`, Node >= 26). Installing `@icco/etu-p
 
 ## Architecture
 
-- `app/(auth)/` — login/register pages; `app/(app)/` — protected pages (notes, history, search, tags, settings), each a server `page.tsx` plus a client `*-view.tsx`
-- `app/api/auth/[...nextauth]/` — NextAuth handlers; `app/api/stripe/` — checkout, portal, webhook routes; `app/docs/` — generated proto API docs
+- `app/(auth)/` — login/register pages; `app/(app)/` — protected pages (notes, history, search, tags, settings), typically a server `page.tsx` plus a client `*-view.tsx` (some pages, e.g. `settings/page.tsx`, are redirect-only)
+- `app/api/auth/[...nextauth]/` — NextAuth handlers; `app/api/stripe/` — checkout, portal, webhook routes; `app/docs/` — landing page linking to the generated proto API docs in `public/docs/`
 - `lib/actions/` — server actions (notes, auth, user, api-keys) that call the backend via `lib/grpc/client.ts` (Connect RPC client + proto↔view type converters)
-- `lib/auth.ts` / `lib/auth.config.ts` — Auth.js v5 (NextAuth) config, JWT session strategy, credentials validated against the gRPC backend; `middleware.ts` guards routes
+- `lib/auth.ts` / `lib/auth.config.ts` — Auth.js v5 (NextAuth) config, JWT session strategy, credentials validated against the gRPC backend; route protection lives in `app/(app)/layout.tsx`, which redirects to `/login` when `getCurrentUser()` returns null (there is no `middleware.ts`)
 - `lib/grpc/mock.ts` — in-memory mock services, enabled when `E2E_MOCK=true`
 - `lib/types.ts` — view-layer types (proto Timestamp → Date); `lib/stripe.ts` — Stripe client
 - Styling: Tailwind CSS 4 + daisyUI 5; shared UI in `components/`
