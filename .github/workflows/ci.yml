@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -111,7 +111,7 @@ jobs:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -185,7 +185,7 @@ jobs:
           ref: ${{ github.ref }}
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
       - name: Download all artifacts
@@ -227,7 +227,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
       - name: Comment PR with screenshots
@@ -254,7 +254,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - uses: pnpm/action-setup@v6
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
