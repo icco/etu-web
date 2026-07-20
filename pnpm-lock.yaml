@@ -21,8 +21,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(react@19.2.6)
       '@icco/etu-proto':
-        specifier: ^2026.5.18023646
-        version: 2026.5.18023646(@connectrpc/connect@2.1.1(@bufbuild/protobuf@2.12.0))
+        specifier: ^2026.7.13004850
+        version: 2026.7.13004850(@connectrpc/connect@2.1.1(@bufbuild/protobuf@2.12.0))
       '@icco/react-common':
         specifier: ^2026.10518.1
         version: 2026.10518.1(@heroicons/react@2.2.0(react@19.2.6))(jsdom@29.1.1)(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
@@ -330,8 +330,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@icco/etu-proto@2026.5.18023646':
-    resolution: {integrity: sha512-YxASmaT1OqS/Ak3r83vtGDyLRvstNkZ5jUBEAtZIkW8QbN326BrChwHT4fbYkqXuheOjPHPVkCG7ZD4Xx2vLbg==, tarball: https://npm.pkg.github.com/download/@icco/etu-proto/2026.5.18023646/b2db035926e902042ef18d4a4a7b69e69a831edd}
+  '@icco/etu-proto@2026.7.13004850':
+    resolution: {integrity: sha512-ClLmKKCEqzf5Yi9GfaIpwWRNWyEIdXog3+QVT9Dg/fnWqDcJPRfBGDIORoFGl7M28zHgtVUDuJyFcJ1eyTHZug==, tarball: https://npm.pkg.github.com/download/@icco/etu-proto/2026.7.13004850/3d5e01bc656cce618bd389f735fea86f6b347fa3}
     peerDependencies:
       '@connectrpc/connect': ^2.0.0
 
@@ -2038,7 +2038,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@icco/etu-proto@2026.5.18023646(@connectrpc/connect@2.1.1(@bufbuild/protobuf@2.12.0))':
+  '@icco/etu-proto@2026.7.13004850(@connectrpc/connect@2.1.1(@bufbuild/protobuf@2.12.0))':
     dependencies:
       '@bufbuild/protobuf': 2.12.0
       '@connectrpc/connect': 2.1.1(@bufbuild/protobuf@2.12.0)
