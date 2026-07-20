@@ -24,8 +24,8 @@ importers:
         specifier: ^2026.7.13004850
         version: 2026.7.13004850(@connectrpc/connect@2.1.2(@bufbuild/protobuf@2.12.1))
       '@icco/react-common':
-        specifier: ^2026.10518.1
-        version: 2026.10518.1(@heroicons/react@2.2.0(react@19.2.6))(jsdom@29.1.1)(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
+        specifier: ^2026.10713.4
+        version: 2026.10713.4(@heroicons/react@2.2.0(react@19.2.6))(jsdom@29.1.1)(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       '@tailwindcss/typography':
         specifier: ^0.5.19
         version: 0.5.19(tailwindcss@4.3.0)
@@ -335,8 +335,8 @@ packages:
     peerDependencies:
       '@connectrpc/connect': ^2.0.0
 
-  '@icco/react-common@2026.10518.1':
-    resolution: {integrity: sha512-6p2CxNyO9XsDgv22vmNKtj5g+h6VL1ONePKnt39xC75QIDan8zme2LsKRUN5d6E7Du1Yunxc+ztwsD0zb55EAQ==, tarball: https://npm.pkg.github.com/download/@icco/react-common/2026.10518.1/b13f410eec06de46dbd9c1f7b597bfba3655f613}
+  '@icco/react-common@2026.10713.4':
+    resolution: {integrity: sha512-nvC09lLn5YQryMP4fD7uPGtHg7r81HrC/5d/0IAdCiMnTU70hsEqUhX5Eop1VcDxOMGyw3rwrc25s5KQBTFhsg==, tarball: https://npm.pkg.github.com/download/@icco/react-common/2026.10713.4/30548bdca07b12a63b7e9543b439b1840ee07071}
     peerDependencies:
       '@heroicons/react': ^2.0.0
       jsdom: '>=20.0.0'
@@ -785,8 +785,8 @@ packages:
   '@wooorm/starry-night@3.9.0':
     resolution: {integrity: sha512-LXVGKfYhTuFhoRuPAHz2XolS/J45L4lI/lCSIBugDpklXYDUPrJyA8tk17u7G32fcFaGODJXH/YDwQDfUXdPRw==}
 
-  '@wrksz/themes@0.9.3':
-    resolution: {integrity: sha512-PRUeM4syP7vSnSnZwacHEK/vLGEBHfvxwoituc7J144ZnQytFIg5z26TknXWWLhYb0adhtsRlQEV+e6RIZ3AaQ==}
+  '@wrksz/themes@1.0.0':
+    resolution: {integrity: sha512-UZ1mvFe9xXvxPCK/aXKVYbJCtI4gxM9J4orvDEZLdpk/9tvcbH2U8ZU3h5R1Pwjjjf4Q3um0wK4o+wqj3Vv40Q==}
     peerDependencies:
       next: '>=16.0.0'
       react: ^18.0.0 || ^19.0.0
@@ -2043,10 +2043,10 @@ snapshots:
       '@bufbuild/protobuf': 2.12.1
       '@connectrpc/connect': 2.1.2(@bufbuild/protobuf@2.12.1)
 
-  '@icco/react-common@2026.10518.1(@heroicons/react@2.2.0(react@19.2.6))(jsdom@29.1.1)(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)':
+  '@icco/react-common@2026.10713.4(@heroicons/react@2.2.0(react@19.2.6))(jsdom@29.1.1)(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)':
     dependencies:
       '@heroicons/react': 2.2.0(react@19.2.6)
-      '@wrksz/themes': 0.9.3(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
+      '@wrksz/themes': 1.0.0(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       jsdom: 29.1.1
       next: 16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react: 19.2.6
@@ -2423,7 +2423,7 @@ snapshots:
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.3.2
 
-  '@wrksz/themes@0.9.3(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)':
+  '@wrksz/themes@1.0.0(next@16.2.6(@playwright/test@1.60.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)':
     dependencies:
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
