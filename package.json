@@ -22,7 +22,7 @@
     "@heroicons/react": "^2.2.0",
     "@icco/etu-proto": "^2026.7.13004850",
     "@icco/react-common": "^2026.10713.4",
-    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/typography": "^0.5.20",
     "@wooorm/starry-night": "^3.9.0",
     "clsx": "^2.1.1",
     "daisyui": "^5.5.20",
