@@ -24,8 +24,8 @@ importers:
         specifier: ^2026.7.13004850
         version: 2026.7.13004850(@connectrpc/connect@2.1.2(@bufbuild/protobuf@2.12.1))
       '@icco/react-common':
-        specifier: ^2026.10713.4
-        version: 2026.10713.4(@heroicons/react@2.2.0(react@19.2.7))(jsdom@29.1.1)(next@16.2.10(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
+        specifier: ^2026.10720.3
+        version: 2026.10720.3(@heroicons/react@2.2.0(react@19.2.7))(jsdom@29.1.1)(next@16.2.10(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
       '@tailwindcss/typography':
         specifier: ^0.5.20
         version: 0.5.20(tailwindcss@4.3.3)
@@ -335,8 +335,8 @@ packages:
     peerDependencies:
       '@connectrpc/connect': ^2.0.0
 
-  '@icco/react-common@2026.10713.4':
-    resolution: {integrity: sha512-nvC09lLn5YQryMP4fD7uPGtHg7r81HrC/5d/0IAdCiMnTU70hsEqUhX5Eop1VcDxOMGyw3rwrc25s5KQBTFhsg==, tarball: https://npm.pkg.github.com/download/@icco/react-common/2026.10713.4/30548bdca07b12a63b7e9543b439b1840ee07071}
+  '@icco/react-common@2026.10720.3':
+    resolution: {integrity: sha512-j0yBE8CNphtiEHxJ1v9XnPedFcMFCzFzCkkpngNBz55XLN9O4DUZZYR4JPMWGcL17XMHelpjFDkmXntICx/0MA==, tarball: https://npm.pkg.github.com/download/@icco/react-common/2026.10720.3/17a7368a72fb62dc7cf8bfd8116f9f0c28c036d2}
     peerDependencies:
       '@heroicons/react': ^2.0.0
       jsdom: '>=20.0.0'
@@ -2048,7 +2048,7 @@ snapshots:
       '@bufbuild/protobuf': 2.12.1
       '@connectrpc/connect': 2.1.2(@bufbuild/protobuf@2.12.1)
 
-  '@icco/react-common@2026.10713.4(@heroicons/react@2.2.0(react@19.2.7))(jsdom@29.1.1)(next@16.2.10(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)':
+  '@icco/react-common@2026.10720.3(@heroicons/react@2.2.0(react@19.2.7))(jsdom@29.1.1)(next@16.2.10(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)':
     dependencies:
       '@heroicons/react': 2.2.0(react@19.2.7)
       '@wrksz/themes': 1.0.0(next@16.2.10(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
