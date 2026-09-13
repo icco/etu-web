@@ -20,7 +20,7 @@
     "@connectrpc/connect": "^2.1.2",
     "@connectrpc/connect-node": "^2.1.2",
     "@heroicons/react": "^2.2.0",
-    "@icco/etu-proto": "^2026.7.13004850",
+    "@icco/etu-proto": "^2026.8.31123434",
     "@icco/react-common": "^2026.10720.3",
     "@tailwindcss/typography": "^0.5.20",
     "@wooorm/starry-night": "^3.10.0",
