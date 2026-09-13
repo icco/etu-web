@@ -69,8 +69,8 @@ importers:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       stripe:
-        specifier: ^22.3.2
-        version: 22.3.2(@types/node@26.1.1)
+        specifier: ^22.6.2
+        version: 22.6.2(@types/node@26.1.1)
       tailwind-merge:
         specifier: ^3.6.0
         version: 3.6.0
@@ -1638,8 +1638,8 @@ packages:
   stringify-entities@4.0.4:
     resolution: {integrity: sha512-IwfBptatlO+QCJUo19AqvrPNqlVMpW9YEL2LIVY+Rpv2qsjCGxaDLNRgeGsQWJhfItebuJhsGSLjaBbNSQ+ieg==}
 
-  stripe@22.3.2:
-    resolution: {integrity: sha512-O13QOvgEIQvDlTy6Ubb5kB980wpbhmoZNsgCXKILjCMZS67f+bW+6w99k3gnSi/N1lkryoj1WYdpGT5Wc5edjg==}
+  stripe@22.6.2:
+    resolution: {integrity: sha512-PwRE2scocvXqDKPiskMa5vRJEAEkq46W69XyUYmAwrNSLr675lQnfqLwnsndAWizwgihOWw/irLmoFRo3ez7ew==}
     engines: {node: '>=18'}
     peerDependencies:
       '@types/node': '>=18'
@@ -3546,7 +3546,7 @@ snapshots:
       character-entities-html4: 2.1.0
       character-entities-legacy: 3.0.0
 
-  stripe@22.3.2(@types/node@26.1.1):
+  stripe@22.6.2(@types/node@26.1.1):
     optionalDependencies:
       '@types/node': 26.1.1
 
