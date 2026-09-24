@@ -23,7 +23,7 @@
     "@icco/etu-proto": "^2026.8.31123434",
     "@icco/react-common": "^2026.10901.6",
     "@tailwindcss/typography": "^0.5.20",
-    "@wooorm/starry-night": "^3.10.0",
+    "@wooorm/starry-night": "^3.11.0",
     "clsx": "^2.1.1",
     "daisyui": "^5.7.39",
     "date-fns": "^4.4.0",
