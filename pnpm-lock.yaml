@@ -19,13 +19,13 @@ importers:
         version: 2.1.2(@bufbuild/protobuf@2.14.1)(@connectrpc/connect@2.1.2(@bufbuild/protobuf@2.14.1))
       '@heroicons/react':
         specifier: ^2.2.0
-        version: 2.2.0(react@19.2.7)
+        version: 2.2.0(react@19.3.0)
       '@icco/etu-proto':
         specifier: ^2026.8.31123434
         version: 2026.8.31123434(@connectrpc/connect@2.1.2(@bufbuild/protobuf@2.14.1))
       '@icco/react-common':
         specifier: ^2026.10901.6
-        version: 2026.10901.6(@heroicons/react@2.2.0(react@19.2.7))(jsdom@30.1.0)(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
+        version: 2026.10901.6(@heroicons/react@2.2.0(react@19.3.0))(jsdom@30.1.0)(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0))(react-dom@19.2.7(react@19.3.0))(react@19.3.0)(typescript@6.0.3)
       '@tailwindcss/typography':
         specifier: ^0.5.20
         version: 0.5.20(tailwindcss@4.3.3)
@@ -46,28 +46,28 @@ importers:
         version: 30.1.0
       next:
         specifier: ^16.3.4
-        version: 16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0)
       next-auth:
         specifier: ^5.0.0-beta.32
-        version: 5.0.0-beta.32(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+        version: 5.0.0-beta.32(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0))(react@19.3.0)
       pino:
         specifier: ^10.3.1
         version: 10.3.1
       react:
-        specifier: ^19.2.7
-        version: 19.2.7
+        specifier: ^19.3.0
+        version: 19.3.0
       react-dom:
         specifier: ^19.2.7
-        version: 19.2.7(react@19.2.7)
+        version: 19.2.7(react@19.3.0)
       react-markdown:
         specifier: ^10.1.0
-        version: 10.1.0(@types/react@19.2.17)(react@19.2.7)
+        version: 10.1.0(@types/react@19.3.0)(react@19.3.0)
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
       sonner:
         specifier: ^2.0.8
-        version: 2.0.8(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 2.0.8(@types/react@19.3.0)(react-dom@19.2.7(react@19.3.0))(react@19.3.0)
       stripe:
         specifier: ^22.6.2
         version: 22.6.2(@types/node@26.5.1)
@@ -94,11 +94,11 @@ importers:
         specifier: ^26.5.1
         version: 26.5.1
       '@types/react':
-        specifier: ^19.2.17
-        version: 19.2.17
+        specifier: ^19.3.0
+        version: 19.3.0
       '@types/react-dom':
         specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.17)
+        version: 19.2.3(@types/react@19.3.0)
       eslint:
         specifier: ^10.7.0
         version: 10.7.0(jiti@2.7.0)
@@ -722,8 +722,8 @@ packages:
     peerDependencies:
       '@types/react': ^19.2.0
 
-  '@types/react@19.2.17':
-    resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
+  '@types/react@19.3.0':
+    resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
 
   '@types/unist@2.0.11':
     resolution: {integrity: sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==}
@@ -1576,8 +1576,8 @@ packages:
       '@types/react': '>=18'
       react: '>=18'
 
-  react@19.2.7:
-    resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
+  react@19.3.0:
+    resolution: {integrity: sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog==}
     engines: {node: '>=0.10.0'}
 
   real-require@0.2.0:
@@ -2051,9 +2051,9 @@ snapshots:
 
   '@exodus/bytes@1.15.1': {}
 
-  '@heroicons/react@2.2.0(react@19.2.7)':
+  '@heroicons/react@2.2.0(react@19.3.0)':
     dependencies:
-      react: 19.2.7
+      react: 19.3.0
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -2076,14 +2076,14 @@ snapshots:
       '@bufbuild/protobuf': 2.14.1
       '@connectrpc/connect': 2.1.2(@bufbuild/protobuf@2.14.1)
 
-  '@icco/react-common@2026.10901.6(@heroicons/react@2.2.0(react@19.2.7))(jsdom@30.1.0)(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)':
+  '@icco/react-common@2026.10901.6(@heroicons/react@2.2.0(react@19.3.0))(jsdom@30.1.0)(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0))(react-dom@19.2.7(react@19.3.0))(react@19.3.0)(typescript@6.0.3)':
     dependencies:
-      '@heroicons/react': 2.2.0(react@19.2.7)
-      '@wrksz/themes': 1.2.0(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
+      '@heroicons/react': 2.2.0(react@19.3.0)
+      '@wrksz/themes': 1.2.0(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0))(react-dom@19.2.7(react@19.3.0))(react@19.3.0)(typescript@6.0.3)
       jsdom: 30.1.0
-      next: 16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      next: 16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0)
+      react: 19.3.0
+      react-dom: 19.2.7(react@19.3.0)
       vivus: 0.4.6
     transitivePeerDependencies:
       - typescript
@@ -2358,11 +2358,11 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
-  '@types/react-dom@19.2.3(@types/react@19.2.17)':
+  '@types/react-dom@19.2.3(@types/react@19.3.0)':
     dependencies:
-      '@types/react': 19.2.17
+      '@types/react': 19.3.0
 
-  '@types/react@19.2.17':
+  '@types/react@19.3.0':
     dependencies:
       csstype: 3.2.3
 
@@ -2470,13 +2470,13 @@ snapshots:
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.3.2
 
-  '@wrksz/themes@1.2.0(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)':
+  '@wrksz/themes@1.2.0(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0))(react-dom@19.2.7(react@19.3.0))(react@19.3.0)(typescript@6.0.3)':
     dependencies:
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 19.3.0
+      react-dom: 19.2.7(react@19.3.0)
       typescript: 6.0.3
     optionalDependencies:
-      next: 16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      next: 16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0)
 
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:
@@ -3326,22 +3326,22 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next-auth@5.0.0-beta.32(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7):
+  next-auth@5.0.0-beta.32(next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0))(react@19.3.0):
     dependencies:
       '@auth/core': 0.41.3
-      next: 16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      react: 19.2.7
+      next: 16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0)
+      react: 19.3.0
 
-  next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  next@16.3.4(@playwright/test@1.61.1)(@types/node@26.5.1)(react-dom@19.2.7(react@19.3.0))(react@19.3.0):
     dependencies:
       '@next/env': 16.3.4
       '@swc/helpers': 0.5.23
       baseline-browser-mapping: 2.11.21
       caniuse-lite: 1.0.30001810
       postcss: 8.5.23
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
-      styled-jsx: 5.1.6(react@19.2.7)
+      react: 19.3.0
+      react-dom: 19.2.7(react@19.3.0)
+      styled-jsx: 5.1.6(react@19.3.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.3.4
       '@next/swc-darwin-x64': 16.3.4
@@ -3462,21 +3462,21 @@ snapshots:
 
   quick-format-unescaped@4.0.4: {}
 
-  react-dom@19.2.7(react@19.2.7):
+  react-dom@19.2.7(react@19.3.0):
     dependencies:
-      react: 19.2.7
+      react: 19.3.0
       scheduler: 0.27.0
 
-  react-markdown@10.1.0(@types/react@19.2.17)(react@19.2.7):
+  react-markdown@10.1.0(@types/react@19.3.0)(react@19.3.0):
     dependencies:
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
-      '@types/react': 19.2.17
+      '@types/react': 19.3.0
       devlop: 1.1.0
       hast-util-to-jsx-runtime: 2.3.6
       html-url-attributes: 3.0.1
       mdast-util-to-hast: 13.2.1
-      react: 19.2.7
+      react: 19.3.0
       remark-parse: 11.0.0
       remark-rehype: 11.1.2
       unified: 11.0.5
@@ -3485,7 +3485,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  react@19.2.7: {}
+  react@19.3.0: {}
 
   real-require@0.2.0: {}
 
@@ -3581,12 +3581,12 @@ snapshots:
     dependencies:
       atomic-sleep: 1.0.0
 
-  sonner@2.0.8(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  sonner@2.0.8(@types/react@19.3.0)(react-dom@19.2.7(react@19.3.0))(react@19.3.0):
     dependencies:
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
+      react: 19.3.0
+      react-dom: 19.2.7(react@19.3.0)
     optionalDependencies:
-      '@types/react': 19.2.17
+      '@types/react': 19.3.0
 
   source-map-js@1.2.1: {}
 
@@ -3613,10 +3613,10 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.7
 
-  styled-jsx@5.1.6(react@19.2.7):
+  styled-jsx@5.1.6(react@19.3.0):
     dependencies:
       client-only: 0.0.1
-      react: 19.2.7
+      react: 19.3.0
 
   tailwind-merge@3.6.0: {}
 
