@@ -7,7 +7,7 @@ function buildImgixURL(src: string): URL | null {
 
   if (src.startsWith("http://") || src.startsWith("https://")) {
     const parsed = new URL(src)
-    if (parsed.hostname !== IMGIX_DOMAIN) {
+    if (parsed.hostname !== IMGIX_DOMAIN && parsed.hostname !== "images.natwelch.com") {
       return null
     }
     return parsed
@@ -32,7 +32,7 @@ export default function imgixLoader({
   const params = url.searchParams
   params.set("auto", params.getAll("auto").join(",") || "format,compress")
   params.set("fit", params.get("fit") || "max")
-  params.set("w", params.get("w") || String(width))
+  params.set("w", String(width))
   if (quality !== undefined) {
     params.set("q", String(quality))
   }
