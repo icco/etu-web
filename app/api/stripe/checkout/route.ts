@@ -77,6 +77,12 @@ export async function POST(request: Request) {
       customer_update: { name: "auto", address: "auto" },
       success_url: `${authUrl}/settings/subscription?subscription=success`,
       cancel_url: `${authUrl}/settings/subscription?subscription=canceled`,
+      consent_collection: { terms_of_service: "required" },
+      custom_text: {
+        terms_of_service_acceptance: {
+          message: `I agree to the [Terms of Service](${authUrl}/terms), [Privacy Policy](${authUrl}/privacy), and [Refund Policy](${authUrl}/refunds).`,
+        },
+      },
       metadata: { userId: user.id },
     })
 
