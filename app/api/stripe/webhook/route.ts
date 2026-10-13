@@ -176,9 +176,12 @@ export async function POST(req: NextRequest) {
         // A successful payment can clear a past_due state. Re-sync from the
         // subscription if one is attached to the invoice.
         const invoice = event.data.object as Stripe.Invoice
-        const parentSub = invoice.parent?.subscription_details?.subscription
-        const subId =
-          typeof parentSub === "string" ? parentSub : parentSub?.id
+        // Webhook endpoints pinned to older API versions still put the
+        // subscription on the line item.
+        const sub =
+          invoice.parent?.subscription_details?.subscription ??
+          invoice.lines?.data?.[0]?.subscription
+        const subId = typeof sub === "string" ? sub : sub?.id
         if (subId) {
           const subscription = await stripe.subscriptions.retrieve(subId)
           await syncSubscription(subscription)
