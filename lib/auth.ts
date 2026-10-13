@@ -1,8 +1,10 @@
-import NextAuth, { AuthError } from "next-auth"
+import NextAuth, { AuthError, CredentialsSignin } from "next-auth"
+import { Code } from "@connectrpc/connect"
 import Credentials from "next-auth/providers/credentials"
 import { z } from "zod"
 import { authConfig } from "./auth.config"
-import { authService, timestampToDate } from "./grpc/client"
+import { authService, GrpcError, timestampToDate } from "./grpc/client"
+import { clientIpFromHeaders } from "./client-ip"
 import logger from "./logger"
 
 function getGrpcApiKey(): string {
@@ -11,6 +13,10 @@ function getGrpcApiKey(): string {
     throw new Error("GRPC_API_KEY environment variable is required")
   }
   return key
+}
+
+export class RateLimitedSignin extends CredentialsSignin {
+  code = "rate_limited"
 }
 
 const loginSchema = z.object({
@@ -49,7 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const parsed = loginSchema.safeParse(credentials)
         if (!parsed.success) return null
 
@@ -57,7 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         try {
           const response = await authService.authenticate(
-            { email, password },
+            { email, password, clientIp: clientIpFromHeaders(request.headers) },
             getGrpcApiKey()
           )
 
@@ -70,6 +76,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             image: response.user.image,
           }
         } catch (error) {
+          if (error instanceof GrpcError && error.code === Code.ResourceExhausted) {
+            throw new RateLimitedSignin()
+          }
           logger.error({ error }, "Authentication error")
           return null
         }
@@ -102,7 +111,7 @@ export async function getCurrentUser() {
       updatedAt: response.user.updatedAt
         ? timestampToDate(response.user.updatedAt)
         : null,
-      hasNotionKey: Boolean(response.user.notionKey),
+      hasNotionKey: response.user.hasNotionKey,
       hasStripeCustomer: Boolean(response.user.stripeCustomerId),
       cancelAtPeriodEnd: Boolean(response.user.cancelAtPeriodEnd),
     }

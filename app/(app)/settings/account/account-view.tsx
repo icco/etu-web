@@ -47,6 +47,7 @@ export function AccountView({ user }: AccountViewProps) {
 
   // Password change state
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
@@ -186,9 +187,15 @@ export function AccountView({ user }: AccountViewProps) {
       return
     }
 
+    if (!currentPassword) {
+      toast.error("Current password is required")
+      return
+    }
+
     setIsUpdatingPassword(true)
     try {
       const formData = new FormData()
+      formData.set("currentPassword", currentPassword)
       formData.set("password", newPassword)
       const result = await changePassword(formData)
 
@@ -197,6 +204,7 @@ export function AccountView({ user }: AccountViewProps) {
       } else {
         toast.success("Password changed successfully")
         setIsChangingPassword(false)
+        setCurrentPassword("")
         setNewPassword("")
         setConfirmPassword("")
       }
@@ -209,6 +217,7 @@ export function AccountView({ user }: AccountViewProps) {
 
   const handleCancelPasswordChange = () => {
     setIsChangingPassword(false)
+    setCurrentPassword("")
     setNewPassword("")
     setConfirmPassword("")
   }
@@ -551,6 +560,19 @@ export function AccountView({ user }: AccountViewProps) {
 
           {isChangingPassword ? (
             <div className="space-y-4">
+              <div>
+                <label htmlFor="current-password" className="text-sm font-medium">Current Password</label>
+                <input
+                  id="current-password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="input input-bordered w-full bg-base-100 text-base-content mt-1"
+                  placeholder="Enter current password"
+                />
+              </div>
+
               <div>
                 <label className="text-sm font-medium">New Password</label>
                 <input

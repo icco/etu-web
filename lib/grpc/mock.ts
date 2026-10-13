@@ -113,7 +113,8 @@ let mockUser: User = {
   subscriptionStatus: "active",
   stripeCustomerId: "cus_mock_123",
   createdAt: mockTimestamp(new Date("2026-01-01T00:00:00Z")),
-  notionKey: undefined,
+  hasNotionKey: false,
+  aiEnabled: false,
 }
 
 const mockApiKeys: ApiKey[] = [
@@ -355,7 +356,7 @@ export const mockUserSettingsService: UserSettingsServiceApi = {
       ...mockUser,
       name: request.name ?? mockUser.name,
       image,
-      notionKey: request.notionKey ?? mockUser.notionKey,
+      hasNotionKey: request.notionKey === undefined ? mockUser.hasNotionKey : request.notionKey !== "",
     }
     return { user: mockUser }
   },

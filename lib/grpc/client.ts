@@ -110,7 +110,8 @@ export interface User {
   billingState?: string
   billingPostalCode?: string
   billingCountry?: string
-  notionKey?: string
+  hasNotionKey: boolean
+  aiEnabled: boolean
 }
 
 export interface ApiKey {
@@ -142,6 +143,11 @@ function createHeaders(apiKey: string): HeadersInit {
   return {
     Authorization: apiKey,
   }
+}
+
+// The backend only trusts this header from service-token callers, for per-IP rate limits.
+function createAuthHeaders(apiKey: string, clientIp?: string): HeadersInit {
+  return clientIp ? { ...createHeaders(apiKey), "x-etu-client-ip": clientIp } : createHeaders(apiKey)
 }
 
 // Convert proto types to our interface types
@@ -191,7 +197,7 @@ function convertTag(tag: ProtoTag): Tag {
 
 function convertUser(user: ProtoUser | undefined): User {
   if (!user) {
-    return { id: "", email: "", subscriptionStatus: "" }
+    return { id: "", email: "", subscriptionStatus: "", hasNotionKey: false, aiEnabled: false }
   }
   return {
     id: user.id,
@@ -213,7 +219,8 @@ function convertUser(user: ProtoUser | undefined): User {
     billingState: user.billingState,
     billingPostalCode: user.billingPostalCode,
     billingCountry: user.billingCountry,
-    notionKey: user.notionKey,
+    hasNotionKey: user.hasNotionKey,
+    aiEnabled: user.aiEnabled,
   }
 }
 
@@ -413,7 +420,7 @@ const realTagsService = {
 
 // Auth Service
 const realAuthService = {
-  async register(request: { email: string; password: string }, apiKey: string) {
+  async register(request: { email: string; password: string; clientIp?: string }, apiKey: string) {
     return withErrorHandling(async () => {
       const client = getClient(AuthService)
       const response = await client.register(
@@ -421,13 +428,13 @@ const realAuthService = {
           email: request.email,
           password: request.password,
         },
-        { headers: createHeaders(apiKey) }
+        { headers: createAuthHeaders(apiKey, request.clientIp) }
       )
       return { user: convertUser(response.user) }
     }, "AuthService.register")
   },
 
-  async authenticate(request: { email: string; password: string }, apiKey: string) {
+  async authenticate(request: { email: string; password: string; clientIp?: string }, apiKey: string) {
     return withErrorHandling(async () => {
       const client = getClient(AuthService)
       const response = await client.authenticate(
@@ -435,7 +442,7 @@ const realAuthService = {
           email: request.email,
           password: request.password,
         },
-        { headers: createHeaders(apiKey) }
+        { headers: createAuthHeaders(apiKey, request.clientIp) }
       )
       return {
         success: response.success,
@@ -681,7 +688,7 @@ const realUserSettingsService = {
   },
 
   async updateUserSettings(
-    request: { userId: string; notionKey?: string; name?: string; password?: string; profileImageUpload?: ImageUpload; clearProfileImage?: boolean },
+    request: { userId: string; notionKey?: string; name?: string; password?: string; currentPassword?: string; profileImageUpload?: ImageUpload; clearProfileImage?: boolean },
     apiKey: string
   ) {
     return withErrorHandling(async () => {
@@ -692,6 +699,7 @@ const realUserSettingsService = {
           notionKey: request.notionKey,
           name: request.name,
           password: request.password,
+          currentPassword: request.currentPassword,
           profileImageUpload: request.profileImageUpload,
           clearProfileImage: request.clearProfileImage,
         },

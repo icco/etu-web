@@ -174,6 +174,7 @@ test.describe("Settings Page", () => {
     await page.getByRole("button", { name: "Change Password" }).click()
 
     // Password inputs should be visible
+    await expect(page.getByPlaceholder("Enter current password")).toBeVisible()
     await expect(page.getByPlaceholder("Enter new password")).toBeVisible()
     await expect(page.getByPlaceholder("Confirm new password")).toBeVisible()
     await expect(page.getByRole("button", { name: "Update Password" })).toBeVisible()
@@ -214,10 +215,21 @@ test.describe("Settings Page", () => {
     })
   })
 
+  test("password change requires current password", async ({ page }) => {
+    await page.getByRole("button", { name: "Change Password" }).click()
+
+    await page.getByPlaceholder("Enter new password").fill("newvalidpassword123")
+    await page.getByPlaceholder("Confirm new password").fill("newvalidpassword123")
+    await page.getByRole("button", { name: "Update Password" }).click()
+
+    await expect(page.locator("text=Current password is required")).toBeVisible({ timeout: 5000 })
+  })
+
   test("can change password successfully", async ({ page }) => {
     // Open password form
     await page.getByRole("button", { name: "Change Password" }).click()
 
+    await page.getByPlaceholder("Enter current password").fill("testpassword")
     // Enter valid matching passwords
     await page.getByPlaceholder("Enter new password").fill("newvalidpassword123")
     await page.getByPlaceholder("Confirm new password").fill("newvalidpassword123")
