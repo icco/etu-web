@@ -3,6 +3,7 @@ import { Toaster } from "sonner"
 import { Footer } from "@icco/react-common/Footer"
 import { ThemeProvider } from "@icco/react-common/ThemeProvider"
 import { WebVitals } from "@icco/react-common/WebVitals"
+import { LegalLinks } from "@/components/legal-links"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -29,6 +30,7 @@ export default function RootLayout({
         <ThemeProvider>
           <WebVitals analyticsPath="/analytics/etu-web" />
           {children}
+          <LegalLinks />
           <Footer
             startYear={2026}
             sourceRepo="https://github.com/icco/etu-web"
@@ -36,7 +38,7 @@ export default function RootLayout({
             showSocial={false}
             showRecurseRing={false}
             showXXIIVVRing={false}
-            showPrivacyPolicy={true}
+            showPrivacyPolicy={false}
           />
           <Toaster position="top-right" />
         </ThemeProvider>
