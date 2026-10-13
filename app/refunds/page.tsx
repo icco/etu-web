@@ -20,7 +20,7 @@ export default function RefundsPage() {
         rights you have under applicable consumer law.
       </p>
 
-      <h2>Cancelling</h2>
+      <h2>Canceling</h2>
       <p>
         You can cancel any time from Settings &gt; Subscription. Your subscription will not renew, and you keep access
         until the end of the period you paid for.

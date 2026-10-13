@@ -37,7 +37,7 @@ export default function TermsPage() {
       <h2>Subscription and billing</h2>
       <p>
         Etu includes a 14-day free trial, then costs $5 per year, billed through Stripe. Subscriptions renew
-        automatically each year until cancelled. You can cancel any time from Settings, and access continues until the
+        automatically each year until canceled. You can cancel any time from Settings, and access continues until the
         end of the paid period. See our <Link href="/refunds">Refund Policy</Link>.
       </p>
 
