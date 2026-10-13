@@ -298,7 +298,7 @@ jobs:
         uses: reviewdog/action-misspell@v1
         with:
           locale: US
-          ignore: Colour,colour
+          ignore: Colour,colour,cancelled
           exclude: pnpm-lock.yaml
           fail_level: any
   pr-status:
