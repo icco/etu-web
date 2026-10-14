@@ -18,6 +18,8 @@ function timestamp(seconds: number | undefined): Timestamp | undefined {
   return seconds === undefined ? undefined : { seconds: Math.floor(seconds).toString(), nanos: 0 }
 }
 
+const SYNC_PASSES = 3
+
 export async function handleStripeWebhook(request: Request, services: WebhookServices) {
   const { stripe, auth, apiKey, webhookSecret } = services
   const signature = request.headers.get("stripe-signature")
@@ -49,7 +51,7 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
     }
   }
 
-  async function syncSubscription(id: string, expectedCustomer?: string) {
+  async function resolveSubscription(id: string, expectedCustomer?: string) {
     let subscription = await stripe.subscriptions.retrieve(id)
     const customerId = resourceId(subscription.customer)
     if (!customerId || (expectedCustomer && expectedCustomer !== customerId)) throw new Error("Stripe subscription customer mismatch")
@@ -59,7 +61,7 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
       if (resourceId(subscription.customer) !== customerId) throw new Error("Stripe subscription customer mismatch")
     }
     const item = subscription.items.data[0]
-    await auth.updateUserSubscription({
+    return {
       userId: user.id,
       subscriptionStatus: subscription.status === "trialing" ? "trial" : subscription.status,
       stripeCustomerId: customerId,
@@ -68,8 +70,60 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       subscriptionEnd: timestamp(item?.current_period_end),
       currentPeriodStart: timestamp(item?.current_period_start),
-      stripeEventId: event.id,
-    }, apiKey)
+    }
+  }
+
+  // Another delivery can commit between our Stripe read and backend write, so re-read after every
+  // write and rewrite until Stripe is stable and the stored user matches it.
+  async function syncSubscription(id: string, expectedCustomer?: string) {
+    let current = await resolveSubscription(id, expectedCustomer)
+    for (let pass = 0; pass < SYNC_PASSES; pass++) {
+      const { user: stored } = await auth.updateUserSubscription({ ...current, stripeEventId: pass === 0 ? event.id : undefined }, apiKey)
+      const latest = await resolveSubscription(id, expectedCustomer)
+      const storedMatches = stored.subscriptionStatus === current.subscriptionStatus &&
+        stored.stripeSubscriptionId === current.stripeSubscriptionId &&
+        stored.stripePriceId === current.stripePriceId &&
+        Boolean(stored.cancelAtPeriodEnd) === current.cancelAtPeriodEnd
+      if (storedMatches && JSON.stringify(latest) === JSON.stringify(current)) return
+      current = latest
+    }
+    throw new Error("Stripe subscription changed during every sync pass")
+  }
+
+  async function resolveProfile(id: string) {
+    const customer = await stripe.customers.retrieve(id)
+    if (customer.deleted) return undefined
+    const address = customer.address
+    return {
+      metadataUserId: customer.metadata?.userId,
+      name: customer.name ?? "",
+      billingLine1: address?.line1 ?? "",
+      billingLine2: address?.line2 ?? "",
+      billingCity: address?.city ?? "",
+      billingState: address?.state ?? "",
+      billingPostalCode: address?.postal_code ?? "",
+      billingCountry: address?.country ?? "",
+    }
+  }
+
+  async function syncProfile(id: string) {
+    let current = await resolveProfile(id)
+    if (!current) return
+    if (!current.metadataUserId) {
+      logger.warn({ eventId: event.id, customerId: id }, "Ignoring Stripe customer without account metadata")
+      return
+    }
+    const user = await findUser(id)
+    for (let pass = 0; pass < SYNC_PASSES; pass++) {
+      const { metadataUserId: _metadataUserId, ...profile } = current
+      const { user: stored } = await auth.updateUserStripeCustomer({ userId: user.id, ...profile, stripeEventId: pass === 0 ? event.id : undefined }, apiKey)
+      const latest = await resolveProfile(id)
+      if (!latest) return
+      const storedMatches = (Object.keys(profile) as (keyof typeof profile)[]).every((key) => (stored[key] ?? "") === profile[key])
+      if (storedMatches && JSON.stringify(latest) === JSON.stringify(current)) return
+      current = latest
+    }
+    throw new Error("Stripe customer changed during every sync pass")
   }
 
   try {
@@ -98,28 +152,9 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
         break
       }
       case "customer.created":
-      case "customer.updated": {
-        const customer = await stripe.customers.retrieve(event.data.object.id)
-        if (customer.deleted) break
-        if (!customer.metadata?.userId) {
-          logger.warn({ eventId: event.id, customerId: customer.id }, "Ignoring Stripe customer without account metadata")
-          break
-        }
-        const user = await findUser(customer.id)
-        const address = customer.address
-        await auth.updateUserStripeCustomer({
-          userId: user.id,
-          name: customer.name ?? "",
-          billingLine1: address?.line1 ?? "",
-          billingLine2: address?.line2 ?? "",
-          billingCity: address?.city ?? "",
-          billingState: address?.state ?? "",
-          billingPostalCode: address?.postal_code ?? "",
-          billingCountry: address?.country ?? "",
-          stripeEventId: event.id,
-        }, apiKey)
+      case "customer.updated":
+        await syncProfile(event.data.object.id)
         break
-      }
       case "customer.deleted": {
         // The deletion payload is the only place the account link survives; a refetch returns only {id, deleted}.
         const customer = event.data.object as Stripe.Customer

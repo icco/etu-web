@@ -16,13 +16,25 @@ test("published protobuf preserves event IDs over the wire", async () => {
 const secret = "whsec_fixture_only"
 
 interface FixtureOptions {
-  subscriptions?: Record<string, string>
+  subscriptions?: Record<string, string | string[]>
+  customerNames?: string[]
+  seenEventIds?: string[]
   user?: Partial<User> | null
 }
 
 function fixture(status = "trialing", unmatched = false, options: FixtureOptions = {}) {
   const updates: Record<string, unknown>[] = []
+  const writes: Record<string, unknown>[] = []
   const lookups: string[] = []
+  const seen = new Set(options.seenEventIds)
+  const reads: Record<string, number> = {}
+  // Each Stripe read advances through the sequence, so later reads see what a concurrent writer changed.
+  const next = (key: string, values: string | string[]) => {
+    if (typeof values === "string") return values
+    const index = Math.min(reads[key] ?? 0, values.length - 1)
+    reads[key] = (reads[key] ?? 0) + 1
+    return values[index]
+  }
   let state: User | undefined = options.user === null || unmatched ? undefined : {
     id: "alice", email: "alice@example.com", subscriptionStatus: "free", hasNotionKey: false, aiEnabled: false, disabled: false,
     stripeCustomerId: "cus_alice", ...options.user,
@@ -33,13 +45,23 @@ function fixture(status = "trialing", unmatched = false, options: FixtureOptions
       lookups.push(url)
       const subscription = url.match(/\/subscriptions\/([^/?]+)/)?.[1]
       if (subscription) return Response.json({
-        id: subscription, object: "subscription", customer: "cus_alice", status: options.subscriptions?.[subscription] ?? status,
+        id: subscription, object: "subscription", customer: "cus_alice", status: next(subscription, options.subscriptions?.[subscription] ?? status),
         cancel_at_period_end: false, items: { data: [{ current_period_start: 1791936000, current_period_end: 1793145600, price: { id: "price_annual" } }] },
       })
       if (url.includes("/customers/cus_gone")) return Response.json({ id: "cus_gone", object: "customer", deleted: true })
-      return Response.json({ id: "cus_alice", object: "customer", metadata: { userId: "alice" }, name: "Ada Lovelace", address: null })
+      return Response.json({ id: "cus_alice", object: "customer", metadata: { userId: "alice" }, name: next("customer", options.customerNames ?? "Ada Lovelace"), address: null })
     }),
   })
+  // Mirrors backend event-ID deduplication: a seen ID returns the stored user without applying the update.
+  function apply(request: Record<string, unknown>) {
+    writes.push(request)
+    const id = request.stripeEventId as string | undefined
+    if (id && seen.has(id)) return { user: state! }
+    if (id) seen.add(id)
+    updates.push(request)
+    state = { ...state!, ...request } as User
+    return { user: state }
+  }
   const auth = {
     getUser: async ({ userId }: { userId: string }) => {
       if (!state || state.id !== userId) throw Object.assign(new Error("user not found"), { code: Code.NotFound })
@@ -47,12 +69,8 @@ function fixture(status = "trialing", unmatched = false, options: FixtureOptions
     },
     getUserByStripeCustomerId: async ({ stripeCustomerId }: { stripeCustomerId: string }) =>
       ({ user: state && state.stripeCustomerId === stripeCustomerId ? state : undefined }),
-    updateUserSubscription: async (request: Partial<User> & { stripeEventId?: string }) => {
-      updates.push(request)
-      state = { ...state!, ...request }
-      return { user: state }
-    },
-    updateUserStripeCustomer: async (request: Record<string, unknown>) => { updates.push(request); return { user: state! } },
+    updateUserSubscription: async (request: Record<string, unknown>) => apply(request),
+    updateUserStripeCustomer: async (request: Record<string, unknown>) => apply(request),
   } as unknown as Pick<AuthServiceApi, "getUser" | "getUserByStripeCustomerId" | "updateUserSubscription" | "updateUserStripeCustomer">
   async function send(type: string, object: object, signature = true) {
     const payload = JSON.stringify({ id: "evt_alice", object: "event", type, data: { object } })
@@ -61,7 +79,7 @@ function fixture(status = "trialing", unmatched = false, options: FixtureOptions
       method: "POST", body: payload, headers: { "stripe-signature": signature ? signed : "invalid" },
     }), { stripe, auth, apiKey: "fixture-service-key", webhookSecret: secret })
   }
-  return { send, updates, lookups }
+  return { send, updates, writes, lookups, state: () => state }
 }
 
 test("signed subscription events use current Stripe state and carry durable event ID", async () => {
@@ -130,4 +148,41 @@ test("customer deletion after the Etu account is gone is acknowledged", async ()
   const deleted = { id: "cus_alice", object: "customer", deleted: true, metadata: { userId: "alice" } }
   expect((await f.send("customer.deleted", deleted)).status).toBe(200)
   expect(f.updates).toHaveLength(0)
+})
+
+test("a cancellation committed between read and write is corrected before acknowledging", async () => {
+  const f = fixture("active", false, { subscriptions: { sub_alice: ["active", "canceled"] } })
+  expect((await f.send("customer.subscription.updated", { id: "sub_alice" })).status).toBe(200)
+  expect(f.updates).toMatchObject([
+    { subscriptionStatus: "active", stripeEventId: "evt_alice" },
+    { subscriptionStatus: "canceled" },
+  ])
+  expect(f.updates[1].stripeEventId).toBeUndefined()
+  expect(f.state()?.subscriptionStatus).toBe("canceled")
+})
+
+test("a deduplicated retry still repairs data left stale by an earlier delivery", async () => {
+  const f = fixture("canceled", false, {
+    seenEventIds: ["evt_alice"],
+    user: { subscriptionStatus: "active", stripeSubscriptionId: "sub_alice" },
+  })
+  expect((await f.send("customer.subscription.updated", { id: "sub_alice" })).status).toBe(200)
+  expect(f.state()?.subscriptionStatus).toBe("canceled")
+})
+
+test("a subscription that keeps changing fails retryably instead of acknowledging stale data", async () => {
+  const f = fixture("active", false, { subscriptions: { sub_alice: ["active", "canceled", "active", "canceled", "active", "canceled", "active"] } })
+  expect((await f.send("customer.subscription.updated", { id: "sub_alice" })).status).toBe(500)
+})
+
+test("a profile change committed between read and write is corrected", async () => {
+  const f = fixture("active", false, { customerNames: ["Ada Lovelace", "Ada King"] })
+  expect((await f.send("customer.updated", { id: "cus_alice" })).status).toBe(200)
+  expect(f.state()?.name).toBe("Ada King")
+})
+
+test("a deduplicated profile retry still repairs a stale stored name", async () => {
+  const f = fixture("active", false, { seenEventIds: ["evt_alice"], customerNames: ["Ada King"], user: { name: "Ada Lovelace" } })
+  expect((await f.send("customer.updated", { id: "cus_alice" })).status).toBe(200)
+  expect(f.state()?.name).toBe("Ada King")
 })
