@@ -8,6 +8,7 @@ import { authService, GrpcError } from "@/lib/grpc/client"
 import { Code } from "@connectrpc/connect"
 import logger from "@/lib/logger"
 import { clientIpFromHeaders } from "@/lib/client-ip"
+import { trackFunnelEvent } from "@/lib/analytics"
 
 function getGrpcApiKey(): string {
   const key = process.env.GRPC_API_KEY
@@ -39,9 +40,11 @@ export async function register(formData: FormData) {
 
   const { email, password } = parsed.data
 
+  let userId: string
   try {
     const clientIp = clientIpFromHeaders(await headers())
-    await authService.register({ email, password, clientIp }, getGrpcApiKey())
+    const { user } = await authService.register({ email, password, clientIp }, getGrpcApiKey())
+    userId = user.id
   } catch (error) {
     // Check if it's a "user already exists" error using gRPC status code
     if (error instanceof GrpcError && error.code === Code.AlreadyExists) {
@@ -53,6 +56,8 @@ export async function register(formData: FormData) {
     logger.error({ error, email }, "Registration error")
     return { error: "Failed to create account" }
   }
+
+  await trackFunnelEvent("registration_success", userId)
 
   // Sign in the new user
   try {

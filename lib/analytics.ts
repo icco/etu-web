@@ -2,13 +2,23 @@ import { createHash, randomUUID } from "node:crypto"
 import logger from "@/lib/logger"
 import { funnelEvent, type FunnelEvent } from "@/lib/telemetry"
 
+const mockState = globalThis as typeof globalThis & { etuFunnelEvents?: FunnelEvent[] }
+
+/** Funnel events captured instead of sent while E2E_MOCK is enabled. */
+export function recordedFunnelEvents(): FunnelEvent[] {
+  return (mockState.etuFunnelEvents ??= [])
+}
+
 export async function trackFunnelEvent(event: FunnelEvent, eventId?: string): Promise<void> {
   const parsed = funnelEvent.safeParse(event)
   if (!parsed.success) {
     logger.warn({ telemetry: "funnel" }, "Invalid funnel event")
     return
   }
-  if (process.env.E2E_MOCK === "true") return
+  if (process.env.E2E_MOCK === "true") {
+    recordedFunnelEvents().push(parsed.data)
+    return
+  }
 
   const id = eventId
     ? createHash("sha256").update(`${event}:${eventId}`).digest("hex")

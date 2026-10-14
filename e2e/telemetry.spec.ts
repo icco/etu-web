@@ -58,3 +58,16 @@ test("telemetry ingestion rejects untrusted and oversized payloads", async ({ re
   expect((await post({ type: "funnel", event: "pricing_view" }, "https://example.com")).status()).toBe(403)
   expect((await post("a".repeat(2048))).status()).toBe(413)
 })
+
+test("successful registration counts one registration_success", async ({ page }, testInfo) => {
+  await page.route("**/api/stripe/checkout", route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ url: "/settings/subscription?subscription=success" }) }))
+  const before = (await (await page.request.get("/api/test/telemetry")).json()).events as string[]
+  await page.goto("/register")
+  await page.getByLabel("Email").fill(`alice-signup-funnel-${testInfo.project.name}-${testInfo.retry}@example.com`)
+  await page.getByLabel("Password", { exact: true }).fill("testpassword")
+  await page.getByLabel("Confirm Password").fill("testpassword")
+  await page.getByRole("button", { name: "Create Account" }).click()
+  await expect(page).toHaveURL(/\/settings\/subscription/)
+  const after = (await (await page.request.get("/api/test/telemetry")).json()).events as string[]
+  expect(after.filter(event => event === "registration_success").length - before.filter(event => event === "registration_success").length).toBe(1)
+})
