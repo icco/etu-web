@@ -61,13 +61,13 @@ test("telemetry ingestion rejects untrusted and oversized payloads", async ({ re
 
 test("successful registration counts one registration_success", async ({ page }, testInfo) => {
   await page.route("**/api/stripe/checkout", route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ url: "/settings/subscription?subscription=success" }) }))
-  const before = (await (await page.request.get("/api/test/telemetry")).json()).events as string[]
+  const email = `alice-signup-funnel-${testInfo.project.name}-${testInfo.retry}@example.com`
   await page.goto("/register")
-  await page.getByLabel("Email").fill(`alice-signup-funnel-${testInfo.project.name}-${testInfo.retry}@example.com`)
+  await page.getByLabel("Email").fill(email)
   await page.getByLabel("Password", { exact: true }).fill("testpassword")
   await page.getByLabel("Confirm Password").fill("testpassword")
   await page.getByRole("button", { name: "Create Account" }).click()
   await expect(page).toHaveURL(/\/settings\/subscription/)
-  const after = (await (await page.request.get("/api/test/telemetry")).json()).events as string[]
-  expect(after.filter(event => event === "registration_success").length - before.filter(event => event === "registration_success").length).toBe(1)
+  const { events } = await (await page.request.get("/api/test/telemetry")).json() as { events: { event: string; key?: string }[] }
+  expect(events.filter(recorded => recorded.key === email)).toEqual([{ event: "registration_success", key: email }])
 })
