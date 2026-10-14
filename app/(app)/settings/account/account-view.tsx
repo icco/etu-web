@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner"
 import { updateName, uploadProfileImage, clearProfileImage, updateNotionKey, changePassword } from "@/lib/actions/user"
 import { exportAllNotes } from "@/lib/actions/notes"
+import { AccountDataControls } from "@/components/account-data-controls"
 
 interface AccountViewProps {
   user: {
@@ -24,6 +25,7 @@ interface AccountViewProps {
     createdAt: Date
     updatedAt: Date | null
     hasNotionKey: boolean
+    aiEnabled: boolean
   }
 }
 
@@ -282,6 +284,7 @@ export function AccountView({ user }: AccountViewProps) {
 
   return (
     <div className="space-y-6">
+      <AccountDataControls aiEnabled={user.aiEnabled} />
       {/* Profile Information Card */}
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">

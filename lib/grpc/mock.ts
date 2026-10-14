@@ -17,6 +17,7 @@ import type {
   UserSettingsServiceApi,
   ApiKeysServiceApi,
   StatsServiceApi,
+  AccountServiceApi,
 } from "./client"
 
 // Mock data
@@ -382,6 +383,11 @@ export const mockUserSettingsService: UserSettingsServiceApi = {
         if (key.userId === request.userId) sessionKeys.delete(raw)
       }
     }
+    if (fixtureUsers.has(request.userId)) {
+      const updated = { ...fixtureUser(request.userId), aiEnabled: request.aiEnabled ?? fixtureUser(request.userId).aiEnabled }
+      fixtureUsers.set(request.userId, updated)
+      return { user: updated }
+    }
     let image = mockUser.image
     if (request.clearProfileImage) {
       image = undefined
@@ -397,6 +403,7 @@ export const mockUserSettingsService: UserSettingsServiceApi = {
       name: request.name ?? mockUser.name,
       image,
       hasNotionKey: request.notionKey === undefined ? mockUser.hasNotionKey : request.notionKey !== "",
+      aiEnabled: request.aiEnabled ?? mockUser.aiEnabled,
     }
     return { user: mockUser }
   },
@@ -472,4 +479,24 @@ export const mockStatsService: StatsServiceApi = {
 
 export function isMockMode(): boolean {
   return process.env.E2E_MOCK === "true"
+}
+
+export const mockAccountService: AccountServiceApi = {
+  async deleteAccount(request, _apiKey) {
+    const user = fixtureUser(request.userId)
+    fixtureUsers.set(request.userId, { ...user, disabled: true })
+    for (const [raw, key] of sessionKeys) {
+      if (key.userId === request.userId) sessionKeys.delete(raw)
+    }
+    return { success: true }
+  },
+  async *exportData(request, _apiKey, signal) {
+    yield { user: fixtureUser(request.userId) }
+    for (const tag of mockTags) yield { tag }
+    const count = request.userId.includes("alice-export") ? 10001 : mockNotes.length
+    for (let i = 0; i < count; i++) {
+      signal?.throwIfAborted()
+      yield { note: { ...mockNotes[i % mockNotes.length], id: `export-note-${i}` } }
+    }
+  },
 }

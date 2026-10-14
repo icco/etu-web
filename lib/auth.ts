@@ -54,6 +54,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!("token" in message)) return
       const token = message.token
       if (typeof token?.id !== "string" || typeof token.sessionKeyId !== "string") return
+      if (typeof token.sessionKey !== "string") return
+      const verified = await apiKeysService.verifyApiKey({ rawKey: token.sessionKey }, getGrpcApiKey())
+      if (!verified.valid) return
       await apiKeysService.deleteApiKey({ userId: token.id, keyId: token.sessionKeyId }, getGrpcApiKey())
     },
   },

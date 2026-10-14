@@ -9,6 +9,7 @@ import {
   ApiKeysService,
   UserSettingsService,
   StatsService,
+  AccountService,
   type Note as ProtoNote,
   type NoteImage as ProtoNoteImage,
   type NoteAudio as ProtoNoteAudio,
@@ -24,6 +25,7 @@ import {
   mockUserSettingsService,
   mockApiKeysService,
   mockStatsService,
+  mockAccountService,
   isMockMode,
 } from "./mock"
 import logger from "../logger"
@@ -700,7 +702,7 @@ const realUserSettingsService = {
   },
 
   async updateUserSettings(
-    request: { userId: string; notionKey?: string; name?: string; password?: string; currentPassword?: string; profileImageUpload?: ImageUpload; clearProfileImage?: boolean },
+    request: { userId: string; notionKey?: string; name?: string; password?: string; currentPassword?: string; profileImageUpload?: ImageUpload; clearProfileImage?: boolean; aiEnabled?: boolean },
     apiKey: string
   ) {
     return withErrorHandling(async () => {
@@ -714,6 +716,7 @@ const realUserSettingsService = {
           currentPassword: request.currentPassword,
           profileImageUpload: request.profileImageUpload,
           clearProfileImage: request.clearProfileImage,
+          aiEnabled: request.aiEnabled,
         },
         { headers: createHeaders(apiKey) }
       )
@@ -756,3 +759,39 @@ const realStatsService = {
 
 export type StatsServiceApi = typeof realStatsService
 export const statsService = isMockMode() ? mockStatsService : realStatsService
+
+export interface AccountExportItem {
+  user?: User
+  tag?: Tag
+  note?: Note
+  profileImageUrl?: string
+}
+
+const realAccountService = {
+  async deleteAccount(request: { userId: string; password: string }, apiKey: string) {
+    return withErrorHandling(async () => {
+      const response = await getClient(AccountService).deleteAccount(request, { headers: createHeaders(apiKey) })
+      return { success: response.success }
+    }, "AccountService.deleteAccount")
+  },
+
+  async *exportData(request: { userId: string }, apiKey: string, signal?: AbortSignal): AsyncGenerator<AccountExportItem> {
+    try {
+      for await (const response of getClient(AccountService).exportData(request, { headers: createHeaders(apiKey), signal })) {
+        const item = response.item
+        switch (item.case) {
+          case "user": yield { user: convertUser(item.value) }; break
+          case "tag": yield { tag: convertTag(item.value) }; break
+          case "note": yield { note: convertNote(item.value) }; break
+          case "profileImageUrl": yield { profileImageUrl: item.value }; break
+        }
+      }
+    } catch (error) {
+      logger.error({ error }, "Account export stream failed")
+      throw error instanceof ConnectError ? new GrpcError(error) : error
+    }
+  },
+}
+
+export type AccountServiceApi = typeof realAccountService
+export const accountService = isMockMode() ? mockAccountService : realAccountService
