@@ -4,11 +4,22 @@ import { Footer } from "@icco/react-common/Footer"
 import { ThemeProvider } from "@icco/react-common/ThemeProvider"
 import { WebVitals } from "@icco/react-common/WebVitals"
 import { LegalLinks } from "@/components/legal-links"
+import { FunnelAnalytics } from "@/components/funnel-analytics"
+import { siteUrl, siteTitle, siteDescription } from "@/lib/site"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Etu - The Best Note-Taking App for Capturing Ideas",
-  description: "The simplest, most powerful note-taking app. Capture fleeting ideas as blips and let them resurface when you need them. Turn scattered thoughts into finished work.",
+  metadataBase: new URL(siteUrl),
+  title: siteTitle,
+  description: siteDescription,
+  openGraph: {
+    type: "website",
+    siteName: "Etu",
+    title: siteTitle,
+    description: siteDescription,
+    locale: "en_US",
+  },
+  twitter: { card: "summary", title: siteTitle, description: siteDescription },
 }
 
 export default function RootLayout({
@@ -29,6 +40,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col bg-base-200 antialiased">
         <ThemeProvider>
           <WebVitals analyticsPath="/analytics/etu-web" />
+          <FunnelAnalytics />
           {children}
           <LegalLinks />
           <Footer

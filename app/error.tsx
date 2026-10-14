@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { reportBrowserError } from "@/lib/telemetry-client"
 
 export default function Error({
   error,
@@ -9,6 +10,8 @@ export default function Error({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => reportBrowserError("render"), [])
+
   // Stale Server Action IDs from older deployments cannot be recovered by
   // retrying the same request, but a fresh client render resolves to the
   // current build's IDs. Auto-reset only once per page load so users don't

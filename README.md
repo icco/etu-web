@@ -139,3 +139,11 @@ Generate API keys in Settings to use with these clients.
 ### Proto Documentation
 
 The proto definitions documentation is available at `/docs` when the app is running. This documentation is automatically generated from the `@icco/etu-proto` package and describes the gRPC API contract between the frontend and backend services.
+
+### Telemetry
+
+Public landing, pricing, and registration views send count-only custom metrics to [reportd](https://github.com/icco/reportd/blob/main/pkg/analytics/analytics.go). Server code can call `await trackFunnelEvent("registration_success")` or `await trackFunnelEvent("checkout_success", stripeEventId)` from `@/lib/analytics`. The optional event ID is hashed with the event name for retry-stable metric IDs; aggregate by distinct `id` to deduplicate webhook retries. Delivery has a two-second timeout, logs failures without interrupting the user operation, and is disabled by `E2E_MOCK=true`.
+
+Browser errors and rejected promises, React error boundaries, and [Next.js request errors](https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation#onrequesterror-optional) produce structured Pino logs under `telemetry: browser_error` or `server_error`. Browser reports use a same-origin endpoint, accept at most 1 KiB, deduplicate by error kind and route, and stop after ten distinct reports per document. Reports contain only allowlisted route labels and error categories; no error messages, stacks, query strings, credentials, email addresses, or note contents. Browser telemetry requests omit cookies and referrers. Existing Web Vitals reporting remains separate.
+
+[Metadata](https://nextjs.org/docs/app/api-reference/functions/generate-metadata), `robots.txt`, and the public sitemap use `https://etu.timeclimbers.com`. Production browser source maps are disabled.
