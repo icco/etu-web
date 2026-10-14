@@ -497,6 +497,7 @@ const realAuthService = {
       stripePriceId?: string
       cancelAtPeriodEnd?: boolean
       currentPeriodStart?: Timestamp
+      stripeEventId?: string
     },
     apiKey: string
   ) {
@@ -522,6 +523,7 @@ const realAuthService = {
               nanos: request.currentPeriodStart.nanos,
             }
             : undefined,
+          stripeEventId: request.stripeEventId,
         },
         { headers: createHeaders(apiKey) }
       )
@@ -539,6 +541,7 @@ const realAuthService = {
       billingState?: string
       billingPostalCode?: string
       billingCountry?: string
+      stripeEventId?: string
     },
     apiKey: string
   ) {
@@ -554,6 +557,7 @@ const realAuthService = {
           billingState: request.billingState,
           billingPostalCode: request.billingPostalCode,
           billingCountry: request.billingCountry,
+          stripeEventId: request.stripeEventId,
         },
         { headers: createHeaders(apiKey) }
       )
