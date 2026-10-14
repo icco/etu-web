@@ -2,10 +2,12 @@
 
 import { z } from "zod"
 import { signIn } from "@/lib/auth"
-import { AuthError } from "next-auth"
+import { AuthError, CredentialsSignin } from "next-auth"
+import { headers } from "next/headers"
 import { authService, GrpcError } from "@/lib/grpc/client"
 import { Code } from "@connectrpc/connect"
 import logger from "@/lib/logger"
+import { clientIpFromHeaders } from "@/lib/client-ip"
 
 function getGrpcApiKey(): string {
   const key = process.env.GRPC_API_KEY
@@ -38,11 +40,15 @@ export async function register(formData: FormData) {
   const { email, password } = parsed.data
 
   try {
-    await authService.register({ email, password }, getGrpcApiKey())
+    const clientIp = clientIpFromHeaders(await headers())
+    await authService.register({ email, password, clientIp }, getGrpcApiKey())
   } catch (error) {
     // Check if it's a "user already exists" error using gRPC status code
     if (error instanceof GrpcError && error.code === Code.AlreadyExists) {
       return { error: "An account with this email already exists" }
+    }
+    if (error instanceof GrpcError && error.code === Code.ResourceExhausted) {
+      return { error: "Too many attempts. Try again in a few minutes." }
     }
     logger.error({ error, email }, "Registration error")
     return { error: "Failed to create account" }
@@ -53,7 +59,7 @@ export async function register(formData: FormData) {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/notes",
+      redirectTo: "/settings/subscription?checkout=start",
     })
   } catch (error) {
     if (error instanceof AuthError) {
@@ -82,6 +88,9 @@ export async function login(formData: FormData) {
       redirectTo: "/notes",
     })
   } catch (error) {
+    if (error instanceof CredentialsSignin && error.code === "rate_limited") {
+      return { error: "Too many attempts. Try again in a few minutes." }
+    }
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":

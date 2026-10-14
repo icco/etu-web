@@ -2,11 +2,14 @@
 
 import { z } from "zod"
 import { revalidatePath } from "next/cache"
+import { requireSubscribedUser } from "@/lib/access"
 import { auth } from "@/lib/auth"
 import {
   notesService,
   tagsService,
   statsService,
+  accountService,
+  type Note as GrpcNote,
   timestampToDate,
   type ImageUpload,
   type AudioUpload,
@@ -132,11 +135,7 @@ function getGrpcApiKey(): string {
 }
 
 async function requireUser() {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
-  }
-  return session.user.id
+  return requireSubscribedUser()
 }
 
 export async function createNote(data: {
@@ -350,26 +349,20 @@ export async function getStats() {
 }
 
 export async function exportAllNotes() {
-  const userId = await requireUser()
-
-  // Fetch all notes (use a high limit to get all notes)
-  // NOTE: This fetches up to 10,000 notes. For users with more notes,
-  // they may need to export in batches or we need pagination support.
-  const response = await notesService.listNotes(
-    {
-      userId,
-      limit: 10000,
-      offset: 0,
-    },
-    getGrpcApiKey()
-  )
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+  const userId = session.user.id
+  const notes: GrpcNote[] = []
+  for await (const item of accountService.exportData({ userId }, getGrpcApiKey())) {
+    if (item.note) notes.push(item.note)
+  }
 
   // Format notes for export (convert Dates to ISO strings)
   const exportData = {
     exportDate: new Date().toISOString(),
     userId,
-    totalNotes: response.notes.length,
-    notes: response.notes.map((note) => {
+    totalNotes: notes.length,
+    notes: notes.map((note) => {
       const converted = toNote(note)
       return {
         id: converted.id,

@@ -57,7 +57,7 @@ export default async function LandingPage() {
             <Link href="/register" className="btn btn-primary btn-lg px-8">
               Start Free for 14 Days
             </Link>
-            <p className="text-sm text-base-content/50 mt-4">No credit card required</p>
+            <p className="text-sm text-base-content/50 mt-4">14-day free trial. Card required.</p>
           </div>
         </section>
 
