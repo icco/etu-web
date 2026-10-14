@@ -49,3 +49,11 @@ test("AI processing is opt-in and the choice persists", async ({ page }, testInf
   await toggle.uncheck()
   await expect(page.getByText("AI preference updated")).toBeVisible()
 })
+
+test("account exports keep the Notion sync database name", async () => {
+  const { create } = await import("@bufbuild/protobuf")
+  const { UserSchema } = await import("@icco/etu-proto")
+  const { convertUser } = await import("../lib/grpc/convert-user")
+  const user = convertUser(create(UserSchema, { id: "alice", email: "alice@example.com", notionDatabaseName: "Ada's Journal" }))
+  expect(user.notionDatabaseName).toBe("Ada's Journal")
+})
