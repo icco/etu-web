@@ -86,3 +86,21 @@ test("registration hands off to checkout without granting note access", async ({
   await page.goto("/notes")
   await expect(page).toHaveURL(/\/settings\/subscription$/)
 })
+
+test("billing falls back to the portal when a subscription already exists", async ({ page }, testInfo) => {
+  await page.request.post("/api/test/auth", {
+    data: { email: `alice-unpaid-portal-${testInfo.project.name}-${testInfo.retry}@example.com` },
+  })
+  await page.route("**/api/stripe/checkout", route => route.fulfill({
+    status: 409, contentType: "application/json",
+    body: JSON.stringify({ error: "Manage your existing subscription instead of creating another" }),
+  }))
+  await page.route("**/api/stripe/portal", route => route.fulfill({
+    status: 200, contentType: "application/json",
+    body: JSON.stringify({ url: "/settings/subscription?subscription=success" }),
+  }))
+  await page.goto("/settings/subscription")
+  const portal = page.waitForRequest("**/api/stripe/portal")
+  await page.getByRole("button", { name: "Subscribe" }).click()
+  await portal
+})
