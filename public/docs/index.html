@@ -211,6 +211,14 @@
                 </li>
               
                 <li>
+                  <a href="#etu.DeleteAccountRequest"><span class="badge">M</span>DeleteAccountRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#etu.DeleteAccountResponse"><span class="badge">M</span>DeleteAccountResponse</a>
+                </li>
+              
+                <li>
                   <a href="#etu.DeleteApiKeyRequest"><span class="badge">M</span>DeleteApiKeyRequest</a>
                 </li>
               
@@ -224,6 +232,14 @@
               
                 <li>
                   <a href="#etu.DeleteNoteResponse"><span class="badge">M</span>DeleteNoteResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#etu.ExportDataRequest"><span class="badge">M</span>ExportDataRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#etu.ExportDataResponse"><span class="badge">M</span>ExportDataResponse</a>
                 </li>
               
                 <li>
@@ -384,6 +400,10 @@
                 </li>
               
               
+              
+                <li>
+                  <a href="#etu.AccountService"><span class="badge">S</span>AccountService</a>
+                </li>
               
                 <li>
                   <a href="#etu.ApiKeysService"><span class="badge">S</span>ApiKeysService</a>
@@ -707,6 +727,61 @@
 
         
       
+        <h3 id="etu.DeleteAccountRequest">DeleteAccountRequest</h3>
+        <p>DeleteAccountRequest permanently deletes a user and all of their data.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>user_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>user_id is the account to delete. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>password</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>password is the account&#39;s current password; required unless called with M2M auth. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="etu.DeleteAccountResponse">DeleteAccountResponse</h3>
+        <p>DeleteAccountResponse reports the outcome of an account deletion.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>success</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>success is true when the account no longer exists. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="etu.DeleteApiKeyRequest">DeleteApiKeyRequest</h3>
         <p>DeleteApiKeyRequest identifies an API key to revoke.</p>
 
@@ -817,6 +892,75 @@
 
         
       
+        <h3 id="etu.ExportDataRequest">ExportDataRequest</h3>
+        <p>ExportDataRequest requests a full export of a user's data.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>user_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>user_id is the account to export. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="etu.ExportDataResponse">ExportDataResponse</h3>
+        <p>ExportDataResponse is one item of a streamed data export. The stream sends</p><p>the user first, then profile_image_url if the user has an uploaded profile</p><p>image, then every tag, then every note in creation order. Media</p><p>URLs are signed GCS URLs that expire one hour after they are streamed.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>user</td>
+                  <td><a href="#etu.User">User</a></td>
+                  <td></td>
+                  <td><p>user is the account profile and settings. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>tag</td>
+                  <td><a href="#etu.Tag">Tag</a></td>
+                  <td></td>
+                  <td><p>tag is one of the user&#39;s tags. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>note</td>
+                  <td><a href="#etu.Note">Note</a></td>
+                  <td></td>
+                  <td><p>note is one note with its tags and media. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>profile_image_url</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>profile_image_url is a signed URL for the uploaded profile image. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="etu.GetNoteRequest">GetNoteRequest</h3>
         <p>GetNoteRequest identifies a note to fetch by id.</p>
 
@@ -887,6 +1031,15 @@
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>key is the storage object key returned in User.image. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>user_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>user_id selects whose avatar to resolve. M2M callers that omit it must
+pass a &#34;profiles/{userId}/...&#34; key, whose owner segment is used. API key
+callers may only resolve their own. </p></td>
                 </tr>
               
             </tbody>
@@ -989,7 +1142,8 @@
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>user_id scopes stats to a single user when provided. </p></td>
+                  <td><p>user_id scopes stats to a single user. Empty returns global stats for
+M2M callers and the authenticated user&#39;s stats otherwise. </p></td>
                 </tr>
               
             </tbody>
@@ -1838,6 +1992,20 @@
                   <td><p> </p></td>
                 </tr>
               
+                <tr>
+                  <td>current_password</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>Required when password is set; must match the stored password. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>ai_enabled</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p>ai_enabled opts the user in or out of AI processing when set. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -2136,7 +2304,8 @@ an &lt;img src&gt;. </p></td>
                   <td>notion_key</td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
-                  <td><p>notion_key is an optional Notion API token for sync features. </p></td>
+                  <td><p>notion_key is write-only and is never populated in responses; see
+has_notion_key. </p></td>
                 </tr>
               
                 <tr>
@@ -2237,6 +2406,22 @@ the end of the current billing period. </p></td>
                   <td>optional</td>
                   <td><p>billing_country is the ISO-3166-1 alpha-2 country code of the
 user&#39;s billing address. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>has_notion_key</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>has_notion_key reports whether a Notion API token is stored. The token
+itself is never returned. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>ai_enabled</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>ai_enabled reports whether the user opted in to AI processing such as
+tag generation, OCR, and audio transcription. Defaults to false. </p></td>
                 </tr>
               
             </tbody>
@@ -2354,6 +2539,35 @@ user&#39;s billing address. </p></td>
       
 
       
+        <h3 id="etu.AccountService">AccountService</h3>
+        <p>AccountService manages whole-account operations.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>DeleteAccount</td>
+                <td><a href="#etu.DeleteAccountRequest">DeleteAccountRequest</a></td>
+                <td><a href="#etu.DeleteAccountResponse">DeleteAccountResponse</a></td>
+                <td><p>DeleteAccount disables the account and revokes its API keys, cancels billing,
+deletes stored media, and removes all account data. If a step after the
+disable fails, the user is signed out and an M2M (support) call with the same
+user_id completes the deletion.</p></td>
+              </tr>
+            
+              <tr>
+                <td>ExportData</td>
+                <td><a href="#etu.ExportDataRequest">ExportDataRequest</a></td>
+                <td><a href="#etu.ExportDataResponse">ExportDataResponse</a> stream</td>
+                <td><p>ExportData streams all of the caller&#39;s data.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
         <h3 id="etu.ApiKeysService">ApiKeysService</h3>
         <p>ApiKeysService manages API key lifecycle and verification.</p>
         <table class="enum-table">

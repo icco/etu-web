@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { format } from "date-fns"
 import { CreditCardIcon } from "@heroicons/react/24/outline"
@@ -19,26 +19,26 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
+  const checkoutStartedRef = useRef(false)
+  const needsCheckout = !user.hasStripeCustomer || ["free", "canceled", "inactive", "incomplete_expired"].includes(user.subscriptionStatus)
 
   useEffect(() => {
     const result = searchParams.get("subscription")
     if (!result) return
     if (result === "success") {
-      toast.success("Subscription updated")
+      toast.info("Checkout completed. Your subscription is being confirmed.", { id: "subscription-result" })
       router.refresh()
     } else if (result === "canceled") {
-      toast.info("Subscription change canceled")
+      toast.info("Subscription change canceled", { id: "subscription-result" })
     }
     // Strip the query param so the toast doesn't re-fire on refresh
     router.replace("/settings/subscription")
   }, [searchParams, router])
 
-  const handleManage = async () => {
+  const handleManage = useCallback(async () => {
     setIsLoading(true)
     try {
-      const endpoint = user.hasStripeCustomer
-        ? "/api/stripe/portal"
-        : "/api/stripe/checkout"
+      const endpoint = needsCheckout ? "/api/stripe/checkout" : "/api/stripe/portal"
       const res = await fetch(endpoint, { method: "POST" })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -52,9 +52,16 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
       toast.error(message)
       setIsLoading(false)
     }
-  }
+  }, [needsCheckout])
 
-  const buttonLabel = user.hasStripeCustomer ? "Manage Subscription" : "Subscribe"
+  useEffect(() => {
+    if (searchParams.get("checkout") !== "start" || checkoutStartedRef.current) return
+    checkoutStartedRef.current = true
+    router.replace("/settings/subscription")
+    void handleManage()
+  }, [searchParams, router, handleManage])
+
+  const buttonLabel = needsCheckout ? "Subscribe" : "Manage Subscription"
 
   return (
     <div className="card bg-base-100 shadow-xl">
@@ -105,8 +112,9 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
             {buttonLabel}
           </button>
           <p className="text-xs text-base-content/60 text-center mt-2">
-            Powered by Stripe
+            New subscribers get a 14-day trial. A card is required. Powered by Stripe.
           </p>
+          <button className="btn btn-ghost w-full mt-2" onClick={() => router.refresh()}>Refresh subscription status</button>
         </div>
       </div>
     </div>

@@ -2,7 +2,8 @@
 
 import { z } from "zod"
 import { auth } from "@/lib/auth"
-import { userSettingsService, type ImageUpload } from "@/lib/grpc/client"
+import { Code } from "@connectrpc/connect"
+import { GrpcError, userSettingsService, type ImageUpload } from "@/lib/grpc/client"
 import { revalidatePath } from "next/cache"
 import logger from "@/lib/logger"
 
@@ -23,6 +24,7 @@ const updateNotionKeySchema = z.object({
 })
 
 const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 })
 
@@ -178,6 +180,7 @@ export async function changePassword(formData: FormData) {
   }
 
   const parsed = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
     password: formData.get("password"),
   })
 
@@ -190,12 +193,16 @@ export async function changePassword(formData: FormData) {
       {
         userId: session.user.id,
         password: parsed.data.password,
+        currentPassword: parsed.data.currentPassword,
       },
       getGrpcApiKey()
     )
 
     return { success: true }
   } catch (error) {
+    if (error instanceof GrpcError && error.code === Code.PermissionDenied && error.details.includes("current password is incorrect")) {
+      return { error: "Current password is incorrect" }
+    }
     logger.error({ error, userId: session.user.id }, "Change password error")
     return { error: "Failed to change password" }
   }

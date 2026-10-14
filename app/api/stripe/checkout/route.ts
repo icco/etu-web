@@ -4,6 +4,7 @@ import { authService } from "@/lib/grpc/client"
 import { stripe, STRIPE_PRICE_ID } from "@/lib/stripe"
 import { isSameOrigin } from "@/lib/security"
 import logger from "@/lib/logger"
+import { createSubscriptionCheckout, ExistingSubscriptionError } from "@/lib/stripe-checkout"
 
 function getGrpcApiKey(): string {
   const key = process.env.GRPC_API_KEY
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
       getGrpcApiKey()
     )
     const user = userResponse.user
+    if (user.disabled) return NextResponse.json({ error: "Account disabled" }, { status: 403 })
 
     let customerId = user.stripeCustomerId
 
@@ -55,7 +57,7 @@ export async function POST(request: Request) {
         email: user.email || undefined,
         name: user.name || undefined,
         metadata: { userId: user.id },
-      })
+      }, { idempotencyKey: `etu-customer-${user.id}` })
       customerId = customer.id
 
       await authService.updateUserSubscription(
@@ -63,30 +65,17 @@ export async function POST(request: Request) {
           userId: user.id,
           subscriptionStatus: user.subscriptionStatus,
           stripeCustomerId: customerId,
+          cancelAtPeriodEnd: user.cancelAtPeriodEnd,
         },
         getGrpcApiKey()
       )
     }
 
-    const checkoutSession = await stripe.checkout.sessions.create({
-      customer: customerId,
-      line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
-      mode: "subscription",
-      billing_address_collection: "required",
-      customer_update: { name: "auto", address: "auto" },
-      success_url: `${authUrl}/settings/subscription?subscription=success`,
-      cancel_url: `${authUrl}/settings/subscription?subscription=canceled`,
-      consent_collection: { terms_of_service: "required" },
-      custom_text: {
-        terms_of_service_acceptance: {
-          message: `I agree to the [Terms of Service](${authUrl}/terms), [Privacy Policy](${authUrl}/privacy), and [Refund Policy](${authUrl}/refunds).`,
-        },
-      },
-      metadata: { userId: user.id },
-    })
+    const checkoutSession = await createSubscriptionCheckout(stripe, { ...user, stripeCustomerId: customerId }, STRIPE_PRICE_ID, authUrl)
 
     return NextResponse.json({ url: checkoutSession.url })
   } catch (error) {
+    if (error instanceof ExistingSubscriptionError) return NextResponse.json({ error: error.message }, { status: 409 })
     logger.error({
       error,
       userId: session.user.id,

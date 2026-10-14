@@ -9,6 +9,7 @@ import {
   ApiKeysService,
   UserSettingsService,
   StatsService,
+  AccountService,
   type Note as ProtoNote,
   type NoteImage as ProtoNoteImage,
   type NoteAudio as ProtoNoteAudio,
@@ -24,6 +25,7 @@ import {
   mockUserSettingsService,
   mockApiKeysService,
   mockStatsService,
+  mockAccountService,
   isMockMode,
 } from "./mock"
 import logger from "../logger"
@@ -110,7 +112,9 @@ export interface User {
   billingState?: string
   billingPostalCode?: string
   billingCountry?: string
-  notionKey?: string
+  hasNotionKey: boolean
+  aiEnabled: boolean
+  disabled: boolean
 }
 
 export interface ApiKey {
@@ -142,6 +146,11 @@ function createHeaders(apiKey: string): HeadersInit {
   return {
     Authorization: apiKey,
   }
+}
+
+// The backend only trusts this header from service-token callers, for per-IP rate limits.
+function createAuthHeaders(apiKey: string, clientIp?: string): HeadersInit {
+  return clientIp ? { ...createHeaders(apiKey), "x-etu-client-ip": clientIp } : createHeaders(apiKey)
 }
 
 // Convert proto types to our interface types
@@ -191,7 +200,7 @@ function convertTag(tag: ProtoTag): Tag {
 
 function convertUser(user: ProtoUser | undefined): User {
   if (!user) {
-    return { id: "", email: "", subscriptionStatus: "" }
+    return { id: "", email: "", subscriptionStatus: "", hasNotionKey: false, aiEnabled: false, disabled: true }
   }
   return {
     id: user.id,
@@ -213,7 +222,9 @@ function convertUser(user: ProtoUser | undefined): User {
     billingState: user.billingState,
     billingPostalCode: user.billingPostalCode,
     billingCountry: user.billingCountry,
-    notionKey: user.notionKey,
+    hasNotionKey: user.hasNotionKey,
+    aiEnabled: user.aiEnabled,
+    disabled: user.disabled,
   }
 }
 
@@ -413,7 +424,17 @@ const realTagsService = {
 
 // Auth Service
 const realAuthService = {
-  async register(request: { email: string; password: string }, apiKey: string) {
+  async login(request: { email: string; password: string; clientIp?: string }, apiKey: string) {
+    return withErrorHandling(async () => {
+      const response = await getClient(AuthService).login(
+        { email: request.email, password: request.password },
+        { headers: createAuthHeaders(apiKey, request.clientIp) }
+      )
+      return { apiKey: convertApiKey(response.apiKey), rawKey: response.rawKey }
+    }, "AuthService.login")
+  },
+
+  async register(request: { email: string; password: string; clientIp?: string }, apiKey: string) {
     return withErrorHandling(async () => {
       const client = getClient(AuthService)
       const response = await client.register(
@@ -421,13 +442,13 @@ const realAuthService = {
           email: request.email,
           password: request.password,
         },
-        { headers: createHeaders(apiKey) }
+        { headers: createAuthHeaders(apiKey, request.clientIp) }
       )
       return { user: convertUser(response.user) }
     }, "AuthService.register")
   },
 
-  async authenticate(request: { email: string; password: string }, apiKey: string) {
+  async authenticate(request: { email: string; password: string; clientIp?: string }, apiKey: string) {
     return withErrorHandling(async () => {
       const client = getClient(AuthService)
       const response = await client.authenticate(
@@ -435,7 +456,7 @@ const realAuthService = {
           email: request.email,
           password: request.password,
         },
-        { headers: createHeaders(apiKey) }
+        { headers: createAuthHeaders(apiKey, request.clientIp) }
       )
       return {
         success: response.success,
@@ -681,7 +702,7 @@ const realUserSettingsService = {
   },
 
   async updateUserSettings(
-    request: { userId: string; notionKey?: string; name?: string; password?: string; profileImageUpload?: ImageUpload; clearProfileImage?: boolean },
+    request: { userId: string; notionKey?: string; name?: string; password?: string; currentPassword?: string; profileImageUpload?: ImageUpload; clearProfileImage?: boolean; aiEnabled?: boolean },
     apiKey: string
   ) {
     return withErrorHandling(async () => {
@@ -692,8 +713,10 @@ const realUserSettingsService = {
           notionKey: request.notionKey,
           name: request.name,
           password: request.password,
+          currentPassword: request.currentPassword,
           profileImageUpload: request.profileImageUpload,
           clearProfileImage: request.clearProfileImage,
+          aiEnabled: request.aiEnabled,
         },
         { headers: createHeaders(apiKey) }
       )
@@ -736,3 +759,39 @@ const realStatsService = {
 
 export type StatsServiceApi = typeof realStatsService
 export const statsService = isMockMode() ? mockStatsService : realStatsService
+
+export interface AccountExportItem {
+  user?: User
+  tag?: Tag
+  note?: Note
+  profileImageUrl?: string
+}
+
+const realAccountService = {
+  async deleteAccount(request: { userId: string; password: string }, apiKey: string) {
+    return withErrorHandling(async () => {
+      const response = await getClient(AccountService).deleteAccount(request, { headers: createHeaders(apiKey) })
+      return { success: response.success }
+    }, "AccountService.deleteAccount")
+  },
+
+  async *exportData(request: { userId: string }, apiKey: string, signal?: AbortSignal): AsyncGenerator<AccountExportItem> {
+    try {
+      for await (const response of getClient(AccountService).exportData(request, { headers: createHeaders(apiKey), signal })) {
+        const item = response.item
+        switch (item.case) {
+          case "user": yield { user: convertUser(item.value) }; break
+          case "tag": yield { tag: convertTag(item.value) }; break
+          case "note": yield { note: convertNote(item.value) }; break
+          case "profileImageUrl": yield { profileImageUrl: item.value }; break
+        }
+      }
+    } catch (error) {
+      logger.error({ error }, "Account export stream failed")
+      throw error instanceof ConnectError ? new GrpcError(error) : error
+    }
+  },
+}
+
+export type AccountServiceApi = typeof realAccountService
+export const accountService = isMockMode() ? mockAccountService : realAccountService
