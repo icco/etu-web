@@ -21,12 +21,13 @@ test("backend grace decision overrides a past-due status", async ({ page }) => {
   await expect(page).toHaveURL(/\/settings\/subscription$/)
 })
 
-test("unpaid password change invalidates other web sessions", async ({ page, browser }) => {
-  await login(page, "alice-password-unpaid@example.com")
+test("unpaid password change invalidates other web sessions", async ({ page, browser }, testInfo) => {
+  const email = `alice-password-unpaid-${testInfo.project.name}-${testInfo.retry}@example.com`
+  await login(page, email)
   const other = await browser.newContext()
   try {
     const otherPage = await other.newPage()
-    await login(otherPage, "alice-password-unpaid@example.com")
+    await login(otherPage, email)
     await page.goto("/settings/account")
     await page.getByRole("button", { name: "Change Password" }).click()
     await page.getByPlaceholder("Enter current password").fill("testpassword")

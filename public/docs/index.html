@@ -2103,6 +2103,13 @@ M2M callers and the authenticated user&#39;s stats otherwise. </p></td>
                   <td><p>billing_country is the ISO-3166-1 alpha-2 country code. </p></td>
                 </tr>
               
+                <tr>
+                  <td>stripe_event_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>Non-empty IDs are deduplicated globally across both Stripe update RPCs. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -2199,6 +2206,13 @@ end of the current billing period. </p></td>
                   <td><a href="#google.protobuf.Timestamp">google.protobuf.Timestamp</a></td>
                   <td>optional</td>
                   <td><p>current_period_start sets the start of the current billing period. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>stripe_event_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>Non-empty IDs are deduplicated globally across both Stripe update RPCs. </p></td>
                 </tr>
               
             </tbody>
