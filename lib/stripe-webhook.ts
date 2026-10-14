@@ -19,6 +19,7 @@ function timestamp(seconds: number | undefined): Timestamp | undefined {
 }
 
 const SYNC_PASSES = 3
+const TERMINAL_STATUSES = new Set<Stripe.Subscription.Status>(["canceled", "incomplete_expired"])
 
 export async function handleStripeWebhook(request: Request, services: WebhookServices) {
   const { stripe, auth, apiKey, webhookSecret } = services
@@ -52,19 +53,23 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
   }
 
   async function resolveSubscription(id: string, expectedCustomer?: string) {
-    let subscription = await stripe.subscriptions.retrieve(id)
+    let subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(id)
     const customerId = resourceId(subscription.customer)
     if (!customerId || (expectedCustomer && expectedCustomer !== customerId)) throw new Error("Stripe subscription customer mismatch")
     const user = await findUser(customerId)
-    if ((subscription.status === "canceled" || subscription.status === "incomplete_expired") && user.stripeSubscriptionId && user.stripeSubscriptionId !== id) {
-      subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId)
-      if (resourceId(subscription.customer) !== customerId) throw new Error("Stripe subscription customer mismatch")
+    if (TERMINAL_STATUSES.has(subscription.status)) {
+      // A terminal subscription may have been replaced. Ask Stripe, not the stored link, which a concurrent delivery may be rewriting.
+      let replacement: Stripe.Subscription | undefined
+      for await (const candidate of stripe.subscriptions.list({ customer: customerId, status: "all", limit: 100 })) {
+        if (!TERMINAL_STATUSES.has(candidate.status) && (!replacement || candidate.created > replacement.created)) replacement = candidate
+      }
+      if (replacement) subscription = replacement
     }
     const item = subscription.items.data[0]
+    // stripeCustomerId is deliberately not written: checkout owns the link, and rewriting it could undo a concurrent customer.deleted.
     return {
       userId: user.id,
       subscriptionStatus: subscription.status === "trialing" ? "trial" : subscription.status,
-      stripeCustomerId: customerId,
       stripeSubscriptionId: subscription.id,
       stripePriceId: item?.price.id,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
