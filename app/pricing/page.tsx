@@ -24,7 +24,7 @@ export default function PricingPage() {
           <p className="text-4xl font-bold text-base-content">
             $5<span className="text-lg font-normal text-base-content/60"> / year</span>
           </p>
-          <p>14-day free trial. No card required to start.</p>
+          <p>14-day free trial for new subscribers. Card required to start.</p>
           <ul className="!list-none !pl-0 my-4">
             {features.map((f) => (
               <li key={f} className="flex items-center gap-2">

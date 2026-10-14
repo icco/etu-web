@@ -59,7 +59,7 @@ export async function register(formData: FormData) {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/notes",
+      redirectTo: "/settings/subscription?checkout=start",
     })
   } catch (error) {
     if (error instanceof AuthError) {

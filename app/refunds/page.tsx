@@ -10,8 +10,7 @@ export default function RefundsPage() {
   return (
     <LegalPage title="Refund Policy">
       <p>
-        Every Etu account starts with a 14-day free trial so you can decide whether Etu is right for you before you
-        pay anything.
+        New subscribers get a 14-day free trial when completing Stripe checkout with a card. Cancel before the trial ends to avoid the annual charge.
       </p>
 
       <h2>No refunds after the trial</h2>
