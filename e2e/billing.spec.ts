@@ -3,6 +3,7 @@ import Stripe from "stripe"
 import { handleStripeWebhook } from "../lib/stripe-webhook"
 import type { AuthServiceApi, User } from "../lib/grpc/client"
 import { fromBinary, fromJson, toBinary, toJson } from "@bufbuild/protobuf"
+import { Code } from "@connectrpc/connect"
 
 test("published protobuf preserves event IDs over the wire", async () => {
   const { UpdateUserSubscriptionRequestSchema, UpdateUserStripeCustomerRequestSchema } = await import("@icco/etu-proto")
@@ -13,27 +14,46 @@ test("published protobuf preserves event IDs over the wire", async () => {
 })
 
 const secret = "whsec_fixture_only"
-const user: User = { id: "alice", email: "alice@example.com", subscriptionStatus: "free", hasNotionKey: false, aiEnabled: false, disabled: false }
 
-function fixture(status = "trialing", unmatched = false) {
+interface FixtureOptions {
+  subscriptions?: Record<string, string>
+  user?: Partial<User> | null
+}
+
+function fixture(status = "trialing", unmatched = false, options: FixtureOptions = {}) {
   const updates: Record<string, unknown>[] = []
   const lookups: string[] = []
+  let state: User | undefined = options.user === null || unmatched ? undefined : {
+    id: "alice", email: "alice@example.com", subscriptionStatus: "free", hasNotionKey: false, aiEnabled: false, disabled: false,
+    stripeCustomerId: "cus_alice", ...options.user,
+  }
   const stripe = new Stripe("sk_test_fixture", {
     httpClient: Stripe.createFetchHttpClient(async (input) => {
       const url = String(input)
       lookups.push(url)
-      if (url.includes("/subscriptions/")) return Response.json({
-        id: "sub_alice", object: "subscription", customer: "cus_alice", status,
+      const subscription = url.match(/\/subscriptions\/([^/?]+)/)?.[1]
+      if (subscription) return Response.json({
+        id: subscription, object: "subscription", customer: "cus_alice", status: options.subscriptions?.[subscription] ?? status,
         cancel_at_period_end: false, items: { data: [{ current_period_start: 1791936000, current_period_end: 1793145600, price: { id: "price_annual" } }] },
       })
+      if (url.includes("/customers/cus_gone")) return Response.json({ id: "cus_gone", object: "customer", deleted: true })
       return Response.json({ id: "cus_alice", object: "customer", metadata: { userId: "alice" }, name: "Ada Lovelace", address: null })
     }),
   })
   const auth = {
-    getUserByStripeCustomerId: async () => ({ user: unmatched ? undefined : user }),
-    updateUserSubscription: async (request: Record<string, unknown>) => { updates.push(request); return { user } },
-    updateUserStripeCustomer: async (request: Record<string, unknown>) => { updates.push(request); return { user } },
-  } as Pick<AuthServiceApi, "getUserByStripeCustomerId" | "updateUserSubscription" | "updateUserStripeCustomer">
+    getUser: async ({ userId }: { userId: string }) => {
+      if (!state || state.id !== userId) throw Object.assign(new Error("user not found"), { code: Code.NotFound })
+      return { user: state }
+    },
+    getUserByStripeCustomerId: async ({ stripeCustomerId }: { stripeCustomerId: string }) =>
+      ({ user: state && state.stripeCustomerId === stripeCustomerId ? state : undefined }),
+    updateUserSubscription: async (request: Partial<User> & { stripeEventId?: string }) => {
+      updates.push(request)
+      state = { ...state!, ...request }
+      return { user: state }
+    },
+    updateUserStripeCustomer: async (request: Record<string, unknown>) => { updates.push(request); return { user: state! } },
+  } as unknown as Pick<AuthServiceApi, "getUser" | "getUserByStripeCustomerId" | "updateUserSubscription" | "updateUserStripeCustomer">
   async function send(type: string, object: object, signature = true) {
     const payload = JSON.stringify({ id: "evt_alice", object: "event", type, data: { object } })
     const signed = stripe.webhooks.generateTestHeaderString({ payload, secret })
@@ -78,4 +98,36 @@ test("late failed invoice does not regress a recovered subscription", async () =
   const f = fixture("active")
   await f.send("invoice.payment_failed", { customer: "cus_alice", parent: { subscription_details: { subscription: "sub_alice" } } })
   expect(f.updates).toMatchObject([{ subscriptionStatus: "active" }])
+})
+
+test("late event for an expired subscription keeps the active replacement", async () => {
+  const f = fixture("active", false, {
+    user: { stripeSubscriptionId: "sub_replacement", subscriptionStatus: "active" },
+    subscriptions: { sub_expired: "incomplete_expired", sub_replacement: "active" },
+  })
+  expect((await f.send("customer.subscription.updated", { id: "sub_expired" })).status).toBe(200)
+  expect(f.updates).toMatchObject([{ subscriptionStatus: "active", stripeSubscriptionId: "sub_replacement" }])
+})
+
+test("repeated customer deletion is acknowledged without another update", async () => {
+  const f = fixture()
+  const deleted = { id: "cus_alice", object: "customer", deleted: true, metadata: { userId: "alice" } }
+  expect((await f.send("customer.deleted", deleted)).status).toBe(200)
+  expect(f.updates).toMatchObject([{ userId: "alice", subscriptionStatus: "canceled", stripeCustomerId: "" }])
+  expect((await f.send("customer.deleted", deleted)).status).toBe(200)
+  expect(f.updates).toHaveLength(1)
+})
+
+test("deleting an old customer never unlinks a replacement customer", async () => {
+  const f = fixture("active", false, { user: { stripeCustomerId: "cus_replacement", subscriptionStatus: "active" } })
+  const deleted = { id: "cus_alice", object: "customer", deleted: true, metadata: { userId: "alice" } }
+  expect((await f.send("customer.deleted", deleted)).status).toBe(200)
+  expect(f.updates).toHaveLength(0)
+})
+
+test("customer deletion after the Etu account is gone is acknowledged", async () => {
+  const f = fixture("active", false, { user: null })
+  const deleted = { id: "cus_alice", object: "customer", deleted: true, metadata: { userId: "alice" } }
+  expect((await f.send("customer.deleted", deleted)).status).toBe(200)
+  expect(f.updates).toHaveLength(0)
 })

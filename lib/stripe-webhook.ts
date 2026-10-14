@@ -1,10 +1,11 @@
 import type Stripe from "stripe"
+import { Code } from "@connectrpc/connect"
 import type { AuthServiceApi, Timestamp } from "./grpc/client"
 import logger from "./logger"
 
 interface WebhookServices {
   stripe: Stripe
-  auth: Pick<AuthServiceApi, "getUserByStripeCustomerId" | "updateUserSubscription" | "updateUserStripeCustomer">
+  auth: Pick<AuthServiceApi, "getUser" | "getUserByStripeCustomerId" | "updateUserSubscription" | "updateUserStripeCustomer">
   apiKey: string
   webhookSecret: string
 }
@@ -38,12 +39,22 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
     return user
   }
 
+  // A deleted Etu account has nothing left to unlink, so acknowledge instead of retrying forever.
+  async function getAccount(userId: string) {
+    try {
+      return (await auth.getUser({ userId }, apiKey)).user
+    } catch (error) {
+      if ((error as { code?: unknown }).code === Code.NotFound) return undefined
+      throw error
+    }
+  }
+
   async function syncSubscription(id: string, expectedCustomer?: string) {
     let subscription = await stripe.subscriptions.retrieve(id)
     const customerId = resourceId(subscription.customer)
     if (!customerId || (expectedCustomer && expectedCustomer !== customerId)) throw new Error("Stripe subscription customer mismatch")
     const user = await findUser(customerId)
-    if (subscription.status === "canceled" && user.stripeSubscriptionId && user.stripeSubscriptionId !== id) {
+    if ((subscription.status === "canceled" || subscription.status === "incomplete_expired") && user.stripeSubscriptionId && user.stripeSubscriptionId !== id) {
       subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId)
       if (resourceId(subscription.customer) !== customerId) throw new Error("Stripe subscription customer mismatch")
     }
@@ -87,30 +98,38 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
         break
       }
       case "customer.created":
-      case "customer.updated":
-      case "customer.deleted": {
+      case "customer.updated": {
         const customer = await stripe.customers.retrieve(event.data.object.id)
-        if (!customer.deleted && !customer.metadata?.userId) {
+        if (customer.deleted) break
+        if (!customer.metadata?.userId) {
           logger.warn({ eventId: event.id, customerId: customer.id }, "Ignoring Stripe customer without account metadata")
           break
         }
         const user = await findUser(customer.id)
-        if (customer.deleted) {
-          await auth.updateUserSubscription({ userId: user.id, subscriptionStatus: "canceled", stripeCustomerId: "", cancelAtPeriodEnd: false, stripeEventId: event.id }, apiKey)
-        } else {
-          const address = customer.address
-          await auth.updateUserStripeCustomer({
-            userId: user.id,
-            name: customer.name ?? "",
-            billingLine1: address?.line1 ?? "",
-            billingLine2: address?.line2 ?? "",
-            billingCity: address?.city ?? "",
-            billingState: address?.state ?? "",
-            billingPostalCode: address?.postal_code ?? "",
-            billingCountry: address?.country ?? "",
-            stripeEventId: event.id,
-          }, apiKey)
+        const address = customer.address
+        await auth.updateUserStripeCustomer({
+          userId: user.id,
+          name: customer.name ?? "",
+          billingLine1: address?.line1 ?? "",
+          billingLine2: address?.line2 ?? "",
+          billingCity: address?.city ?? "",
+          billingState: address?.state ?? "",
+          billingPostalCode: address?.postal_code ?? "",
+          billingCountry: address?.country ?? "",
+          stripeEventId: event.id,
+        }, apiKey)
+        break
+      }
+      case "customer.deleted": {
+        // The deletion payload is the only place the account link survives; a refetch returns only {id, deleted}.
+        const customer = event.data.object as Stripe.Customer
+        const userId = customer.metadata?.userId
+        const user = userId ? await getAccount(userId) : await findUser(customer.id)
+        if (!user || user.stripeCustomerId !== customer.id) {
+          logger.info({ eventId: event.id, customerId: customer.id }, "Stripe customer already unlinked")
+          break
         }
+        await auth.updateUserSubscription({ userId: user.id, subscriptionStatus: "canceled", stripeCustomerId: "", cancelAtPeriodEnd: false, stripeEventId: event.id }, apiKey)
         break
       }
     }
