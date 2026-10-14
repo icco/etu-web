@@ -21,12 +21,12 @@ test("backend grace decision overrides a past-due status", async ({ page }) => {
   await expect(page).toHaveURL(/\/settings\/subscription$/)
 })
 
-test("password change invalidates other web sessions", async ({ page, browser }) => {
-  await login(page, "alice-password@example.com")
+test("unpaid password change invalidates other web sessions", async ({ page, browser }) => {
+  await login(page, "alice-password-unpaid@example.com")
   const other = await browser.newContext()
   try {
     const otherPage = await other.newPage()
-    await login(otherPage, "alice-password@example.com")
+    await login(otherPage, "alice-password-unpaid@example.com")
     await page.goto("/settings/account")
     await page.getByRole("button", { name: "Change Password" }).click()
     await page.getByPlaceholder("Enter current password").fill("testpassword")
@@ -39,4 +39,16 @@ test("password change invalidates other web sessions", async ({ page, browser })
   } finally {
     await other.close()
   }
+})
+
+test("account lockouts are not reported as incorrect passwords", async ({ page }) => {
+  await login(page, "alice-settingslocked@example.com")
+  await page.goto("/settings/account")
+  await page.getByRole("button", { name: "Change Password" }).click()
+  await page.getByPlaceholder("Enter current password").fill("testpassword")
+  await page.getByPlaceholder("Enter new password").fill("newpassword123")
+  await page.getByPlaceholder("Confirm new password").fill("newpassword123")
+  await page.getByRole("button", { name: "Update Password" }).click()
+  await expect(page.getByText("Failed to change password", { exact: true })).toBeVisible()
+  await expect(page.getByText("Current password is incorrect")).not.toBeVisible()
 })

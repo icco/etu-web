@@ -284,7 +284,6 @@ export function AccountView({ user }: AccountViewProps) {
 
   return (
     <div className="space-y-6">
-      <AccountDataControls aiEnabled={user.aiEnabled} />
       {/* Profile Information Card */}
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
@@ -638,6 +637,7 @@ export function AccountView({ user }: AccountViewProps) {
           )}
         </div>
       </div>
+      <AccountDataControls aiEnabled={user.aiEnabled} />
     </div>
   )
 }

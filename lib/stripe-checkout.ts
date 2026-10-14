@@ -12,6 +12,19 @@ export async function createSubscriptionCheckout(stripe: Stripe, user: User, pri
       throw new ExistingSubscriptionError("Manage your existing subscription instead of creating another")
     }
   }
+  let latestSessionId: string | undefined
+  let reusable: Stripe.Checkout.Session | undefined
+  const trialDays = hasHistory ? "0" : "14"
+  for await (const session of stripe.checkout.sessions.list({ customer: user.stripeCustomerId, limit: 100 })) {
+    latestSessionId ??= session.id
+    if (session.status !== "open" || session.mode !== "subscription" || session.metadata?.userId !== user.id) continue
+    if (!reusable && session.url && session.metadata.priceId === priceId && session.metadata.trialDays === trialDays) {
+      reusable = session
+    } else {
+      await stripe.checkout.sessions.expire(session.id)
+    }
+  }
+  if (reusable) return reusable
   return stripe.checkout.sessions.create({
     customer: user.stripeCustomerId,
     line_items: [{ price: priceId, quantity: 1 }],
@@ -29,6 +42,6 @@ export async function createSubscriptionCheckout(stripe: Stripe, user: User, pri
         message: `I agree to the [Terms of Service](${authUrl}/terms), [Privacy Policy](${authUrl}/privacy), and [Refund Policy](${authUrl}/refunds).`,
       },
     },
-    metadata: { userId: user.id },
-  }, { idempotencyKey: `etu-checkout-${user.id}-${Math.floor(Date.now() / 300000)}` })
+    metadata: { userId: user.id, priceId, trialDays },
+  }, { idempotencyKey: `etu-checkout-${user.id}-${latestSessionId ?? "first"}` })
 }

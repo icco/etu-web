@@ -7,13 +7,49 @@ const user: User = { id: "alice", email: "alice@example.com", subscriptionStatus
 
 function checkoutFixture(history: { status: string }[] = []) {
   let checkoutBody = new URLSearchParams()
+  let creates = 0
+  let expires = 0
+  const sessions: Record<string, unknown>[] = []
   const stripe = new Stripe("sk_test_fixture", { httpClient: Stripe.createFetchHttpClient(async (input, init) => {
     if (String(input).includes("/subscriptions")) return Response.json({ object: "list", data: history, has_more: false })
+    if (init?.method === "GET") return Response.json({ object: "list", data: sessions, has_more: false })
+    if (String(input).endsWith("/expire")) {
+      expires++
+      const session = sessions.find(item => String(input).includes(String(item.id)))!
+      session.status = "expired"
+      return Response.json(session)
+    }
     checkoutBody = new URLSearchParams(String(init?.body))
-    return Response.json({ id: "cs_alice", url: "https://checkout.stripe.com/c/pay/alice" })
+    creates++
+    const session = { id: `cs_alice_${creates}`, url: "https://checkout.stripe.com/c/pay/alice", mode: "subscription", status: "open", metadata: Object.fromEntries([...checkoutBody].filter(([key]) => key.startsWith("metadata[")).map(([key, value]) => [key.slice(9, -1), value])) }
+    sessions.unshift(session)
+    return Response.json(session)
   }) })
-  return { stripe, body: () => checkoutBody }
+  return { stripe, body: () => checkoutBody, creates: () => creates, expires: () => expires, sessions }
 }
+
+test("checkout retries across five-minute boundaries reuse the payable session", async () => {
+  const f = checkoutFixture()
+  const originalNow = Date.now
+  try {
+    Date.now = () => 1791936000000
+    const first = await createSubscriptionCheckout(f.stripe, user, "price_annual", "https://etu.timeclimbers.com")
+    Date.now = () => 1791936300001
+    const second = await createSubscriptionCheckout(f.stripe, user, "price_annual", "https://etu.timeclimbers.com")
+    expect(second.id).toBe(first.id)
+    expect(f.creates()).toBe(1)
+  } finally {
+    Date.now = originalNow
+  }
+})
+
+test("replacing an outdated checkout expires its payable session", async () => {
+  const f = checkoutFixture()
+  f.sessions.push({ id: "cs_legacy", status: "open", mode: "subscription", metadata: { userId: "alice" }, url: "https://checkout.stripe.com/c/pay/legacy" })
+  await createSubscriptionCheckout(f.stripe, user, "price_annual", "https://etu.timeclimbers.com")
+  expect(f.expires()).toBe(1)
+  expect(f.creates()).toBe(1)
+})
 
 test("first subscription checkout gives a 14-day trial with a card required", async () => {
   const f = checkoutFixture()

@@ -375,9 +375,12 @@ export const mockUserSettingsService: UserSettingsServiceApi = {
   },
 
   async updateUserSettings(request, _apiKey) {
+    if (request.userId.includes("alice-settingslocked")) {
+      throw new GrpcError(new ConnectError("account is locked", Code.PermissionDenied))
+    }
     if (request.password) {
       if (request.currentPassword !== "testpassword") {
-        throw new GrpcError(new ConnectError("incorrect password", Code.PermissionDenied))
+        throw new GrpcError(new ConnectError("current password is incorrect", Code.PermissionDenied))
       }
       for (const [raw, key] of sessionKeys) {
         if (key.userId === request.userId) sessionKeys.delete(raw)

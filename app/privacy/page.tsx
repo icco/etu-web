@@ -30,7 +30,7 @@ export default function PrivacyPage() {
 
       <h2>AI processing</h2>
       <p>
-        Etu uses Google Cloud Vertex AI (Gemini models) to suggest tags for notes, extract text from images you
+        AI processing is off by default and can be enabled in Account Settings. When enabled, Etu uses Google Cloud Vertex AI (Gemini models) to suggest tags for notes, extract text from images you
         attach, and transcribe audio you record. When these features run, the relevant note text, image, or audio is
         sent to Google Cloud for processing. Under Google Cloud&apos;s terms, this data is not used to train Google&apos;s
         models. See{" "}
@@ -46,7 +46,7 @@ export default function PrivacyPage() {
       <h2>Retention and deletion</h2>
       <p>
         We keep your data while your account exists. You can delete notes at any time. To delete your account and all
-        associated data, email <a href={`mailto:${LEGAL_EMAIL}`}>{LEGAL_EMAIL}</a>. Billing records may be kept as
+        associated data, follow the <a href="/delete-account">account deletion instructions</a> or email <a href={`mailto:${LEGAL_EMAIL}`}>{LEGAL_EMAIL}</a>. Billing records may be kept as
         required by law.
       </p>
 

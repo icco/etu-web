@@ -200,7 +200,7 @@ export async function changePassword(formData: FormData) {
 
     return { success: true }
   } catch (error) {
-    if (error instanceof GrpcError && error.code === Code.PermissionDenied) {
+    if (error instanceof GrpcError && error.code === Code.PermissionDenied && error.details.includes("current password is incorrect")) {
       return { error: "Current password is incorrect" }
     }
     logger.error({ error, userId: session.user.id }, "Change password error")
