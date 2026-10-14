@@ -3,9 +3,16 @@ import { Code } from "@connectrpc/connect"
 import Credentials from "next-auth/providers/credentials"
 import { z } from "zod"
 import { authConfig } from "./auth.config"
-import { authService, GrpcError, timestampToDate } from "./grpc/client"
+import { apiKeysService, authService, GrpcError, timestampToDate } from "./grpc/client"
 import { clientIpFromHeaders } from "./client-ip"
 import logger from "./logger"
+
+declare module "next-auth" {
+  interface User {
+    sessionKey?: string
+    sessionKeyId?: string
+  }
+}
 
 function getGrpcApiKey(): string {
   const key = process.env.GRPC_API_KEY
@@ -26,6 +33,30 @@ const loginSchema = z.object({
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  callbacks: {
+    ...authConfig.callbacks,
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.sessionKey = user.sessionKey
+        token.sessionKeyId = user.sessionKeyId
+        return token
+      }
+      if (typeof token.sessionKey !== "string" || typeof token.id !== "string") return null
+      const verified = await apiKeysService.verifyApiKey({ rawKey: token.sessionKey }, getGrpcApiKey())
+      if (!verified.valid || verified.userId !== token.id) return null
+      const current = await authService.getUser({ userId: token.id }, getGrpcApiKey())
+      return current.user.disabled ? null : token
+    },
+  },
+  events: {
+    async signOut(message) {
+      if (!("token" in message)) return
+      const token = message.token
+      if (typeof token?.id !== "string" || typeof token.sessionKeyId !== "string") return
+      await apiKeysService.deleteApiKey({ userId: token.id, keyId: token.sessionKeyId }, getGrpcApiKey())
+    },
+  },
   logger: {
     error(error) {
       // Demote UnknownAction (typically bot probes hitting /api/auth/<bad>)
@@ -62,18 +93,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const { email, password } = parsed.data
 
         try {
-          const response = await authService.authenticate(
+          const key = await authService.login(
             { email, password, clientIp: clientIpFromHeaders(request.headers) },
             getGrpcApiKey()
           )
-
-          if (!response.success || !response.user) return null
+          const verified = await apiKeysService.verifyApiKey({ rawKey: key.rawKey }, getGrpcApiKey())
+          if (!verified.valid || !verified.userId) return null
+          const response = await authService.getUser({ userId: verified.userId }, getGrpcApiKey())
+          if (response.user.disabled) return null
 
           return {
             id: response.user.id,
             email: response.user.email,
             name: response.user.name,
             image: response.user.image,
+            sessionKey: key.rawKey,
+            sessionKeyId: key.apiKey.id,
           }
         } catch (error) {
           if (error instanceof GrpcError && error.code === Code.ResourceExhausted) {
@@ -112,6 +147,7 @@ export async function getCurrentUser() {
         ? timestampToDate(response.user.updatedAt)
         : null,
       hasNotionKey: response.user.hasNotionKey,
+      aiEnabled: response.user.aiEnabled,
       hasStripeCustomer: Boolean(response.user.stripeCustomerId),
       cancelAtPeriodEnd: Boolean(response.user.cancelAtPeriodEnd),
     }

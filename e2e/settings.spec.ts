@@ -237,11 +237,9 @@ test.describe("Settings Page", () => {
     // Submit
     await page.getByRole("button", { name: "Update Password" }).click()
 
-    // Should show success
-    await expect(page.locator("text=Password changed successfully")).toBeVisible({ timeout: 5000 })
-
-    // Form should close
-    await expect(page.getByRole("button", { name: "Change Password" })).toBeVisible()
+    await expect(page).toHaveURL(/\/login/)
+    await page.goto("/settings/account")
+    await expect(page).toHaveURL(/\/login/)
   })
 
   test("can navigate to Stats tab", async ({ page }) => {

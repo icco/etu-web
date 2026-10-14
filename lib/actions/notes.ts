@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { revalidatePath } from "next/cache"
-import { auth } from "@/lib/auth"
+import { requireSubscribedUser } from "@/lib/access"
 import {
   notesService,
   tagsService,
@@ -132,11 +132,7 @@ function getGrpcApiKey(): string {
 }
 
 async function requireUser() {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
-  }
-  return session.user.id
+  return requireSubscribedUser()
 }
 
 export async function createNote(data: {

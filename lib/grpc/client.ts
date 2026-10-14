@@ -112,6 +112,7 @@ export interface User {
   billingCountry?: string
   hasNotionKey: boolean
   aiEnabled: boolean
+  disabled: boolean
 }
 
 export interface ApiKey {
@@ -197,7 +198,7 @@ function convertTag(tag: ProtoTag): Tag {
 
 function convertUser(user: ProtoUser | undefined): User {
   if (!user) {
-    return { id: "", email: "", subscriptionStatus: "", hasNotionKey: false, aiEnabled: false }
+    return { id: "", email: "", subscriptionStatus: "", hasNotionKey: false, aiEnabled: false, disabled: true }
   }
   return {
     id: user.id,
@@ -221,6 +222,7 @@ function convertUser(user: ProtoUser | undefined): User {
     billingCountry: user.billingCountry,
     hasNotionKey: user.hasNotionKey,
     aiEnabled: user.aiEnabled,
+    disabled: user.disabled,
   }
 }
 
@@ -420,6 +422,16 @@ const realTagsService = {
 
 // Auth Service
 const realAuthService = {
+  async login(request: { email: string; password: string; clientIp?: string }, apiKey: string) {
+    return withErrorHandling(async () => {
+      const response = await getClient(AuthService).login(
+        { email: request.email, password: request.password },
+        { headers: createAuthHeaders(apiKey, request.clientIp) }
+      )
+      return { apiKey: convertApiKey(response.apiKey), rawKey: response.rawKey }
+    }, "AuthService.login")
+  },
+
   async register(request: { email: string; password: string; clientIp?: string }, apiKey: string) {
     return withErrorHandling(async () => {
       const client = getClient(AuthService)

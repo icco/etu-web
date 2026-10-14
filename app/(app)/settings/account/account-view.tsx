@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { signOut } from "next-auth/react"
 import { format } from "date-fns"
 import {
   KeyIcon,
@@ -207,6 +208,7 @@ export function AccountView({ user }: AccountViewProps) {
         setCurrentPassword("")
         setNewPassword("")
         setConfirmPassword("")
+        await signOut({ callbackUrl: "/login" })
       }
     } catch {
       toast.error("Failed to change password")

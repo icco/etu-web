@@ -1,6 +1,8 @@
 // Mock gRPC services for e2e testing
 // Used when E2E_MOCK=true environment variable is set
 
+import { Code, ConnectError } from "@connectrpc/connect"
+import { GrpcError } from "./client"
 import type {
   ApiKey,
   Note,
@@ -115,6 +117,7 @@ let mockUser: User = {
   createdAt: mockTimestamp(new Date("2026-01-01T00:00:00Z")),
   hasNotionKey: false,
   aiEnabled: false,
+  disabled: false,
 }
 
 const mockApiKeys: ApiKey[] = [
@@ -127,10 +130,24 @@ const mockApiKeys: ApiKey[] = [
   },
 ]
 
+const fixtureState = globalThis as typeof globalThis & {
+  etuFixtureUsers?: Map<string, User>
+  etuSessionKeys?: Map<string, { id: string; userId: string }>
+}
+const fixtureUsers = fixtureState.etuFixtureUsers ??= new Map<string, User>()
+const sessionKeys = fixtureState.etuSessionKeys ??= new Map<string, { id: string; userId: string }>()
+
+function fixtureUser(userId: string) {
+  return fixtureUsers.get(userId) ?? mockUser
+}
+
 
 // Mock Notes Service
 export const mockNotesService: NotesServiceApi = {
   async listNotes(request, _apiKey) {
+    if (request.userId.includes("alice-unpaid") || request.userId.includes("alice-expired")) {
+      throw new GrpcError(new ConnectError("subscription required", Code.PermissionDenied))
+    }
     let filtered = [...mockNotes]
 
     // Filter by search
@@ -271,6 +288,12 @@ export const mockTagsService: TagsServiceApi = {
 
 // Mock Auth Service
 export const mockAuthService: AuthServiceApi = {
+  async login(request, apiKey) {
+    const response = await mockAuthService.authenticate(request, apiKey)
+    if (!response.success || !response.user) throw new GrpcError(new ConnectError("invalid credentials", Code.Unauthenticated))
+    return mockApiKeysService.createApiKey({ userId: response.user.id, name: "etu-mobile" }, apiKey)
+  },
+
   async register(request, _apiKey) {
     return {
       user: {
@@ -281,6 +304,15 @@ export const mockAuthService: AuthServiceApi = {
   },
 
   async authenticate(request, _apiKey) {
+    if (request.email.startsWith("alice-")) {
+      const id = request.email
+      const user = fixtureUsers.get(id) ?? {
+        ...mockUser, id, email: request.email,
+        subscriptionStatus: id.includes("unpaid") ? "free" : id.includes("expired") ? "past_due" : "active",
+      }
+      fixtureUsers.set(id, user)
+      return { success: request.password === "testpassword", user }
+    }
     // Accept any credentials in mock mode
     return {
       success: true,
@@ -291,8 +323,8 @@ export const mockAuthService: AuthServiceApi = {
     }
   },
 
-  async getUser(_request, _apiKey) {
-    return { user: mockUser }
+  async getUser(request, _apiKey) {
+    return { user: fixtureUser(request.userId) }
   },
 
   async getUserByStripeCustomerId(_request, _apiKey) {
@@ -342,6 +374,14 @@ export const mockUserSettingsService: UserSettingsServiceApi = {
   },
 
   async updateUserSettings(request, _apiKey) {
+    if (request.password) {
+      if (request.currentPassword !== "testpassword") {
+        throw new GrpcError(new ConnectError("incorrect password", Code.PermissionDenied))
+      }
+      for (const [raw, key] of sessionKeys) {
+        if (key.userId === request.userId) sessionKeys.delete(raw)
+      }
+    }
     let image = mockUser.image
     if (request.clearProfileImage) {
       image = undefined
@@ -378,10 +418,12 @@ export const mockApiKeysService: ApiKeysServiceApi = {
       keyPrefix: `etu_${Math.random().toString(36).substring(2, 8)}`,
       createdAt: mockTimestamp(new Date()),
     }
+    const rawKey = `etu_${crypto.randomUUID()}`
+    sessionKeys.set(rawKey, { id: newKey.id, userId: request.userId })
     mockApiKeys.push(newKey)
     return {
       apiKey: newKey,
-      rawKey: `etu_${Math.random().toString(36).substring(2, 40)}`,
+      rawKey,
     }
   },
 
@@ -390,6 +432,9 @@ export const mockApiKeysService: ApiKeysServiceApi = {
   },
 
   async deleteApiKey(request, _apiKey) {
+    for (const [raw, key] of sessionKeys) {
+      if (key.id === request.keyId && key.userId === request.userId) sessionKeys.delete(raw)
+    }
     const index = mockApiKeys.findIndex((k) => k.id === request.keyId)
     if (index !== -1) {
       mockApiKeys.splice(index, 1)
@@ -397,8 +442,9 @@ export const mockApiKeysService: ApiKeysServiceApi = {
     return { success: true }
   },
 
-  async verifyApiKey(_request, _apiKey) {
-    return { valid: true, userId: mockUser.id }
+  async verifyApiKey(request, _apiKey) {
+    const key = sessionKeys.get(request.rawKey)
+    return { valid: Boolean(key), userId: key?.userId }
   },
 }
 
