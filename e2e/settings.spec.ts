@@ -225,7 +225,12 @@ test.describe("Settings Page", () => {
     await expect(page.locator("text=Current password is required")).toBeVisible({ timeout: 5000 })
   })
 
-  test("can change password successfully", async ({ page }) => {
+  test("can change password successfully", async ({ page }, testInfo) => {
+    await page.request.post("/api/test/auth", {
+      data: { email: `alice-settings-password-${testInfo.project.name}-${testInfo.retry}@example.com` },
+    })
+    await page.goto("/settings/account")
+
     // Open password form
     await page.getByRole("button", { name: "Change Password" }).click()
 

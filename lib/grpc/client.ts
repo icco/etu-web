@@ -14,10 +14,9 @@ import {
   type NoteImage as ProtoNoteImage,
   type NoteAudio as ProtoNoteAudio,
   type Tag as ProtoTag,
-  type User as ProtoUser,
   type ApiKey as ProtoApiKey,
 } from "@icco/etu-proto"
-import type { Timestamp as ProtoTimestamp } from "@bufbuild/protobuf/wkt"
+import { convertTimestamp, convertUser } from "./convert-user"
 import {
   mockNotesService,
   mockTagsService,
@@ -115,6 +114,7 @@ export interface User {
   hasNotionKey: boolean
   aiEnabled: boolean
   disabled: boolean
+  notionDatabaseName?: string
 }
 
 export interface ApiKey {
@@ -198,36 +198,6 @@ function convertTag(tag: ProtoTag): Tag {
   }
 }
 
-function convertUser(user: ProtoUser | undefined): User {
-  if (!user) {
-    return { id: "", email: "", subscriptionStatus: "", hasNotionKey: false, aiEnabled: false, disabled: true }
-  }
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    image: user.image,
-    subscriptionStatus: user.subscriptionStatus,
-    subscriptionEnd: user.subscriptionEnd ? convertTimestamp(user.subscriptionEnd) : undefined,
-    createdAt: user.createdAt ? convertTimestamp(user.createdAt) : undefined,
-    updatedAt: user.updatedAt ? convertTimestamp(user.updatedAt) : undefined,
-    stripeCustomerId: user.stripeCustomerId,
-    stripeSubscriptionId: user.stripeSubscriptionId,
-    stripePriceId: user.stripePriceId,
-    cancelAtPeriodEnd: user.cancelAtPeriodEnd,
-    currentPeriodStart: user.currentPeriodStart ? convertTimestamp(user.currentPeriodStart) : undefined,
-    billingLine1: user.billingLine1,
-    billingLine2: user.billingLine2,
-    billingCity: user.billingCity,
-    billingState: user.billingState,
-    billingPostalCode: user.billingPostalCode,
-    billingCountry: user.billingCountry,
-    hasNotionKey: user.hasNotionKey,
-    aiEnabled: user.aiEnabled,
-    disabled: user.disabled,
-  }
-}
-
 function convertApiKey(key: ProtoApiKey | undefined): ApiKey {
   if (!key) {
     return { id: "", name: "", keyPrefix: "" }
@@ -238,13 +208,6 @@ function convertApiKey(key: ProtoApiKey | undefined): ApiKey {
     keyPrefix: key.keyPrefix,
     createdAt: key.createdAt ? convertTimestamp(key.createdAt) : undefined,
     lastUsed: key.lastUsed ? convertTimestamp(key.lastUsed) : undefined,
-  }
-}
-
-function convertTimestamp(ts: ProtoTimestamp): Timestamp {
-  return {
-    seconds: ts.seconds.toString(),
-    nanos: ts.nanos,
   }
 }
 

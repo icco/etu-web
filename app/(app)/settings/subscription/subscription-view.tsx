@@ -39,7 +39,10 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
     setIsLoading(true)
     try {
       const endpoint = needsCheckout ? "/api/stripe/checkout" : "/api/stripe/portal"
-      const res = await fetch(endpoint, { method: "POST" })
+      let res = await fetch(endpoint, { method: "POST" })
+      if (res.status === 409 && endpoint === "/api/stripe/checkout") {
+        res = await fetch("/api/stripe/portal", { method: "POST" })
+      }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error || "Failed to open subscription")
