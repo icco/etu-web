@@ -2,12 +2,15 @@ import type Stripe from "stripe"
 import { Code } from "@connectrpc/connect"
 import type { AuthServiceApi, Timestamp } from "./grpc/client"
 import logger from "./logger"
+import { trackFunnelEvent } from "./analytics"
+import type { FunnelEvent } from "./telemetry"
 
 interface WebhookServices {
   stripe: Stripe
   auth: Pick<AuthServiceApi, "getUser" | "getUserByStripeCustomerId" | "updateUserSubscription" | "updateUserStripeCustomer">
   apiKey: string
   webhookSecret: string
+  track?: (event: FunnelEvent, eventId?: string) => Promise<void>
 }
 
 function resourceId(value: string | { id: string } | null | undefined) {
@@ -27,7 +30,7 @@ function linkChanged(error: unknown) {
 }
 
 export async function handleStripeWebhook(request: Request, services: WebhookServices) {
-  const { stripe, auth, apiKey, webhookSecret } = services
+  const { stripe, auth, apiKey, webhookSecret, track = trackFunnelEvent } = services
   const signature = request.headers.get("stripe-signature")
   if (!signature || !webhookSecret) return Response.json({ error: "Missing signature" }, { status: 400 })
   let event: Stripe.Event
@@ -158,6 +161,7 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
         const customerId = resourceId(session.customer)
         if (!subscriptionId || !customerId) throw new Error("Checkout subscription or customer missing")
         await syncSubscription(subscriptionId, customerId)
+        await track("checkout_success", session.id)
         break
       }
       case "customer.subscription.created":
