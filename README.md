@@ -136,6 +136,18 @@ For programmatic access to notes and tags, use:
 
 Generate API keys in Settings to use with these clients.
 
+### Account controls
+
+Account Settings includes opt-in AI processing, a full-account JSON download, and password-confirmed permanent deletion. Full exports stream every note and include profile data, tags, and media URLs; download the media within one hour before those URLs expire. The public deletion instructions are at `/delete-account`.
+
+Web sessions use revocable backend keys. Password changes invalidate existing sessions, and deploying this session format requires existing web users to sign in again.
+
+### Subscription flow
+
+New signups go directly to Stripe Checkout for a card-required 14-day trial. Returning subscribers do not receive another trial. Content access follows the backend paywall, including its configured past-due grace period; account exports, deletion, and billing remain available without an active subscription.
+
+Set the Terms of Service URL in Stripe Dashboard Public details to `https://etu.timeclimbers.com/terms` before enabling checkout. Deploy etu-backend with [#172](https://github.com/icco/etu-backend/pull/172) (Stripe event-ID deduplication and its migration) and [#175](https://github.com/icco/etu-backend/pull/175) (subscription updates conditional on the customer link) before this web version; older backends ignore both fields. Webhook updates carry event IDs for transactional deduplication, retrieve current Stripe objects before applying subscription changes, and only apply while the account still links the expected customer. See [Stripe trials](https://docs.stripe.com/payments/checkout/free-trials) and [webhook delivery behavior](https://docs.stripe.com/webhooks).
+
 ### Proto Documentation
 
 The proto definitions documentation is available at `/docs` when the app is running. This documentation is automatically generated from the `@icco/etu-proto` package and describes the gRPC API contract between the frontend and backend services.
