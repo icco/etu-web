@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test"
+import { randomUUID } from "node:crypto"
 
 test("public metadata and sitemap use production URLs", async ({ page, request }) => {
   await page.goto("/")
@@ -59,9 +60,9 @@ test("telemetry ingestion rejects untrusted and oversized payloads", async ({ re
   expect((await post("a".repeat(2048))).status()).toBe(413)
 })
 
-test("successful registration counts one registration_success", async ({ page }, testInfo) => {
+test("successful registration counts one registration_success", async ({ page }) => {
   await page.route("**/api/stripe/checkout", route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ url: "/settings/subscription?subscription=success" }) }))
-  const email = `alice-signup-funnel-${testInfo.project.name}-${testInfo.retry}@example.com`
+  const email = `alice-signup-funnel-${randomUUID()}@example.com`
   await page.goto("/register")
   await page.getByLabel("Email").fill(email)
   await page.getByLabel("Password", { exact: true }).fill("testpassword")
