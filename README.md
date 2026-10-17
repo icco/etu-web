@@ -146,7 +146,7 @@ Web sessions use revocable backend keys. Password changes invalidate existing se
 
 New signups go directly to Stripe Checkout for a card-required 14-day trial. Returning subscribers do not receive another trial. Content access follows the backend paywall, including its configured past-due grace period; account exports, deletion, and billing remain available without an active subscription.
 
-Set the Terms of Service URL in Stripe Dashboard Public details to `https://etu.timeclimbers.com/terms` before enabling checkout. Deploy the backend's Stripe event-ID migration before this web version. Webhook updates carry event IDs for transactional deduplication and retrieve current Stripe objects before applying subscription changes. See [Stripe trials](https://docs.stripe.com/payments/checkout/free-trials) and [webhook delivery behavior](https://docs.stripe.com/webhooks).
+Set the Terms of Service URL in Stripe Dashboard Public details to `https://etu.timeclimbers.com/terms` before enabling checkout. Deploy etu-backend with [#172](https://github.com/icco/etu-backend/pull/172) (Stripe event-ID deduplication and its migration) and [#175](https://github.com/icco/etu-backend/pull/175) (subscription updates conditional on the customer link) before this web version; older backends ignore both fields. Webhook updates carry event IDs for transactional deduplication, retrieve current Stripe objects before applying subscription changes, and only apply while the account still links the expected customer. See [Stripe trials](https://docs.stripe.com/payments/checkout/free-trials) and [webhook delivery behavior](https://docs.stripe.com/webhooks).
 
 ### Proto Documentation
 
