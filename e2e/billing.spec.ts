@@ -67,11 +67,16 @@ function fixture(status = "trialing", unmatched = false, options: FixtureOptions
   function apply(request: Record<string, unknown>) {
     if (writes.length === 0 && options.beforeFirstWrite && state) state = options.beforeFirstWrite(state)
     writes.push(request)
+    // Mirrors the backend's conditional update: a changed customer link applies nothing and records no event ID.
+    const { expectedStripeCustomerId, ...fields } = request
+    if (expectedStripeCustomerId !== undefined && state?.stripeCustomerId !== expectedStripeCustomerId) {
+      throw Object.assign(new Error("stripe customer link changed"), { code: Code.FailedPrecondition })
+    }
     const id = request.stripeEventId as string | undefined
     if (id && seen.has(id)) return { user: state! }
     if (id) seen.add(id)
     updates.push(request)
-    state = { ...state!, ...request } as User
+    state = { ...state!, ...fields } as User
     return { user: state }
   }
   const auth = {
@@ -211,9 +216,22 @@ test("a replacement saved by a concurrent delivery is not overwritten by the old
   expect(f.state()).toMatchObject({ subscriptionStatus: "active", stripeSubscriptionId: "sub_new" })
 })
 
-test("subscription sync never restores a customer link deleted mid-flight", async () => {
-  const f = fixture("active", false, { beforeFirstWrite: (state) => ({ ...state, stripeCustomerId: "" }) })
-  await f.send("customer.subscription.updated", { id: "sub_alice" })
-  expect(f.state()?.stripeCustomerId).toBe("")
-  expect(f.writes.every((write) => !("stripeCustomerId" in write) || write.stripeCustomerId === "")).toBe(true)
+test("subscription sync never undoes a customer deletion committed mid-flight", async () => {
+  const f = fixture("active", false, {
+    user: { subscriptionStatus: "active", stripeSubscriptionId: "sub_alice" },
+    beforeFirstWrite: (state) => ({ ...state, stripeCustomerId: "", subscriptionStatus: "canceled" }),
+  })
+  expect((await f.send("customer.subscription.updated", { id: "sub_alice" })).status).toBe(200)
+  expect(f.state()).toMatchObject({ stripeCustomerId: "", subscriptionStatus: "canceled" })
+  expect(f.writes.every((write) => write.expectedStripeCustomerId === "cus_alice")).toBe(true)
+})
+
+test("a customer deletion racing a relink keeps the new customer", async () => {
+  const f = fixture("active", false, {
+    user: { subscriptionStatus: "active" },
+    beforeFirstWrite: (state) => ({ ...state, stripeCustomerId: "cus_replacement" }),
+  })
+  const deleted = { id: "cus_alice", object: "customer", deleted: true, metadata: { userId: "alice" } }
+  expect((await f.send("customer.deleted", deleted)).status).toBe(200)
+  expect(f.state()).toMatchObject({ stripeCustomerId: "cus_replacement", subscriptionStatus: "active" })
 })

@@ -21,6 +21,11 @@ function timestamp(seconds: number | undefined): Timestamp | undefined {
 const SYNC_PASSES = 3
 const TERMINAL_STATUSES = new Set<Stripe.Subscription.Status>(["canceled", "incomplete_expired"])
 
+// The backend rejects a conditional update with FailedPrecondition when the account no longer links the expected customer.
+function linkChanged(error: unknown) {
+  return (error as { code?: unknown }).code === Code.FailedPrecondition
+}
+
 export async function handleStripeWebhook(request: Request, services: WebhookServices) {
   const { stripe, auth, apiKey, webhookSecret } = services
   const signature = request.headers.get("stripe-signature")
@@ -69,6 +74,7 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
     // stripeCustomerId is deliberately not written: checkout owns the link, and rewriting it could undo a concurrent customer.deleted.
     return {
       userId: user.id,
+      expectedStripeCustomerId: customerId,
       subscriptionStatus: subscription.status === "trialing" ? "trial" : subscription.status,
       stripeSubscriptionId: subscription.id,
       stripePriceId: item?.price.id,
@@ -83,7 +89,14 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
   async function syncSubscription(id: string, expectedCustomer?: string) {
     let current = await resolveSubscription(id, expectedCustomer)
     for (let pass = 0; pass < SYNC_PASSES; pass++) {
-      const { user: stored } = await auth.updateUserSubscription({ ...current, stripeEventId: pass === 0 ? event.id : undefined }, apiKey)
+      let stored: Awaited<ReturnType<typeof auth.updateUserSubscription>>["user"]
+      try {
+        ({ user: stored } = await auth.updateUserSubscription({ ...current, stripeEventId: pass === 0 ? event.id : undefined }, apiKey))
+      } catch (error) {
+        if (!linkChanged(error)) throw error
+        logger.info({ eventId: event.id, subscriptionId: id }, "Stripe customer link changed; subscription update skipped")
+        return
+      }
       const latest = await resolveSubscription(id, expectedCustomer)
       const storedMatches = stored.subscriptionStatus === current.subscriptionStatus &&
         stored.stripeSubscriptionId === current.stripeSubscriptionId &&
@@ -169,7 +182,12 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
           logger.info({ eventId: event.id, customerId: customer.id }, "Stripe customer already unlinked")
           break
         }
-        await auth.updateUserSubscription({ userId: user.id, subscriptionStatus: "canceled", stripeCustomerId: "", cancelAtPeriodEnd: false, stripeEventId: event.id }, apiKey)
+        try {
+          await auth.updateUserSubscription({ userId: user.id, expectedStripeCustomerId: customer.id, subscriptionStatus: "canceled", stripeCustomerId: "", cancelAtPeriodEnd: false, stripeEventId: event.id }, apiKey)
+        } catch (error) {
+          if (!linkChanged(error)) throw error
+          logger.info({ eventId: event.id, customerId: customer.id }, "Stripe customer already relinked")
+        }
         break
       }
     }
