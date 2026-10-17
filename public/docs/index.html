@@ -2215,6 +2215,16 @@ end of the current billing period. </p></td>
                   <td><p>Non-empty IDs are deduplicated globally across both Stripe update RPCs. </p></td>
                 </tr>
               
+                <tr>
+                  <td>expected_stripe_customer_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>When non-empty, the update applies only if the user&#39;s stored Stripe
+customer id still equals this value, checked atomically with the write.
+On mismatch nothing is written, stripe_event_id is not recorded, and the
+RPC returns FAILED_PRECONDITION. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
