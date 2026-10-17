@@ -31,6 +31,7 @@ interface FixtureOptions {
 
 function fixture(status = "trialing", unmatched = false, options: FixtureOptions = {}) {
   const updates: Record<string, unknown>[] = []
+  const tracked: [string, string | undefined][] = []
   const writes: Record<string, unknown>[] = []
   const lookups: string[] = []
   const seen = new Set(options.seenEventIds)
@@ -97,9 +98,9 @@ function fixture(status = "trialing", unmatched = false, options: FixtureOptions
     const signed = stripe.webhooks.generateTestHeaderString({ payload, secret })
     return handleStripeWebhook(new Request("http://localhost/api/stripe/webhook", {
       method: "POST", body: payload, headers: { "stripe-signature": signature ? signed : "invalid" },
-    }), { stripe, auth, apiKey: "fixture-service-key", webhookSecret: secret })
+    }), { stripe, auth, apiKey: "fixture-service-key", webhookSecret: secret, track: async (event, id) => { tracked.push([event, id]) } })
   }
-  return { send, updates, writes, lookups, state: () => state }
+  return { send, updates, writes, lookups, tracked, state: () => state }
 }
 
 test("signed subscription events use current Stripe state and carry durable event ID", async () => {
@@ -249,4 +250,20 @@ test("a deduplicated retry repairs a stale billing period even when the status m
   })
   expect((await f.send("customer.subscription.updated", { id: "sub_alice" })).status).toBe(200)
   expect(f.state()?.subscriptionEnd?.seconds).toBe("1793145600")
+})
+
+test("an accepted checkout counts one checkout_success keyed on its session", async () => {
+  const f = fixture()
+  const session = { id: "cs_alice", customer: "cus_alice", subscription: "sub_alice", metadata: { userId: "alice" } }
+  await f.send("checkout.session.completed", { ...session, payment_status: "unpaid" })
+  expect(f.tracked).toEqual([])
+  expect((await f.send("checkout.session.completed", { ...session, payment_status: "no_payment_required" })).status).toBe(200)
+  expect(f.tracked).toEqual([["checkout_success", "cs_alice"]])
+})
+
+test("a checkout whose sync is skipped for a changed customer link counts nothing", async () => {
+  const f = fixture("active", false, { beforeFirstWrite: (state) => ({ ...state, stripeCustomerId: "cus_replacement" }) })
+  const session = { id: "cs_alice", customer: "cus_alice", subscription: "sub_alice", payment_status: "paid", metadata: { userId: "alice" } }
+  expect((await f.send("checkout.session.completed", session)).status).toBe(200)
+  expect(f.tracked).toEqual([])
 })

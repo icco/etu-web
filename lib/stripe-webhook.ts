@@ -2,12 +2,15 @@ import type Stripe from "stripe"
 import { Code } from "@connectrpc/connect"
 import type { AuthServiceApi, Timestamp } from "./grpc/client"
 import logger from "./logger"
+import { trackFunnelEvent } from "./analytics"
+import type { FunnelEvent } from "./telemetry"
 
 interface WebhookServices {
   stripe: Stripe
   auth: Pick<AuthServiceApi, "getUser" | "getUserByStripeCustomerId" | "updateUserSubscription" | "updateUserStripeCustomer">
   apiKey: string
   webhookSecret: string
+  track?: (event: FunnelEvent, eventId?: string) => Promise<void>
 }
 
 function resourceId(value: string | { id: string } | null | undefined) {
@@ -27,7 +30,7 @@ function linkChanged(error: unknown) {
 }
 
 export async function handleStripeWebhook(request: Request, services: WebhookServices) {
-  const { stripe, auth, apiKey, webhookSecret } = services
+  const { stripe, auth, apiKey, webhookSecret, track = trackFunnelEvent } = services
   const signature = request.headers.get("stripe-signature")
   if (!signature || !webhookSecret) return Response.json({ error: "Missing signature" }, { status: 400 })
   let event: Stripe.Event
@@ -86,7 +89,7 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
 
   // Another delivery can commit between our Stripe read and backend write, so re-read after every
   // write and rewrite until Stripe is stable and the stored user matches it.
-  async function syncSubscription(id: string, expectedCustomer?: string) {
+  async function syncSubscription(id: string, expectedCustomer?: string): Promise<boolean> {
     let current = await resolveSubscription(id, expectedCustomer)
     for (let pass = 0; pass < SYNC_PASSES; pass++) {
       let stored: Awaited<ReturnType<typeof auth.updateUserSubscription>>["user"]
@@ -95,7 +98,7 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
       } catch (error) {
         if (!linkChanged(error)) throw error
         logger.info({ eventId: event.id, subscriptionId: id }, "Stripe customer link changed; subscription update skipped")
-        return
+        return false
       }
       const latest = await resolveSubscription(id, expectedCustomer)
       const sameTime = (stored: Timestamp | undefined, expected: Timestamp | undefined) =>
@@ -106,7 +109,7 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
         Boolean(stored.cancelAtPeriodEnd) === current.cancelAtPeriodEnd &&
         sameTime(stored.subscriptionEnd, current.subscriptionEnd) &&
         sameTime(stored.currentPeriodStart, current.currentPeriodStart)
-      if (storedMatches && JSON.stringify(latest) === JSON.stringify(current)) return
+      if (storedMatches && JSON.stringify(latest) === JSON.stringify(current)) return true
       current = latest
     }
     throw new Error("Stripe subscription changed during every sync pass")
@@ -157,7 +160,7 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
         const subscriptionId = resourceId(session.subscription)
         const customerId = resourceId(session.customer)
         if (!subscriptionId || !customerId) throw new Error("Checkout subscription or customer missing")
-        await syncSubscription(subscriptionId, customerId)
+        if (await syncSubscription(subscriptionId, customerId)) await track("checkout_success", session.id)
         break
       }
       case "customer.subscription.created":
