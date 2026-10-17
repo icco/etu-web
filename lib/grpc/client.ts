@@ -461,6 +461,7 @@ const realAuthService = {
       cancelAtPeriodEnd?: boolean
       currentPeriodStart?: Timestamp
       stripeEventId?: string
+      expectedStripeCustomerId?: string
     },
     apiKey: string
   ) {
@@ -487,6 +488,7 @@ const realAuthService = {
             }
             : undefined,
           stripeEventId: request.stripeEventId,
+          expectedStripeCustomerId: request.expectedStripeCustomerId,
         },
         { headers: createHeaders(apiKey) }
       )

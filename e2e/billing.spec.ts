@@ -11,6 +11,9 @@ test("published protobuf preserves event IDs over the wire", async () => {
     const message = fromJson(schema, { userId: "alice", stripeEventId: "evt_alice" })
     expect(toJson(schema, fromBinary(schema, toBinary(schema, message)))).toMatchObject({ stripeEventId: "evt_alice" })
   }
+  const conditional = fromJson(UpdateUserSubscriptionRequestSchema, { userId: "alice", expectedStripeCustomerId: "cus_alice" })
+  expect(toJson(UpdateUserSubscriptionRequestSchema, fromBinary(UpdateUserSubscriptionRequestSchema, toBinary(UpdateUserSubscriptionRequestSchema, conditional))))
+    .toMatchObject({ expectedStripeCustomerId: "cus_alice" })
 })
 
 const secret = "whsec_fixture_only"
