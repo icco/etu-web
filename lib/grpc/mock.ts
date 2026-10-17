@@ -146,7 +146,7 @@ function fixtureUser(userId: string) {
 // Mock Notes Service
 export const mockNotesService: NotesServiceApi = {
   async listNotes(request, _apiKey) {
-    if (fixtureUser(request.userId).subscriptionStatus === "free" || request.userId.includes("alice-expired")) {
+    if (fixtureUser(request.userId).subscriptionStatus === "free" || request.userId.includes("expired")) {
       throw new GrpcError(new ConnectError("subscription required", Code.PermissionDenied))
     }
     let filtered = [...mockNotes]
@@ -311,6 +311,7 @@ export const mockAuthService: AuthServiceApi = {
       const id = request.email
       const user = fixtureUsers.get(id) ?? {
         ...mockUser, id, email: request.email,
+        ...(id.includes("play") ? { billingProvider: "play" } : {}),
         subscriptionStatus: id.includes("unpaid") || id.includes("signup") ? "free" : id.includes("expired") ? "past_due" : "active",
       }
       fixtureUsers.set(id, user)

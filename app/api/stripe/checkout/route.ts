@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
-import { authService } from "@/lib/grpc/client"
+import { authService, notesService } from "@/lib/grpc/client"
 import { stripe, STRIPE_PRICE_ID } from "@/lib/stripe"
 import { isSameOrigin } from "@/lib/security"
 import logger from "@/lib/logger"
 import { createSubscriptionCheckout, ExistingSubscriptionError } from "@/lib/stripe-checkout"
+import { hasPaidAccess } from "@/lib/paid-access"
+import { assertStripeCheckoutAllowed, PlayManagedError } from "@/lib/play-billing"
 
 function getGrpcApiKey(): string {
   const key = process.env.GRPC_API_KEY
@@ -50,6 +52,8 @@ export async function POST(request: Request) {
     const user = userResponse.user
     if (user.disabled) return NextResponse.json({ error: "Account disabled" }, { status: 403 })
 
+    await assertStripeCheckoutAllowed(user, () => hasPaidAccess(user.id, getGrpcApiKey(), notesService))
+
     let customerId = user.stripeCustomerId
 
     if (!customerId) {
@@ -75,7 +79,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: checkoutSession.url })
   } catch (error) {
-    if (error instanceof ExistingSubscriptionError) return NextResponse.json({ error: error.message }, { status: 409 })
+    if (error instanceof PlayManagedError) return NextResponse.json({ error: error.message, code: "play_managed" }, { status: 409 })
+    if (error instanceof ExistingSubscriptionError) return NextResponse.json({ error: error.message, code: "existing_subscription" }, { status: 409 })
     logger.error({
       error,
       userId: session.user.id,
