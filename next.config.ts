@@ -65,7 +65,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps: false,
   reactStrictMode: true,
   // Pin Turbopack's workspace root so a stray lockfile higher up the tree
   // (e.g. an accidental ~/yarn.lock) can't trick it into picking the wrong
