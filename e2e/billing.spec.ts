@@ -238,3 +238,15 @@ test("a customer deletion racing a relink keeps the new customer", async () => {
   expect((await f.send("customer.deleted", deleted)).status).toBe(200)
   expect(f.state()).toMatchObject({ stripeCustomerId: "cus_replacement", subscriptionStatus: "active" })
 })
+
+test("a deduplicated retry repairs a stale billing period even when the status matches", async () => {
+  const f = fixture("active", false, {
+    seenEventIds: ["evt_alice"],
+    user: {
+      subscriptionStatus: "active", stripeSubscriptionId: "sub_alice", stripePriceId: "price_annual", cancelAtPeriodEnd: false,
+      currentPeriodStart: { seconds: "1791936000", nanos: 0 }, subscriptionEnd: { seconds: "1", nanos: 0 },
+    },
+  })
+  expect((await f.send("customer.subscription.updated", { id: "sub_alice" })).status).toBe(200)
+  expect(f.state()?.subscriptionEnd?.seconds).toBe("1793145600")
+})

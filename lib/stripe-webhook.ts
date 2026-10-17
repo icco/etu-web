@@ -98,10 +98,14 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
         return
       }
       const latest = await resolveSubscription(id, expectedCustomer)
+      const sameTime = (stored: Timestamp | undefined, expected: Timestamp | undefined) =>
+        expected === undefined || String(stored?.seconds) === String(expected.seconds)
       const storedMatches = stored.subscriptionStatus === current.subscriptionStatus &&
         stored.stripeSubscriptionId === current.stripeSubscriptionId &&
         stored.stripePriceId === current.stripePriceId &&
-        Boolean(stored.cancelAtPeriodEnd) === current.cancelAtPeriodEnd
+        Boolean(stored.cancelAtPeriodEnd) === current.cancelAtPeriodEnd &&
+        sameTime(stored.subscriptionEnd, current.subscriptionEnd) &&
+        sameTime(stored.currentPeriodStart, current.currentPeriodStart)
       if (storedMatches && JSON.stringify(latest) === JSON.stringify(current)) return
       current = latest
     }
