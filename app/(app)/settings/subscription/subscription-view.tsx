@@ -15,14 +15,17 @@ interface SubscriptionViewProps {
     cancelAtPeriodEnd: boolean
   }
   playManaged?: boolean
+  playLapsed?: boolean
 }
 
-export function SubscriptionView({ user, playManaged = false }: SubscriptionViewProps) {
+export function SubscriptionView({ user, playManaged = false, playLapsed = false }: SubscriptionViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
+  const [detectedPlayManaged, setDetectedPlayManaged] = useState(false)
+  const isPlayManaged = playManaged || detectedPlayManaged
   const checkoutStartedRef = useRef(false)
-  const needsCheckout = !user.hasStripeCustomer || ["free", "canceled", "inactive", "incomplete_expired"].includes(user.subscriptionStatus)
+  const needsCheckout = playLapsed || !user.hasStripeCustomer || ["free", "canceled", "inactive", "incomplete_expired"].includes(user.subscriptionStatus)
 
   useEffect(() => {
     const result = searchParams.get("subscription")
@@ -43,6 +46,13 @@ export function SubscriptionView({ user, playManaged = false }: SubscriptionView
       const endpoint = needsCheckout ? "/api/stripe/checkout" : "/api/stripe/portal"
       let res = await fetch(endpoint, { method: "POST" })
       if (res.status === 409 && endpoint === "/api/stripe/checkout") {
+        const conflict = await res.clone().json().catch(() => ({}))
+        if (conflict.code === "play_managed") {
+          setDetectedPlayManaged(true)
+          setIsLoading(false)
+          router.refresh()
+          return
+        }
         res = await fetch("/api/stripe/portal", { method: "POST" })
       }
       if (!res.ok) {
@@ -57,14 +67,14 @@ export function SubscriptionView({ user, playManaged = false }: SubscriptionView
       toast.error(message)
       setIsLoading(false)
     }
-  }, [needsCheckout])
+  }, [needsCheckout, router])
 
   useEffect(() => {
-    if (playManaged || searchParams.get("checkout") !== "start" || checkoutStartedRef.current) return
+    if (isPlayManaged || searchParams.get("checkout") !== "start" || checkoutStartedRef.current) return
     checkoutStartedRef.current = true
     router.replace("/settings/subscription")
     void handleManage()
-  }, [searchParams, router, handleManage, playManaged])
+  }, [searchParams, router, handleManage, isPlayManaged])
 
   const buttonLabel = needsCheckout ? "Subscribe" : "Manage Subscription"
 
@@ -99,7 +109,7 @@ export function SubscriptionView({ user, playManaged = false }: SubscriptionView
 
         <div className="divider"></div>
 
-        {playManaged ? (
+        {isPlayManaged ? (
           <div>
             <p className="font-medium mb-2">Managed by Google Play</p>
             <a

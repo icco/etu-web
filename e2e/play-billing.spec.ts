@@ -47,8 +47,23 @@ test("play-paid subscription page links to Google Play and hides Stripe actions"
 })
 
 test("play-lapsed subscription page offers Stripe checkout", async ({ page }) => {
-  await login(page, "alice-play-unpaid@example.com")
+  await login(page, "alice-play-expired@example.com")
   await page.goto("/settings/subscription")
   await expect(page.getByText("Managed by Google Play")).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Subscribe" })).toBeVisible()
+})
+
+test("play-managed checkout 409 switches the page to Google Play management without calling Stripe portal", async ({ page }) => {
+  await login(page, "alice-play-expired@example.com")
+  let portalCalls = 0
+  await page.route("/api/stripe/checkout", route =>
+    route.fulfill({ status: 409, contentType: "application/json", body: JSON.stringify({ error: "Your subscription is managed by Google Play", code: "play_managed" }) }))
+  await page.route("/api/stripe/portal", route => {
+    portalCalls++
+    return route.fulfill({ status: 500 })
+  })
+  await page.goto("/settings/subscription")
+  await page.getByRole("button", { name: "Subscribe" }).click()
+  await expect(page.getByText("Managed by Google Play")).toBeVisible()
+  expect(portalCalls).toBe(0)
 })

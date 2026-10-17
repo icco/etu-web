@@ -79,7 +79,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: checkoutSession.url })
   } catch (error) {
-    if (error instanceof PlayManagedError || error instanceof ExistingSubscriptionError) return NextResponse.json({ error: error.message }, { status: 409 })
+    if (error instanceof PlayManagedError) return NextResponse.json({ error: error.message, code: "play_managed" }, { status: 409 })
+    if (error instanceof ExistingSubscriptionError) return NextResponse.json({ error: error.message, code: "existing_subscription" }, { status: 409 })
     logger.error({
       error,
       userId: session.user.id,
