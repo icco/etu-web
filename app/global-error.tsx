@@ -1,11 +1,15 @@
 "use client"
 
+import { useEffect } from "react"
+import { reportBrowserError } from "@/lib/telemetry-client"
+
 export default function GlobalError({
   reset,
 }: {
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => reportBrowserError("render"), [])
   return (
     <html lang="en">
       <body

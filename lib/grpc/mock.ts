@@ -299,6 +299,8 @@ export const mockAuthService: AuthServiceApi = {
     return {
       user: {
         ...mockUser,
+        // Matches authenticate: alice- fixture accounts are keyed by email so parallel tests stay distinct.
+        ...(request.email.startsWith("alice-") ? { id: request.email } : {}),
         email: request.email,
       },
     }
