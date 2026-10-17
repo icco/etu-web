@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { format } from "date-fns"
 import { CreditCardIcon } from "@heroicons/react/24/outline"
 import { toast } from "sonner"
+import { PLAY_SUBSCRIPTION_URL } from "@/lib/play-billing"
 
 interface SubscriptionViewProps {
   user: {
@@ -13,9 +14,10 @@ interface SubscriptionViewProps {
     hasStripeCustomer: boolean
     cancelAtPeriodEnd: boolean
   }
+  playManaged?: boolean
 }
 
-export function SubscriptionView({ user }: SubscriptionViewProps) {
+export function SubscriptionView({ user, playManaged = false }: SubscriptionViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
@@ -58,11 +60,11 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
   }, [needsCheckout])
 
   useEffect(() => {
-    if (searchParams.get("checkout") !== "start" || checkoutStartedRef.current) return
+    if (playManaged || searchParams.get("checkout") !== "start" || checkoutStartedRef.current) return
     checkoutStartedRef.current = true
     router.replace("/settings/subscription")
     void handleManage()
-  }, [searchParams, router, handleManage])
+  }, [searchParams, router, handleManage, playManaged])
 
   const buttonLabel = needsCheckout ? "Subscribe" : "Manage Subscription"
 
@@ -97,28 +99,43 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
 
         <div className="divider"></div>
 
-        <div>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-3xl font-bold">$5</span>
-            <span className="text-base-content/60">/ year</span>
+        {playManaged ? (
+          <div>
+            <p className="font-medium mb-2">Managed by Google Play</p>
+            <a
+              className="btn btn-ghost w-full"
+              href={PLAY_SUBSCRIPTION_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Manage in Google Play
+            </a>
+            <button className="btn btn-ghost w-full mt-2" onClick={() => router.refresh()}>Refresh subscription status</button>
           </div>
-          <button
-            className="btn btn-ghost w-full gap-2"
-            onClick={handleManage}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="loading loading-spinner loading-sm" />
-            ) : (
-              <CreditCardIcon className="h-5 w-5" />
-            )}
-            {buttonLabel}
-          </button>
-          <p className="text-xs text-base-content/60 text-center mt-2">
-            New subscribers get a 14-day trial. A card is required. Powered by Stripe.
-          </p>
-          <button className="btn btn-ghost w-full mt-2" onClick={() => router.refresh()}>Refresh subscription status</button>
-        </div>
+        ) : (
+          <div>
+            <div className="flex items-baseline gap-2 mb-4">
+              <span className="text-3xl font-bold">$5</span>
+              <span className="text-base-content/60">/ year</span>
+            </div>
+            <button
+              className="btn btn-ghost w-full gap-2"
+              onClick={handleManage}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="loading loading-spinner loading-sm" />
+              ) : (
+                <CreditCardIcon className="h-5 w-5" />
+              )}
+              {buttonLabel}
+            </button>
+            <p className="text-xs text-base-content/60 text-center mt-2">
+              New subscribers get a 14-day trial. A card is required. Powered by Stripe.
+            </p>
+            <button className="btn btn-ghost w-full mt-2" onClick={() => router.refresh()}>Refresh subscription status</button>
+          </div>
+        )}
       </div>
     </div>
   )
