@@ -260,3 +260,10 @@ test("an accepted checkout counts one checkout_success keyed on its session", as
   expect((await f.send("checkout.session.completed", { ...session, payment_status: "no_payment_required" })).status).toBe(200)
   expect(f.tracked).toEqual([["checkout_success", "cs_alice"]])
 })
+
+test("a checkout whose sync is skipped for a changed customer link counts nothing", async () => {
+  const f = fixture("active", false, { beforeFirstWrite: (state) => ({ ...state, stripeCustomerId: "cus_replacement" }) })
+  const session = { id: "cs_alice", customer: "cus_alice", subscription: "sub_alice", payment_status: "paid", metadata: { userId: "alice" } }
+  expect((await f.send("checkout.session.completed", session)).status).toBe(200)
+  expect(f.tracked).toEqual([])
+})
