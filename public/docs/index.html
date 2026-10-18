@@ -394,6 +394,14 @@
                   <a href="#etu.VerifyApiKeyResponse"><span class="badge">M</span>VerifyApiKeyResponse</a>
                 </li>
               
+                <li>
+                  <a href="#etu.VerifyPlayPurchaseRequest"><span class="badge">M</span>VerifyPlayPurchaseRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#etu.VerifyPlayPurchaseResponse"><span class="badge">M</span>VerifyPlayPurchaseResponse</a>
+                </li>
+              
               
                 <li>
                   <a href="#etu.DisabledReason"><span class="badge">E</span>DisabledReason</a>
@@ -411,6 +419,10 @@
               
                 <li>
                   <a href="#etu.AuthService"><span class="badge">S</span>AuthService</a>
+                </li>
+              
+                <li>
+                  <a href="#etu.BillingService"><span class="badge">S</span>BillingService</a>
                 </li>
               
                 <li>
@@ -2448,6 +2460,14 @@ itself is never returned. </p></td>
 tag generation, OCR, and audio transcription. Defaults to false. </p></td>
                 </tr>
               
+                <tr>
+                  <td>billing_provider</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>billing_provider names the billing system that owns the user&#39;s subscription,
+such as &#34;stripe&#34; or &#34;play&#34;. It is unset for users that have never subscribed. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -2501,6 +2521,61 @@ tag generation, OCR, and audio transcription. Defaults to false. </p></td>
                   <td><a href="#string">string</a></td>
                   <td>optional</td>
                   <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="etu.VerifyPlayPurchaseRequest">VerifyPlayPurchaseRequest</h3>
+        <p>VerifyPlayPurchaseRequest submits a Google Play subscription purchase for</p><p>verification.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>purchase_token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>purchase_token is the token returned by Google Play Billing for the purchase. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>product_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>product_id is the Google Play subscription product id that was purchased. </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="etu.VerifyPlayPurchaseResponse">VerifyPlayPurchaseResponse</h3>
+        <p>VerifyPlayPurchaseResponse returns the user after the purchase is applied.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>user</td>
+                  <td><a href="#etu.User">User</a></td>
+                  <td></td>
+                  <td><p>user is the caller&#39;s account with its updated subscription state. </p></td>
                 </tr>
               
             </tbody>
@@ -2689,6 +2764,26 @@ The raw key is returned only once; use VerifyApiKey/GetUser to restore user cont
                 <td><a href="#etu.UpdateUserStripeCustomerResponse">UpdateUserStripeCustomerResponse</a></td>
                 <td><p>UpdateUserStripeCustomer syncs Stripe customer profile fields
 (name, billing address) from Stripe webhook events.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+        <h3 id="etu.BillingService">BillingService</h3>
+        <p>BillingService handles subscriptions purchased outside Stripe.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>VerifyPlayPurchase</td>
+                <td><a href="#etu.VerifyPlayPurchaseRequest">VerifyPlayPurchaseRequest</a></td>
+                <td><a href="#etu.VerifyPlayPurchaseResponse">VerifyPlayPurchaseResponse</a></td>
+                <td><p>VerifyPlayPurchase verifies a Google Play subscription purchase with Google
+and applies it to the authenticated user&#39;s account.</p></td>
               </tr>
             
           </tbody>
