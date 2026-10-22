@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { format } from "date-fns"
 import { CreditCardIcon } from "@heroicons/react/24/outline"
 import { toast } from "sonner"
+import { PLAY_SUBSCRIPTION_URL } from "@/lib/play-billing"
 
 interface SubscriptionViewProps {
   user: {
@@ -13,14 +14,18 @@ interface SubscriptionViewProps {
     hasStripeCustomer: boolean
     cancelAtPeriodEnd: boolean
   }
+  playManaged?: boolean
+  playLapsed?: boolean
 }
 
-export function SubscriptionView({ user }: SubscriptionViewProps) {
+export function SubscriptionView({ user, playManaged = false, playLapsed = false }: SubscriptionViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
+  const [detectedPlayManaged, setDetectedPlayManaged] = useState(false)
+  const isPlayManaged = playManaged || detectedPlayManaged
   const checkoutStartedRef = useRef(false)
-  const needsCheckout = !user.hasStripeCustomer || ["free", "canceled", "inactive", "incomplete_expired"].includes(user.subscriptionStatus)
+  const needsCheckout = playLapsed || !user.hasStripeCustomer || ["free", "canceled", "inactive", "incomplete_expired"].includes(user.subscriptionStatus)
 
   useEffect(() => {
     const result = searchParams.get("subscription")
@@ -41,6 +46,13 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
       const endpoint = needsCheckout ? "/api/stripe/checkout" : "/api/stripe/portal"
       let res = await fetch(endpoint, { method: "POST" })
       if (res.status === 409 && endpoint === "/api/stripe/checkout") {
+        const conflict = await res.clone().json().catch(() => ({}))
+        if (conflict.code === "play_managed") {
+          setDetectedPlayManaged(true)
+          setIsLoading(false)
+          router.refresh()
+          return
+        }
         res = await fetch("/api/stripe/portal", { method: "POST" })
       }
       if (!res.ok) {
@@ -55,14 +67,14 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
       toast.error(message)
       setIsLoading(false)
     }
-  }, [needsCheckout])
+  }, [needsCheckout, router])
 
   useEffect(() => {
-    if (searchParams.get("checkout") !== "start" || checkoutStartedRef.current) return
+    if (isPlayManaged || searchParams.get("checkout") !== "start" || checkoutStartedRef.current) return
     checkoutStartedRef.current = true
     router.replace("/settings/subscription")
     void handleManage()
-  }, [searchParams, router, handleManage])
+  }, [searchParams, router, handleManage, isPlayManaged])
 
   const buttonLabel = needsCheckout ? "Subscribe" : "Manage Subscription"
 
@@ -97,28 +109,43 @@ export function SubscriptionView({ user }: SubscriptionViewProps) {
 
         <div className="divider"></div>
 
-        <div>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-3xl font-bold">$5</span>
-            <span className="text-base-content/60">/ year</span>
+        {isPlayManaged ? (
+          <div>
+            <p className="font-medium mb-2">Managed by Google Play</p>
+            <a
+              className="btn btn-ghost w-full"
+              href={PLAY_SUBSCRIPTION_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Manage in Google Play
+            </a>
+            <button className="btn btn-ghost w-full mt-2" onClick={() => router.refresh()}>Refresh subscription status</button>
           </div>
-          <button
-            className="btn btn-ghost w-full gap-2"
-            onClick={handleManage}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="loading loading-spinner loading-sm" />
-            ) : (
-              <CreditCardIcon className="h-5 w-5" />
-            )}
-            {buttonLabel}
-          </button>
-          <p className="text-xs text-base-content/60 text-center mt-2">
-            New subscribers get a 14-day trial. A card is required. Powered by Stripe.
-          </p>
-          <button className="btn btn-ghost w-full mt-2" onClick={() => router.refresh()}>Refresh subscription status</button>
-        </div>
+        ) : (
+          <div>
+            <div className="flex items-baseline gap-2 mb-4">
+              <span className="text-3xl font-bold">$5</span>
+              <span className="text-base-content/60">/ year</span>
+            </div>
+            <button
+              className="btn btn-ghost w-full gap-2"
+              onClick={handleManage}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="loading loading-spinner loading-sm" />
+              ) : (
+                <CreditCardIcon className="h-5 w-5" />
+              )}
+              {buttonLabel}
+            </button>
+            <p className="text-xs text-base-content/60 text-center mt-2">
+              New subscribers get a 14-day trial. A card is required. Powered by Stripe.
+            </p>
+            <button className="btn btn-ghost w-full mt-2" onClick={() => router.refresh()}>Refresh subscription status</button>
+          </div>
+        )}
       </div>
     </div>
   )

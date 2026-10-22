@@ -153,6 +153,7 @@ export async function getCurrentUser() {
       aiEnabled: response.user.aiEnabled,
       hasStripeCustomer: Boolean(response.user.stripeCustomerId),
       cancelAtPeriodEnd: Boolean(response.user.cancelAtPeriodEnd),
+      billingProvider: response.user.billingProvider ?? "",
     }
   } catch (error) {
     logger.error({ error }, "Get current user error")

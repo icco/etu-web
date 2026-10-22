@@ -29,6 +29,13 @@ function linkChanged(error: unknown) {
   return (error as { code?: unknown }).code === Code.FailedPrecondition
 }
 
+// A Play-owned account rejects Stripe writes; retrying cannot succeed.
+function playManaged(error: unknown) {
+  if (!linkChanged(error)) return false
+  const { message, details } = error as { message?: unknown; details?: unknown }
+  return [message, details].some((text) => typeof text === "string" && text.includes("billing managed by google play"))
+}
+
 export async function handleStripeWebhook(request: Request, services: WebhookServices) {
   const { stripe, auth, apiKey, webhookSecret, track = trackFunnelEvent } = services
   const signature = request.headers.get("stripe-signature")
@@ -97,7 +104,9 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
         ({ user: stored } = await auth.updateUserSubscription({ ...current, stripeEventId: pass === 0 ? event.id : undefined }, apiKey))
       } catch (error) {
         if (!linkChanged(error)) throw error
-        logger.info({ eventId: event.id, subscriptionId: id }, "Stripe customer link changed; subscription update skipped")
+        logger.info({ eventId: event.id, subscriptionId: id }, playManaged(error)
+          ? "Billing managed by Google Play; subscription update skipped"
+          : "Stripe customer link changed; subscription update skipped")
         return false
       }
       const latest = await resolveSubscription(id, expectedCustomer)
@@ -193,7 +202,9 @@ export async function handleStripeWebhook(request: Request, services: WebhookSer
           await auth.updateUserSubscription({ userId: user.id, expectedStripeCustomerId: customer.id, subscriptionStatus: "canceled", stripeCustomerId: "", cancelAtPeriodEnd: false, stripeEventId: event.id }, apiKey)
         } catch (error) {
           if (!linkChanged(error)) throw error
-          logger.info({ eventId: event.id, customerId: customer.id }, "Stripe customer already relinked")
+          logger.info({ eventId: event.id, customerId: customer.id }, playManaged(error)
+            ? "Billing managed by Google Play; customer deletion skipped"
+            : "Stripe customer already relinked")
         }
         break
       }
