@@ -37,5 +37,6 @@ export function convertUser(user: ProtoUser | undefined): User {
     aiEnabled: user.aiEnabled,
     disabled: user.disabled,
     notionDatabaseName: user.notionDatabaseName,
+    billingProvider: user.billingProvider,
   }
 }

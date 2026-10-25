@@ -1,8 +1,8 @@
 import { cache } from "react"
 import { redirect } from "next/navigation"
-import { Code } from "@connectrpc/connect"
 import { auth } from "@/lib/auth"
-import { GrpcError, notesService } from "@/lib/grpc/client"
+import { notesService } from "@/lib/grpc/client"
+import { isSubscriptionRequired } from "@/lib/paid-access"
 
 export const requireSubscribedUser = cache(async () => {
   const session = await auth()
@@ -12,9 +12,7 @@ export const requireSubscribedUser = cache(async () => {
   try {
     await notesService.listNotes({ userId: session.user.id, limit: 1 }, apiKey)
   } catch (error) {
-    if (error instanceof GrpcError && error.code === Code.PermissionDenied && error.details.includes("subscription required")) {
-      redirect("/settings/subscription")
-    }
+    if (isSubscriptionRequired(error)) redirect("/settings/subscription")
     throw error
   }
   return session.user.id

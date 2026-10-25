@@ -25,6 +25,8 @@ interface FixtureOptions {
   customerNames?: string[]
   seenEventIds?: string[]
   user?: Partial<User> | null
+  // Mirrors the backend refusing Stripe writes for an account whose billing Google Play owns.
+  playManaged?: boolean
   // Runs just before the handler's first backend write, simulating another delivery committing in between.
   beforeFirstWrite?: (state: User) => User
 }
@@ -71,6 +73,7 @@ function fixture(status = "trialing", unmatched = false, options: FixtureOptions
   function apply(request: Record<string, unknown>) {
     if (writes.length === 0 && options.beforeFirstWrite && state) state = options.beforeFirstWrite(state)
     writes.push(request)
+    if (options.playManaged) throw Object.assign(new Error("billing managed by google play"), { code: Code.FailedPrecondition })
     // Mirrors the backend's conditional update: a changed customer link applies nothing and records no event ID.
     const { expectedStripeCustomerId, ...fields } = request
     if (expectedStripeCustomerId !== undefined && state?.stripeCustomerId !== expectedStripeCustomerId) {
@@ -266,4 +269,25 @@ test("a checkout whose sync is skipped for a changed customer link counts nothin
   const session = { id: "cs_alice", customer: "cus_alice", subscription: "sub_alice", payment_status: "paid", metadata: { userId: "alice" } }
   expect((await f.send("checkout.session.completed", session)).status).toBe(200)
   expect(f.tracked).toEqual([])
+})
+
+test("a subscription event for a Google Play account is acknowledged without retrying", async () => {
+  const f = fixture("active", false, { playManaged: true, user: { billingProvider: "play" } })
+  expect((await f.send("customer.subscription.updated", { id: "sub_alice" })).status).toBe(200)
+  expect(f.writes).toHaveLength(1)
+  expect(f.updates).toHaveLength(0)
+})
+
+test("a checkout for a Google Play account counts nothing", async () => {
+  const f = fixture("active", false, { playManaged: true, user: { billingProvider: "play" } })
+  const session = { id: "cs_alice", customer: "cus_alice", subscription: "sub_alice", payment_status: "paid", metadata: { userId: "alice" } }
+  expect((await f.send("checkout.session.completed", session)).status).toBe(200)
+  expect(f.tracked).toEqual([])
+})
+
+test("a customer deletion for a Google Play account is acknowledged", async () => {
+  const f = fixture("active", false, { playManaged: true, user: { billingProvider: "play" } })
+  const deleted = { id: "cus_alice", object: "customer", deleted: true, metadata: { userId: "alice" } }
+  expect((await f.send("customer.deleted", deleted)).status).toBe(200)
+  expect(f.updates).toHaveLength(0)
 })

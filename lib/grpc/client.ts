@@ -115,6 +115,7 @@ export interface User {
   aiEnabled: boolean
   disabled: boolean
   notionDatabaseName?: string
+  billingProvider?: string
 }
 
 export interface ApiKey {
