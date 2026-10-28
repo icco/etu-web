@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+import NoteMarkdown from "./note-markdown"
 import { XMarkIcon, PhotoIcon, MusicalNoteIcon } from "@heroicons/react/24/outline"
 import type { NoteImage as GrpcNoteImage, NoteAudio as GrpcNoteAudio } from "@/lib/grpc/client"
 import { CollapsibleTranscript } from "@/components/collapsible-transcript"
@@ -337,7 +336,7 @@ export function NoteDialog({
               <div className="flex-1 min-h-[150px] md:flex-none p-4 bg-base-200 rounded-lg overflow-auto">
                 {content ? (
                   <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                    <NoteMarkdown content={content} />
                   </div>
                 ) : (
                   <p className="text-base-content/60 italic">Nothing to preview yet...</p>
