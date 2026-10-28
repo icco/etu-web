@@ -4,8 +4,7 @@ import { useState, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { format } from "date-fns"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+import NoteMarkdown from "./note-markdown"
 import { EllipsisHorizontalIcon, PencilIcon, TrashIcon, MusicalNoteIcon } from "@heroicons/react/24/outline"
 import type { Note } from "@/lib/types"
 import { CollapsibleTranscript } from "@/components/collapsible-transcript"
@@ -126,7 +125,7 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
           </div>
 
           <div className={compact ? "prose prose-sm max-w-none line-clamp-2 flex-1" : "prose prose-sm max-w-none"}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{note.content}</ReactMarkdown>
+            <NoteMarkdown content={note.content} />
           </div>
 
           {/* Image thumbnails - hide in compact mode for dense grid */}
@@ -190,7 +189,7 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
 
           <div className="flex-1 overflow-auto px-6 py-4">
             <div className="prose prose-sm max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{note.content}</ReactMarkdown>
+              <NoteMarkdown content={note.content} />
             </div>
 
             {/* Full size images in dialog */}
