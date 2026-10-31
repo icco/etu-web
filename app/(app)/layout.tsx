@@ -17,7 +17,7 @@ export default async function AppLayout({
   }
 
   return (
-    <UserImageProvider image={user.image} updatedAt={user.updatedAt}>
+    <UserImageProvider image={user.image}>
       <SiteHeader
         brand={<SiteBrand />}
       >

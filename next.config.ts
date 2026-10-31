@@ -51,7 +51,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "media-src 'self' blob: https://storage.googleapis.com https://etu.imgix.net",
+      "media-src 'self' blob: https://storage.googleapis.com",
       "connect-src 'self' https://reportd.natwelch.com",
       "frame-ancestors 'none'",
       "object-src 'none'",
@@ -82,10 +82,9 @@ const nextConfig: NextConfig = {
   },
   images: {
     loader: 'custom',
-    loaderFile: './lib/imgix-loader.ts',
+    loaderFile: './lib/image-loader.ts',
     remotePatterns: [
       { protocol: 'https', hostname: 'images.natwelch.com', pathname: '/etu/**' },
-      { protocol: 'https', hostname: 'etu.imgix.net' },
     ],
     qualities: [50, 75, 90],
   },

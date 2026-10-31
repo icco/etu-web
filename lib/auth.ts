@@ -3,7 +3,7 @@ import { Code } from "@connectrpc/connect"
 import Credentials from "next-auth/providers/credentials"
 import { z } from "zod"
 import { authConfig } from "./auth.config"
-import { apiKeysService, authService, GrpcError, timestampToDate } from "./grpc/client"
+import { apiKeysService, authService, GrpcError, timestampToDate, userSettingsService } from "./grpc/client"
 import { clientIpFromHeaders } from "./client-ip"
 import logger from "./logger"
 
@@ -125,6 +125,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
 })
 
+// A failed lookup costs the avatar, not the session.
+async function getProfileImageUrl(key: string): Promise<string | null> {
+  try {
+    const { url } = await userSettingsService.getProfileImageURL({ key }, getGrpcApiKey())
+    return url || null
+  } catch (error) {
+    logger.error({ error }, "Get profile image URL error")
+    return null
+  }
+}
+
 // Helper to get current user with subscription info
 export async function getCurrentUser() {
   const session = await auth()
@@ -140,7 +151,7 @@ export async function getCurrentUser() {
       id: response.user.id,
       email: response.user.email,
       name: response.user.name ?? null,
-      image: response.user.image ?? null,
+      image: response.user.image ? await getProfileImageUrl(response.user.image) : null,
       subscriptionStatus: response.user.subscriptionStatus,
       subscriptionEnd: response.user.subscriptionEnd
         ? timestampToDate(response.user.subscriptionEnd)
