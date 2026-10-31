@@ -12,6 +12,7 @@ import {
 } from "@heroicons/react/24/outline"
 import { SiteHeader } from "@icco/react-common/SiteHeader"
 import { auth } from "@/lib/auth"
+import { SiteBrand } from "@/components/site-brand"
 
 export default async function LandingPage() {
   const session = await auth()
@@ -24,11 +25,7 @@ export default async function LandingPage() {
   return (
     <>
       <SiteHeader
-        brand={
-          <Link href="/" className="btn btn-ghost text-xl">
-            Etu
-          </Link>
-        }
+        brand={<SiteBrand />}
         links={[
           {
             name: "Docs",
