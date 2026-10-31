@@ -37,7 +37,7 @@ export function UserMenu() {
       >
         {userImage ? (
           <Image
-            src={`${userImage.key}?v=${userImage.version}`}
+            src={userImage}
             alt=""
             aria-hidden="true"
             width={32}

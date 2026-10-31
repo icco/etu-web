@@ -362,7 +362,7 @@ export function AccountView({ user }: AccountViewProps) {
                       />
                     ) : user.image ? (
                       <Image
-                        src={`${user.image}?v=${user.updatedAt ? user.updatedAt.getTime() : 0}`}
+                        src={user.image}
                         alt="Preview"
                         width={64}
                         height={64}
@@ -412,7 +412,7 @@ export function AccountView({ user }: AccountViewProps) {
                   <div className="py-2">
                     {user.image ? (
                       <Image
-                        src={`${user.image}?v=${user.updatedAt ? user.updatedAt.getTime() : 0}`}
+                        src={user.image}
                         alt="Profile"
                         width={64}
                         height={64}

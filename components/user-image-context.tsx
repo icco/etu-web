@@ -2,26 +2,16 @@
 
 import { createContext, use } from "react"
 
-export interface UserImageInfo {
-  key: string
-  version: string
-}
-
-const UserImageContext = createContext<UserImageInfo | undefined>(undefined)
+const UserImageContext = createContext<string | null>(null)
 
 export function UserImageProvider({
   image,
-  updatedAt,
   children,
 }: {
-  image?: string | null
-  updatedAt?: Date | null
+  image: string | null
   children: React.ReactNode
 }) {
-  const value: UserImageInfo | undefined = image
-    ? { key: image, version: String(updatedAt ? updatedAt.getTime() : 0) }
-    : undefined
-  return <UserImageContext value={value}>{children}</UserImageContext>
+  return <UserImageContext value={image}>{children}</UserImageContext>
 }
 
 export function useUserImage() {
