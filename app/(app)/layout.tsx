@@ -1,9 +1,9 @@
-import Link from "next/link"
 import { redirect } from "next/navigation"
 import { SiteHeader } from "@icco/react-common/SiteHeader"
 import { getCurrentUser } from "@/lib/auth"
 import { UserImageProvider } from "@/components/user-image-context"
 import { UserMenu } from "@/components/user-menu"
+import { SiteBrand } from "@/components/site-brand"
 
 export default async function AppLayout({
   children,
@@ -19,11 +19,7 @@ export default async function AppLayout({
   return (
     <UserImageProvider image={user.image} updatedAt={user.updatedAt}>
       <SiteHeader
-        brand={
-          <Link href="/" className="btn btn-ghost text-xl">
-            Etu
-          </Link>
-        }
+        brand={<SiteBrand />}
       >
         <UserMenu />
       </SiteHeader>
