@@ -4,7 +4,7 @@
 # =============================================================================
 
 FROM node:26-alpine AS base
-RUN npm install -g pnpm
+RUN npm install -g pnpm@12.16.1
 
 # Install dependencies only when needed
 FROM base AS deps
