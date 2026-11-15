@@ -16,13 +16,13 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN --mount=type=secret,id=npm_token \
     if [ ! -s /run/secrets/npm_token ]; then \
-      echo "ERROR: NPM_TOKEN secret is required for @icco/etu-proto"; \
-      echo "Usage: docker build --secret id=npm_token,env=NPM_TOKEN ..."; \
-      exit 1; \
-    fi && \
-    echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/npm_token)" >> .npmrc && \
-    pnpm install --frozen-lockfile && \
-    rm -f .npmrc
+        echo "ERROR: NPM_TOKEN secret is required for @icco/etu-proto"; \
+        echo "Usage: docker build --secret id=npm_token,env=NPM_TOKEN ..."; \
+        exit 1; \
+    fi \
+        && echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/npm_token)" >> .npmrc \
+        && pnpm install --frozen-lockfile \
+        && rm -f .npmrc
 
 # Rebuild the source code only when needed
 FROM base AS builder
