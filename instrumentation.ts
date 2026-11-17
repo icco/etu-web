@@ -1,6 +1,13 @@
 import type { Instrumentation } from "next"
 import { sanitizeRoute } from "@/lib/telemetry"
 
+export async function register() {
+  if (process.env.OTEL_EXPORTER_OTLP_ENDPOINT || process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT) {
+    const { registerOTel } = await import("@vercel/otel")
+    registerOTel({ serviceName: "etu-web" })
+  }
+}
+
 export const onRequestError: Instrumentation.onRequestError = async (error, request, context) => {
   const names = ["Error", "TypeError", "RangeError", "ReferenceError", "SyntaxError", "URIError", "AggregateError"]
   const name = error instanceof Error && names.includes(error.name) ? error.name : "Error"
