@@ -1,5 +1,10 @@
 import type { Instrumentation } from "next"
+import { registerOTel } from "@vercel/otel"
 import { sanitizeRoute } from "@/lib/telemetry"
+
+export function register() {
+  registerOTel({ serviceName: "etu-web" })
+}
 
 export const onRequestError: Instrumentation.onRequestError = async (error, request, context) => {
   const names = ["Error", "TypeError", "RangeError", "ReferenceError", "SyntaxError", "URIError", "AggregateError"]
