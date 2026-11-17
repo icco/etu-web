@@ -1,9 +1,11 @@
 import type { Instrumentation } from "next"
-import { registerOTel } from "@vercel/otel"
 import { sanitizeRoute } from "@/lib/telemetry"
 
-export function register() {
-  registerOTel({ serviceName: "etu-web" })
+export async function register() {
+  if (process.env.OTEL_EXPORTER_OTLP_ENDPOINT || process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT) {
+    const { registerOTel } = await import("@vercel/otel")
+    registerOTel({ serviceName: "etu-web" })
+  }
 }
 
 export const onRequestError: Instrumentation.onRequestError = async (error, request, context) => {
