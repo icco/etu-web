@@ -3,17 +3,17 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  DocumentTextIcon,
+  FileTextIcon,
   ClockIcon,
-  MagnifyingGlassIcon,
+  SearchIcon,
   TagIcon,
-  Bars3Icon,
-} from "@heroicons/react/24/outline"
+  MenuIcon,
+} from "lucide-react"
 
 const navLinks = [
-  { href: "/notes", label: "Notes", icon: DocumentTextIcon },
+  { href: "/notes", label: "Notes", icon: FileTextIcon },
   { href: "/history", label: "History", icon: ClockIcon },
-  { href: "/search", label: "Search", icon: MagnifyingGlassIcon },
+  { href: "/search", label: "Search", icon: SearchIcon },
   { href: "/tags", label: "Tags", icon: TagIcon },
 ]
 
@@ -23,7 +23,7 @@ export function MobileNav() {
   return (
     <div className="dropdown dropdown-end md:hidden" data-testid="mobile-nav">
       <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-square" aria-label="Open navigation menu">
-        <Bars3Icon className="h-6 w-6" />
+        <MenuIcon className="h-6 w-6" />
       </div>
       <ul
         tabIndex={0}

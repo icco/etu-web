@@ -20,7 +20,7 @@ Etu is an interstitial journaling platform that helps users capture life's momen
 - **Proto Types**: `@icco/etu-proto` package (published from etu-backend)
 - **Auth**: Auth.js v5 (NextAuth) with credentials via gRPC backend
 - **Styling**: Tailwind CSS 4 + daisyUI 5
-- **Icons**: Heroicons v2
+- **Icons**: Lucide
 - **Markdown**: marked + DOMPurify for sanitization
 - **Payments**: Stripe
 - **Testing**: Playwright for E2E tests

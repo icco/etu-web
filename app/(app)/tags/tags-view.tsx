@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { TagIcon } from "@heroicons/react/24/outline"
+import { TagIcon } from "lucide-react"
 
 interface Tag {
   id: string

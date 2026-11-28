@@ -1,15 +1,15 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import {
-  LightBulbIcon,
-  ArrowPathIcon,
-  ArrowRightOnRectangleIcon,
-  BoltIcon,
+  LightbulbIcon,
+  RefreshCwIcon,
+  LogOutIcon,
+  ZapIcon,
   BookOpenIcon,
-  LockClosedIcon,
+  LockIcon,
   CheckIcon,
-  CommandLineIcon,
-} from "@heroicons/react/24/outline"
+  SquareTerminalIcon,
+} from "lucide-react"
 import { SiteHeader } from "@icco/react-common/SiteHeader"
 import { auth } from "@/lib/auth"
 import { SiteBrand } from "@/components/site-brand"
@@ -35,7 +35,7 @@ export default async function LandingPage() {
           {
             name: "Sign In",
             href: "/login",
-            icon: <ArrowRightOnRectangleIcon className="h-5 w-5" />,
+            icon: <LogOutIcon className="h-5 w-5" />,
           },
         ]}
       />
@@ -83,7 +83,7 @@ export default async function LandingPage() {
             <div className="grid md:grid-cols-3 gap-10">
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <LightBulbIcon className="h-8 w-8 text-primary" />
+                  <LightbulbIcon className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Capture in Seconds</h3>
                 <p className="text-base-content/60">
@@ -93,7 +93,7 @@ export default async function LandingPage() {
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <ArrowPathIcon className="h-8 w-8 text-primary" />
+                  <RefreshCwIcon className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Ideas Resurface</h3>
                 <p className="text-base-content/60">
@@ -103,7 +103,7 @@ export default async function LandingPage() {
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <BoltIcon className="h-8 w-8 text-primary" />
+                  <ZapIcon className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Turn Into Action</h3>
                 <p className="text-base-content/60">
@@ -180,7 +180,7 @@ export default async function LandingPage() {
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CommandLineIcon className="h-8 w-8 text-primary" />
+                  <SquareTerminalIcon className="h-8 w-8 text-primary" />
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
                   Power Users Love the CLI
@@ -311,7 +311,7 @@ export default async function LandingPage() {
         {/* Final CTA */}
         <section className="container mx-auto px-6 py-24">
           <div className="max-w-3xl mx-auto text-center">
-            <LockClosedIcon className="h-12 w-12 text-primary mx-auto mb-6" />
+            <LockIcon className="h-12 w-12 text-primary mx-auto mb-6" />
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
               Your Ideas Deserve Better Than a Folder
             </h2>

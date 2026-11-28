@@ -1,12 +1,12 @@
 "use client"
 
 import {
-  ArrowDownTrayIcon,
-  DocumentTextIcon,
+  DownloadIcon,
+  FileTextIcon,
   TagIcon,
-  GlobeAltIcon,
+  GlobeIcon,
   UserIcon,
-} from "@heroicons/react/24/outline"
+} from "lucide-react"
 import { toast } from "sonner"
 
 interface Stats {
@@ -39,7 +39,7 @@ export function StatsView({ userStats, globalStats }: StatsViewProps) {
           <div className="stats stats-vertical lg:stats-horizontal shadow w-full">
             <div className="stat">
               <div className="stat-figure text-primary">
-                <DocumentTextIcon className="h-6 w-6" />
+                <FileTextIcon className="h-6 w-6" />
               </div>
               <div className="stat-title">Your Blips</div>
               <div className="stat-value">{userStats.totalBlips.toLocaleString()}</div>
@@ -63,7 +63,7 @@ export function StatsView({ userStats, globalStats }: StatsViewProps) {
             <h3 className="text-sm font-medium mb-3">Export Your Data</h3>
             <div className="flex flex-wrap gap-2">
               <button onClick={handleExportJSON} className="btn btn-ghost gap-2">
-                <ArrowDownTrayIcon className="h-4 w-4" />
+                <DownloadIcon className="h-4 w-4" />
                 Export as JSON
               </button>
             </div>
@@ -78,14 +78,14 @@ export function StatsView({ userStats, globalStats }: StatsViewProps) {
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title gap-2">
-            <GlobeAltIcon className="h-5 w-5" />
+            <GlobeIcon className="h-5 w-5" />
             Community Statistics
           </h2>
 
           <div className="stats stats-vertical lg:stats-horizontal shadow w-full">
             <div className="stat">
               <div className="stat-figure text-secondary">
-                <DocumentTextIcon className="h-6 w-6" />
+                <FileTextIcon className="h-6 w-6" />
               </div>
               <div className="stat-title">Total Blips</div>
               <div className="stat-value">{globalStats.totalBlips.toLocaleString()}</div>

@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import {
   KeyIcon,
-  DocumentDuplicateIcon,
+  CopyIcon,
   CheckIcon,
-  TrashIcon,
-} from "@heroicons/react/24/outline"
+  Trash2Icon,
+} from "lucide-react"
 import { toast } from "sonner"
 import { createApiKey, deleteApiKey } from "@/lib/actions/api-keys"
 
@@ -122,7 +122,7 @@ export function ApiKeysView({ initialApiKeys }: ApiKeysViewProps) {
                   {copiedKey === newlyCreatedKey ? (
                     <CheckIcon className="h-4 w-4 text-success" />
                   ) : (
-                    <DocumentDuplicateIcon className="h-4 w-4" />
+                    <CopyIcon className="h-4 w-4" />
                   )}
                 </button>
               </div>
@@ -157,7 +157,7 @@ export function ApiKeysView({ initialApiKeys }: ApiKeysViewProps) {
                   onClick={() => handleDeleteKey(key.id)}
                   className="btn btn-ghost btn-sm btn-square text-error"
                 >
-                  <TrashIcon className="h-4 w-4" />
+                  <Trash2Icon className="h-4 w-4" />
                 </button>
               </div>
             ))}

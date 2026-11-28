@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { format } from "date-fns"
 import NoteMarkdown from "./note-markdown"
-import { EllipsisHorizontalIcon, PencilIcon, TrashIcon, MusicalNoteIcon } from "@heroicons/react/24/outline"
+import { EllipsisIcon, PencilIcon, Trash2Icon, MusicIcon } from "lucide-react"
 import type { Note } from "@/lib/types"
 import { CollapsibleTranscript } from "@/components/collapsible-transcript"
 
@@ -77,7 +77,7 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
                 }}
                 className="btn btn-ghost btn-sm btn-square opacity-0 group-hover:opacity-100"
               >
-                <EllipsisHorizontalIcon className="h-5 w-5" />
+                <EllipsisIcon className="h-5 w-5" />
               </button>
               {menuOpen && (
                 <>
@@ -113,7 +113,7 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
                         {isDeleting ? (
                           <span className="loading loading-spinner loading-xs"></span>
                         ) : (
-                          <TrashIcon className="h-4 w-4" />
+                          <Trash2Icon className="h-4 w-4" />
                         )}
                         {isDeleting ? "Deleting..." : "Delete"}
                       </button>
@@ -153,7 +153,7 @@ export function NoteCard({ note, onEdit, onDelete, compact }: NoteCardProps) {
           {/* Audio indicator - show icon and count */}
           {!compact && safeAudios.length > 0 && (
             <div className="flex items-center gap-2 mt-3 text-base-content/60">
-              <MusicalNoteIcon className="h-4 w-4" />
+              <MusicIcon className="h-4 w-4" />
               <span className="text-sm">
                 {safeAudios.length} audio file{safeAudios.length !== 1 ? "s" : ""}
               </span>

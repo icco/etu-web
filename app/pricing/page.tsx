@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { CheckIcon } from "@heroicons/react/24/outline"
+import { CheckIcon } from "lucide-react"
 import { LegalPage } from "@/components/legal-page"
 
 export const metadata: Metadata = {

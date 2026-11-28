@@ -4,10 +4,10 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import Link from "next/link"
 import { format } from "date-fns"
 import {
-  DocumentTextIcon,
+  FileTextIcon,
   PlusIcon,
   ArrowLeftIcon,
-} from "@heroicons/react/24/outline"
+} from "lucide-react"
 import { getNotes } from "@/lib/actions/notes"
 import { NoteCard } from "@/components/note-card"
 import { NoteDialog } from "@/components/note-dialog"
@@ -83,14 +83,14 @@ export function HistoryView({ initialNotes, initialTotal, initialTags }: History
       <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6 flex items-center gap-2">
-            <DocumentTextIcon className="h-8 w-8 text-primary" />
+            <FileTextIcon className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold">History</h1>
           </div>
         </div>
 
         {notes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <DocumentTextIcon className="h-16 w-16 text-base-content/40 mb-4" />
+            <FileTextIcon className="h-16 w-16 text-base-content/40 mb-4" />
             <h2 className="text-2xl font-semibold mb-2">No blips yet</h2>
             <p className="text-base-content/60 mb-6 max-w-md">
               Create your first blip from the Notes page or use the button below.

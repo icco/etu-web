@@ -1,7 +1,7 @@
 "use client"
 
 import { format } from "date-fns"
-import { MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/outline"
+import { SearchIcon, PlusIcon } from "lucide-react"
 import { NoteCard } from "@/components/note-card"
 import { NoteDialog } from "@/components/note-dialog"
 import { NavSearch } from "@/components/nav-search"
@@ -37,14 +37,14 @@ export function SearchView({ initialNotes, initialTags, query }: SearchViewProps
       <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6 flex items-center gap-2">
-            <MagnifyingGlassIcon className="h-8 w-8 text-primary" />
+            <SearchIcon className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold">Search</h1>
           </div>
         </div>
 
         {!query ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <MagnifyingGlassIcon className="h-16 w-16 text-base-content/40 mb-4" />
+            <SearchIcon className="h-16 w-16 text-base-content/40 mb-4" />
             <h2 className="text-2xl font-semibold mb-2">Search your blips</h2>
             <p className="text-base-content/60 mb-6 max-w-md">
               Use the search box above to find notes by content or keywords.
@@ -53,7 +53,7 @@ export function SearchView({ initialNotes, initialTags, query }: SearchViewProps
           </div>
         ) : notes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <MagnifyingGlassIcon className="h-16 w-16 text-base-content/40 mb-4" />
+            <SearchIcon className="h-16 w-16 text-base-content/40 mb-4" />
             <h2 className="text-2xl font-semibold mb-2">No matching blips</h2>
             <p className="text-base-content/60 mb-6">Try a different search term.</p>
             <NavSearch defaultValue={query} className="input input-bordered w-full max-w-md" />
