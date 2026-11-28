@@ -1,6 +1,4 @@
 allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
-  - '@icco/etu-proto'
-  - '@icco/react-common'
   - '@icco/*'
