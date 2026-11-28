@@ -15,6 +15,7 @@ import { toast } from "sonner"
 import { updateName, uploadProfileImage, clearProfileImage, updateNotionKey, changePassword } from "@/lib/actions/user"
 import { exportAllNotes } from "@/lib/actions/notes"
 import { AccountDataControls } from "@/components/account-data-controls"
+import { ALLOWED_IMAGE_MIME_TYPES, MAX_IMAGE_BYTES } from "@/lib/uploads"
 
 interface AccountViewProps {
   user: {
@@ -89,13 +90,11 @@ export function AccountView({ user }: AccountViewProps) {
     setIsEditingName(false)
   }
 
-  const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"])
-
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (!ALLOWED_MIME_TYPES.has(file.type)) {
+    if (!ALLOWED_IMAGE_MIME_TYPES.has(file.type)) {
       toast.error("Unsupported image type. Allowed: JPEG, PNG, WebP, GIF")
       setImagePreview(null)
       setSelectedFile(null)
@@ -103,7 +102,7 @@ export function AccountView({ user }: AccountViewProps) {
       return
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > MAX_IMAGE_BYTES) {
       toast.error("Image must be less than 5MB")
       setImagePreview(null)
       setSelectedFile(null)

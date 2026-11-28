@@ -16,6 +16,15 @@ import {
   type AudioUpload,
 } from "@/lib/grpc/client"
 import { toNote, type Note, type Tag } from "@/lib/types"
+import {
+  ALLOWED_AUDIO_MIME_TYPES,
+  ALLOWED_IMAGE_MIME_TYPES,
+  estimateBase64Size,
+  MAX_AUDIO_BYTES,
+  MAX_AUDIO_COUNT,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_COUNT,
+} from "@/lib/uploads"
 
 const createNoteSchema = z.object({
   content: z.string().min(1, "Content is required"),
@@ -28,53 +37,11 @@ const updateNoteSchema = z.object({
   tags: z.array(z.string()).optional(),
 })
 
-// Image upload constraints
-const ALLOWED_IMAGE_MIME_TYPES = new Set<string>([
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "image/gif",
-])
-
-const MAX_IMAGE_UPLOAD_COUNT = 10
-// Aligned with Next server action bodySizeLimit: '10mb' (accounting for base64 ~33% overhead)
-const MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024 // 5 MiB per image
-
-// Audio upload constraints
-const ALLOWED_AUDIO_MIME_TYPES = new Set<string>([
-  "audio/mpeg",
-  "audio/mp3",
-  "audio/wav",
-  "audio/wave",
-  "audio/ogg",
-  "audio/webm",
-  "audio/mp4",
-  "audio/m4a",
-  "audio/flac",
-  "audio/aac",
-])
-
-const MAX_AUDIO_UPLOAD_COUNT = 5
-const MAX_AUDIO_UPLOAD_BYTES = 25 * 1024 * 1024 // 25 MiB per audio
-
-// Estimate decoded bytes from a base64 string without fully decoding
-function estimateBase64Size(base64: string): number {
-  const len = base64.length
-  if (len === 0) return 0
-  let padding = 0
-  if (base64.endsWith("==")) {
-    padding = 2
-  } else if (base64.endsWith("=")) {
-    padding = 1
-  }
-  return (len * 3) / 4 - padding
-}
-
 // Helper to convert base64 image data to ImageUpload format
 function parseImageUploads(images?: { data: string; mimeType: string }[]): ImageUpload[] {
   if (!images || images.length === 0) return []
 
-  if (images.length > MAX_IMAGE_UPLOAD_COUNT) {
+  if (images.length > MAX_IMAGE_COUNT) {
     throw new Error("Too many images uploaded")
   }
 
@@ -84,7 +51,7 @@ function parseImageUploads(images?: { data: string; mimeType: string }[]): Image
     }
 
     const estimatedBytes = estimateBase64Size(img.data)
-    if (estimatedBytes > MAX_IMAGE_UPLOAD_BYTES) {
+    if (estimatedBytes > MAX_IMAGE_BYTES) {
       throw new Error("Image upload exceeds maximum allowed size")
     }
 
@@ -102,7 +69,7 @@ function parseImageUploads(images?: { data: string; mimeType: string }[]): Image
 function parseAudioUploads(audios?: { data: string; mimeType: string }[]): AudioUpload[] {
   if (!audios || audios.length === 0) return []
 
-  if (audios.length > MAX_AUDIO_UPLOAD_COUNT) {
+  if (audios.length > MAX_AUDIO_COUNT) {
     throw new Error("Too many audio files uploaded")
   }
 
@@ -112,7 +79,7 @@ function parseAudioUploads(audios?: { data: string; mimeType: string }[]): Audio
     }
 
     const estimatedBytes = estimateBase64Size(audio.data)
-    if (estimatedBytes > MAX_AUDIO_UPLOAD_BYTES) {
+    if (estimatedBytes > MAX_AUDIO_BYTES) {
       throw new Error("Audio upload exceeds maximum allowed size")
     }
 
