@@ -4,14 +4,14 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   KeyIcon,
-  ChartBarIcon,
+  ChartColumnIcon,
   UserIcon,
   CreditCardIcon,
-} from "@heroicons/react/24/outline"
+} from "lucide-react"
 
 const tabs = [
   { id: "account", label: "Account", icon: UserIcon, href: "/settings/account" },
-  { id: "stats", label: "Stats", icon: ChartBarIcon, href: "/settings/stats" },
+  { id: "stats", label: "Stats", icon: ChartColumnIcon, href: "/settings/stats" },
   { id: "subscription", label: "Subscription", icon: CreditCardIcon, href: "/settings/subscription" },
   { id: "api", label: "API Keys", icon: KeyIcon, href: "/settings/api" },
 ]

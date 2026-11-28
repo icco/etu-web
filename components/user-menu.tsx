@@ -1,14 +1,14 @@
 "use client"
 
 import {
-  UserCircleIcon,
-  Cog6ToothIcon,
-  ArrowRightOnRectangleIcon,
-  DocumentTextIcon,
+  CircleUserIcon,
+  SettingsIcon,
+  LogOutIcon,
+  FileTextIcon,
   ClockIcon,
-  MagnifyingGlassIcon,
+  SearchIcon,
   TagIcon,
-} from "@heroicons/react/24/outline"
+} from "lucide-react"
 import Image from "next/image"
 import { signOut } from "next-auth/react"
 import Link from "next/link"
@@ -45,7 +45,7 @@ export function UserMenu() {
             className="h-8 w-8 rounded-full object-cover"
           />
         ) : (
-          <UserCircleIcon className="h-8 w-8" />
+          <CircleUserIcon className="h-8 w-8" />
         )}
       </div>
       <ul
@@ -54,7 +54,7 @@ export function UserMenu() {
       >
         <li>
           <Link href="/notes" className={isActive("/notes") ? "active" : ""}>
-            <DocumentTextIcon className="h-4 w-4" />
+            <FileTextIcon className="h-4 w-4" />
             Notes
           </Link>
         </li>
@@ -66,7 +66,7 @@ export function UserMenu() {
         </li>
         <li>
           <Link href="/search" className={isActive("/search") ? "active" : ""}>
-            <MagnifyingGlassIcon className="h-4 w-4" />
+            <SearchIcon className="h-4 w-4" />
             Search
           </Link>
         </li>
@@ -81,13 +81,13 @@ export function UserMenu() {
         </li>
         <li>
           <Link href="/settings" className={isActive("/settings") ? "active" : ""}>
-            <Cog6ToothIcon className="h-4 w-4" />
+            <SettingsIcon className="h-4 w-4" />
             Settings
           </Link>
         </li>
         <li>
           <button onClick={() => signOut({ callbackUrl: "/" })}>
-            <ArrowRightOnRectangleIcon className="h-4 w-4" />
+            <LogOutIcon className="h-4 w-4" />
             Logout
           </button>
         </li>

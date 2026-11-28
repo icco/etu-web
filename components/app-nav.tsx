@@ -3,16 +3,16 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  DocumentTextIcon,
+  FileTextIcon,
   ClockIcon,
-  MagnifyingGlassIcon,
+  SearchIcon,
   TagIcon,
-} from "@heroicons/react/24/outline"
+} from "lucide-react"
 
 const navLinks = [
-  { href: "/notes", label: "Notes", icon: DocumentTextIcon },
+  { href: "/notes", label: "Notes", icon: FileTextIcon },
   { href: "/history", label: "History", icon: ClockIcon },
-  { href: "/search", label: "Search", icon: MagnifyingGlassIcon },
+  { href: "/search", label: "Search", icon: SearchIcon },
   { href: "/tags", label: "Tags", icon: TagIcon },
 ]
 

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowLeftIcon, KeyIcon, BookOpenIcon, CommandLineIcon } from "@heroicons/react/24/outline"
+import { ArrowLeftIcon, KeyIcon, BookOpenIcon, SquareTerminalIcon } from "lucide-react"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -26,7 +26,7 @@ export default function DocsPage() {
 
         <section className="mb-10">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <CommandLineIcon className="h-5 w-5" />
+            <SquareTerminalIcon className="h-5 w-5" />
             Command Line Interface (CLI)
           </h2>
           <p className="text-base-content/80 mb-4">

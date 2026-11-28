@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { format } from "date-fns"
-import { CreditCardIcon } from "@heroicons/react/24/outline"
+import { CreditCardIcon } from "lucide-react"
 import { toast } from "sonner"
 import { PLAY_SUBSCRIPTION_URL } from "@/lib/play-billing"
 

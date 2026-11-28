@@ -1,6 +1,6 @@
 "use client"
 
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
+import { SearchIcon } from "lucide-react"
 
 interface NavSearchProps {
   /** Pre-fill the input (e.g. current query on search page) */
@@ -31,7 +31,7 @@ export function NavSearch({
         aria-label="Search blips"
       />
       <button type="submit" className="btn btn-ghost btn-square btn-sm" aria-label="Submit search">
-        <MagnifyingGlassIcon className="h-5 w-5" />
+        <SearchIcon className="h-5 w-5" />
       </button>
     </form>
   )

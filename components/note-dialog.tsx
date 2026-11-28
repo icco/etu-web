@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import NoteMarkdown from "./note-markdown"
-import { XMarkIcon, PhotoIcon, MusicalNoteIcon } from "@heroicons/react/24/outline"
+import { XIcon, ImageIcon, MusicIcon } from "lucide-react"
 import type { NoteImage as GrpcNoteImage, NoteAudio as GrpcNoteAudio } from "@/lib/grpc/client"
 import { CollapsibleTranscript } from "@/components/collapsible-transcript"
 
@@ -297,7 +297,7 @@ export function NoteDialog({
         <div className="flex items-center justify-between p-4 border-b border-base-300">
           <h3 className="font-bold text-lg">{title}</h3>
           <button onClick={() => onOpenChange(false)} className="btn btn-ghost btn-sm btn-circle">
-            <XMarkIcon className="h-5 w-5" />
+            <XIcon className="h-5 w-5" />
           </button>
         </div>
 
@@ -354,7 +354,7 @@ export function NoteDialog({
                 onClick={() => fileInputRef.current?.click()}
                 className="btn btn-ghost btn-sm gap-1"
               >
-                <PhotoIcon className="h-4 w-4" />
+                <ImageIcon className="h-4 w-4" />
                 Add Image
               </button>
               <input
@@ -407,7 +407,7 @@ export function NoteDialog({
                         onClick={() => removePendingImage(img.id)}
                         className="absolute -top-2 -right-2 btn btn-circle btn-xs btn-error"
                       >
-                        <XMarkIcon className="h-3 w-3" />
+                        <XIcon className="h-3 w-3" />
                       </button>
                     </div>
                   ))}
@@ -425,7 +425,7 @@ export function NoteDialog({
                 onClick={() => audioInputRef.current?.click()}
                 className="btn btn-ghost btn-sm gap-1"
               >
-                <MusicalNoteIcon className="h-4 w-4" />
+                <MusicIcon className="h-4 w-4" />
                 Add Audio
               </button>
               <input
@@ -454,7 +454,7 @@ export function NoteDialog({
                     
                     return (
                       <div key={audio.id} className="flex items-center gap-2 p-2 bg-base-200 rounded-lg">
-                        <MusicalNoteIcon className="h-5 w-5 text-base-content/60 flex-shrink-0" />
+                        <MusicIcon className="h-5 w-5 text-base-content/60 flex-shrink-0" />
                         <div className="flex-1 min-w-0 space-y-2">
                           <audio controls className="w-full h-8" src={audio.url}>
                             {captionUrl && (
@@ -479,7 +479,7 @@ export function NoteDialog({
                 <div className="space-y-2">
                   {pendingAudios.map((audio) => (
                     <div key={audio.id} className="relative flex items-center gap-2 p-2 bg-base-200 rounded-lg">
-                      <MusicalNoteIcon className="h-5 w-5 text-base-content/60 flex-shrink-0" />
+                      <MusicIcon className="h-5 w-5 text-base-content/60 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-base-content truncate">{audio.fileName}</p>
                         <audio controls className="w-full h-8 mt-1" src={audio.previewUrl}>
@@ -491,7 +491,7 @@ export function NoteDialog({
                         onClick={() => removePendingAudio(audio.id)}
                         className="btn btn-circle btn-xs btn-error flex-shrink-0"
                       >
-                        <XMarkIcon className="h-3 w-3" />
+                        <XIcon className="h-3 w-3" />
                       </button>
                     </div>
                   ))}
@@ -542,7 +542,7 @@ export function NoteDialog({
                   <div key={tag} className="badge badge-lg gap-1">
                     {tag}
                     <button onClick={() => removeTag(tag)} className="btn btn-ghost btn-xs btn-circle">
-                      <XMarkIcon className="h-3 w-3" />
+                      <XIcon className="h-3 w-3" />
                     </button>
                   </div>
                 ))}

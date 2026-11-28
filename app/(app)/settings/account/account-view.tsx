@@ -9,8 +9,8 @@ import {
   KeyIcon,
   CheckIcon,
   PencilIcon,
-  ArrowDownTrayIcon,
-} from "@heroicons/react/24/outline"
+  DownloadIcon,
+} from "lucide-react"
 import { toast } from "sonner"
 import { updateName, uploadProfileImage, clearProfileImage, updateNotionKey, changePassword } from "@/lib/actions/user"
 import { exportAllNotes } from "@/lib/actions/notes"
@@ -529,7 +529,7 @@ export function AccountView({ user }: AccountViewProps) {
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title gap-2">
-            <ArrowDownTrayIcon className="h-5 w-5" />
+            <DownloadIcon className="h-5 w-5" />
             Export Data
           </h2>
           <div>
@@ -548,7 +548,7 @@ export function AccountView({ user }: AccountViewProps) {
                 </>
               ) : (
                 <>
-                  <ArrowDownTrayIcon className="h-5 w-5" />
+                  <DownloadIcon className="h-5 w-5" />
                   Export All Notes as JSON
                 </>
               )}

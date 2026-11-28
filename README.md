@@ -28,7 +28,7 @@ This is the webapp for Etu. For more reading on our ideas see:
 - **Proto Types**: `@icco/etu-proto` package (shared TypeScript types)
 - **Auth**: Auth.js v5 (NextAuth) with credentials via gRPC backend
 - **Styling**: Tailwind CSS 4 + daisyUI 5
-- **Icons**: Heroicons
+- **Icons**: Lucide
 - **Markdown**: marked + DOMPurify
 - **Payments**: Stripe
 
