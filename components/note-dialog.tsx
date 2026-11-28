@@ -107,6 +107,11 @@ export function NoteDialog({
 
   const handleSave = async () => {
     if (!content.trim()) return
+    // Selections read files concurrently, so the per-selection checks can overshoot together.
+    if (pendingBytes() > MAX_UPLOAD_TOTAL_BYTES) {
+      toast.error(`Attachments are over the ${MAX_UPLOAD_TOTAL_BYTES / MB}MB limit. Remove one to save.`)
+      return
+    }
 
     setIsSaving(true)
     try {
