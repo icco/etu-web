@@ -3,17 +3,9 @@
 import { z } from "zod"
 import { auth } from "@/lib/auth"
 import { Code } from "@connectrpc/connect"
-import { GrpcError, userSettingsService, type ImageUpload } from "@/lib/grpc/client"
+import { getGrpcApiKey, GrpcError, userSettingsService, type ImageUpload } from "@/lib/grpc/client"
 import { revalidatePath } from "next/cache"
 import logger from "@/lib/logger"
-
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
-}
 
 const updateNameSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name is too long"),

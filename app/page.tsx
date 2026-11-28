@@ -11,11 +11,11 @@ import {
   SquareTerminalIcon,
 } from "lucide-react"
 import { SiteHeader } from "@icco/react-common/SiteHeader"
-import { auth } from "@/lib/auth"
+import { getSession } from "@/lib/auth"
 import { SiteBrand } from "@/components/site-brand"
 
 export default async function LandingPage() {
-  const session = await auth()
+  const session = await getSession()
   
   // Redirect logged-in users to /notes
   if (session?.user) {

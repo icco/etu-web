@@ -4,19 +4,11 @@ import { z } from "zod"
 import { signIn } from "@/lib/auth"
 import { AuthError, CredentialsSignin } from "next-auth"
 import { headers } from "next/headers"
-import { authService, GrpcError } from "@/lib/grpc/client"
+import { authService, getGrpcApiKey, GrpcError } from "@/lib/grpc/client"
 import { Code } from "@connectrpc/connect"
 import logger from "@/lib/logger"
 import { clientIpFromHeaders } from "@/lib/client-ip"
 import { trackFunnelEvent } from "@/lib/analytics"
-
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
-}
 
 const registerSchema = z.object({
   email: z.string().email("Invalid email address"),

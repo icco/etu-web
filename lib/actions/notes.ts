@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { requireSubscribedUser } from "@/lib/access"
 import { auth } from "@/lib/auth"
 import {
+  getGrpcApiKey,
   notesService,
   tagsService,
   statsService,
@@ -123,15 +124,6 @@ function parseAudioUploads(audios?: { data: string; mimeType: string }[]): Audio
       mimeType: audio.mimeType,
     }
   })
-}
-
-// Service API key for internal gRPC calls
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
 }
 
 async function requireUser() {
