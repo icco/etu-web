@@ -1,10 +1,11 @@
+import { format } from "date-fns"
 import type { Note } from "@/lib/types"
 
+// Groups by the viewer's local day, matching the headings the views render.
 export function groupNotesByDate(notes: Note[]): Map<string, Note[]> {
   const grouped = new Map<string, Note[]>()
   notes.forEach((note) => {
-    const d = new Date(note.createdAt)
-    const dateKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`
+    const dateKey = format(new Date(note.createdAt), "yyyy-MM-dd")
     if (!grouped.has(dateKey)) grouped.set(dateKey, [])
     grouped.get(dateKey)!.push(note)
   })
