@@ -34,8 +34,8 @@ const rawGrpcUrl = process.env.GRPC_BACKEND_URL || "http://localhost:50051"
 // Ensure URL has protocol prefix
 const GRPC_URL = rawGrpcUrl.startsWith("http") ? rawGrpcUrl : `http://${rawGrpcUrl}`
 
-// One transport shares a pooled HTTP/2 session; its session manager reconnects after a dropped connection.
-const transport = createGrpcTransport({ baseUrl: GRPC_URL })
+// One pooled HTTP/2 session; pingIntervalMs PINGs a long-idle connection before reuse so a dropped one is replaced, not hung on.
+const transport = createGrpcTransport({ baseUrl: GRPC_URL, pingIntervalMs: 30_000 })
 
 function getClient<S extends DescService>(service: S) {
   return createClient(service, transport)

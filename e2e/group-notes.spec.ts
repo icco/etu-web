@@ -12,6 +12,7 @@ test("groups notes by the viewer's local day", () => {
     expect([...grouped.keys()]).toEqual(["2026-03-03"])
     expect(grouped.get("2026-03-03")?.map((n) => n.id)).toEqual(["morning", "evening"])
   } finally {
-    process.env.TZ = previous
+    if (previous === undefined) delete process.env.TZ
+    else process.env.TZ = previous
   }
 })

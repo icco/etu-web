@@ -165,20 +165,6 @@ export async function deleteNote(id: string) {
   return { success: true }
 }
 
-export async function getNote(id: string): Promise<Note> {
-  const userId = await requireUser()
-
-  const response = await notesService.getNote(
-    {
-      userId,
-      id,
-    },
-    getGrpcApiKey()
-  )
-
-  return toNote(response.note)
-}
-
 export async function getNotes(options?: {
   search?: string
   tags?: string[]
