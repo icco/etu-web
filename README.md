@@ -29,15 +29,15 @@ This is the webapp for Etu. For more reading on our ideas see:
 - **Auth**: Auth.js v5 (NextAuth) with credentials via gRPC backend
 - **Styling**: Tailwind CSS 4 + daisyUI 5
 - **Icons**: Lucide
-- **Markdown**: marked + DOMPurify
+- **Markdown**: react-markdown + remark-gfm
 - **Payments**: Stripe
 
 ## Quick Start
 
 ### Prerequisites
 
-- Node.js 25+ (see `.nvmrc`)
-- Yarn
+- Node.js 26+ (see `.nvmrc`)
+- pnpm
 - Running [etu-backend](https://github.com/icco/etu-backend) gRPC service
 - GitHub Packages authentication (for `@icco/etu-proto`)
 
@@ -48,13 +48,13 @@ This is the webapp for Etu. For more reading on our ideas see:
 # Add to ~/.npmrc: //npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
 
 # Install dependencies
-yarn install
+pnpm install
 
 # Set up environment variables (see below)
 # Create .env.local with your gRPC backend URL and secrets
 
 # Start development server
-yarn dev
+pnpm dev
 ```
 
 Open http://localhost:3000

@@ -34,14 +34,11 @@ const rawGrpcUrl = process.env.GRPC_BACKEND_URL || "http://localhost:50051"
 // Ensure URL has protocol prefix
 const GRPC_URL = rawGrpcUrl.startsWith("http") ? rawGrpcUrl : `http://${rawGrpcUrl}`
 
-// Create gRPC transport per-request to avoid stale connections
-function getTransport() {
-  return createGrpcTransport({ baseUrl: GRPC_URL })
-}
+// One pooled HTTP/2 session; pingIntervalMs PINGs a long-idle connection before reuse so a dropped one is replaced, not hung on.
+const transport = createGrpcTransport({ baseUrl: GRPC_URL, pingIntervalMs: 30_000 })
 
-// Generic client factory - replaces per-service getXxxClient() boilerplate
 function getClient<S extends DescService>(service: S) {
-  return createClient(service, getTransport())
+  return createClient(service, transport)
 }
 
 // =============================================================================
@@ -139,10 +136,6 @@ export interface AudioUpload {
 
 // Helper to create headers with API key
 function createHeaders(apiKey: string): HeadersInit {
-  // Debug: log presence of API key without exposing its value
-  if (process.env.NODE_ENV !== "production") {
-    console.log(`gRPC auth header configured: ${apiKey ? "present" : "absent"}`)
-  }
   // Use Authorization header with the API key (backend expects raw key, not Bearer format)
   return {
     Authorization: apiKey,
@@ -212,13 +205,24 @@ function convertApiKey(key: ProtoApiKey | undefined): ApiKey {
   }
 }
 
+export function getGrpcApiKey(): string {
+  const key = process.env.GRPC_API_KEY
+  if (!key) {
+    throw new Error("GRPC_API_KEY environment variable is required")
+  }
+  return key
+}
+
+// Answers callers branch on (no subscription, wrong password, rate limit) are not failures.
+const EXPECTED_CODES = new Set([Code.PermissionDenied, Code.NotFound, Code.AlreadyExists, Code.Unauthenticated, Code.ResourceExhausted, Code.FailedPrecondition])
+
 // Wrap calls with error handling
 async function withErrorHandling<T>(fn: () => Promise<T>, methodName?: string): Promise<T> {
   try {
     return await fn()
   } catch (error) {
     if (error instanceof ConnectError) {
-      logger.error({
+      logger[EXPECTED_CODES.has(error.code) ? "warn" : "error"]({
         error,
         code: error.code,
         methodName: methodName || 'unknown'

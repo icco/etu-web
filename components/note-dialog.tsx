@@ -5,7 +5,17 @@ import Image from "next/image"
 import NoteMarkdown from "./note-markdown"
 import { XIcon, ImageIcon, MusicIcon } from "lucide-react"
 import type { NoteImage as GrpcNoteImage, NoteAudio as GrpcNoteAudio } from "@/lib/grpc/client"
+import { toast } from "sonner"
 import { CollapsibleTranscript } from "@/components/collapsible-transcript"
+import {
+  ALLOWED_AUDIO_MIME_TYPES,
+  ALLOWED_IMAGE_MIME_TYPES,
+  estimateBase64Size,
+  MAX_AUDIO_COUNT,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_COUNT,
+  MAX_UPLOAD_TOTAL_BYTES,
+} from "@/lib/uploads"
 
 // Pick only the fields this component uses
 type NoteImage = Pick<GrpcNoteImage, "id" | "url" | "mimeType">
@@ -97,6 +107,11 @@ export function NoteDialog({
 
   const handleSave = async () => {
     if (!content.trim()) return
+    // Selections read files concurrently, so the per-selection checks can overshoot together.
+    if (pendingBytes() > MAX_UPLOAD_TOTAL_BYTES) {
+      toast.error(`Attachments are over the ${MAX_UPLOAD_TOTAL_BYTES / MB}MB limit. Remove one to save.`)
+      return
+    }
 
     setIsSaving(true)
     try {
@@ -123,39 +138,26 @@ export function NoteDialog({
     }
   }
 
-  // Image upload constraints (aligned with Next server action bodySizeLimit: '10mb')
-  const MAX_IMAGE_COUNT = 10
-  const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024 // 5 MiB per image
-  const ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"]
-
-  // Audio upload constraints
-  const MAX_AUDIO_COUNT = 5
-  const MAX_AUDIO_SIZE_BYTES = 25 * 1024 * 1024 // 25 MiB per audio
-  const ALLOWED_AUDIO_MIME_TYPES = [
-    "audio/mpeg",
-    "audio/mp3",
-    "audio/wav",
-    "audio/wave",
-    "audio/ogg",
-    "audio/webm",
-    "audio/mp4",
-    "audio/m4a",
-    "audio/flac",
-    "audio/aac",
-  ]
+  const MB = 1024 * 1024
+  const pendingBytes = () => [...pendingImages, ...pendingAudios].reduce((n, f) => n + estimateBase64Size(f.data), 0)
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
     const newImages: PendingImage[] = []
+    let total = pendingBytes()
     for (const file of Array.from(files)) {
       // Validate MIME type
-      if (!ALLOWED_MIME_TYPES.includes(file.type)) continue
+      if (!ALLOWED_IMAGE_MIME_TYPES.has(file.type)) continue
 
       // Validate file size
-      if (file.size > MAX_IMAGE_SIZE_BYTES) {
-        console.warn(`Skipping file "${file.name}": exceeds ${MAX_IMAGE_SIZE_BYTES / 1024 / 1024}MB limit`)
+      if (file.size > MAX_IMAGE_BYTES) {
+        toast.error(`"${file.name}" is over the ${MAX_IMAGE_BYTES / MB}MB image limit`)
+        continue
+      }
+      if (total + file.size > MAX_UPLOAD_TOTAL_BYTES) {
+        toast.error(`"${file.name}" would put this blip over the ${MAX_UPLOAD_TOTAL_BYTES / MB}MB attachment limit`)
         continue
       }
 
@@ -166,6 +168,7 @@ export function NoteDialog({
       }
 
       const base64 = await fileToBase64(file)
+      total += file.size
       const previewUrl = URL.createObjectURL(file)
       // Track URL for cleanup
       previewUrlsRef.current.add(previewUrl)
@@ -200,13 +203,14 @@ export function NoteDialog({
     if (!files) return
 
     const newAudios: PendingAudio[] = []
+    let total = pendingBytes()
     for (const file of Array.from(files)) {
       // Validate MIME type
-      if (!ALLOWED_AUDIO_MIME_TYPES.includes(file.type)) continue
+      if (!ALLOWED_AUDIO_MIME_TYPES.has(file.type)) continue
 
       // Validate file size
-      if (file.size > MAX_AUDIO_SIZE_BYTES) {
-        console.warn(`Skipping file "${file.name}": exceeds ${MAX_AUDIO_SIZE_BYTES / 1024 / 1024}MB limit`)
+      if (total + file.size > MAX_UPLOAD_TOTAL_BYTES) {
+        toast.error(`"${file.name}" would put this blip over the ${MAX_UPLOAD_TOTAL_BYTES / MB}MB attachment limit`)
         continue
       }
 
@@ -217,6 +221,7 @@ export function NoteDialog({
       }
 
       const base64 = await fileToBase64(file)
+      total += file.size
       const previewUrl = URL.createObjectURL(file)
       // Track URL for cleanup
       previewUrlsRef.current.add(previewUrl)

@@ -168,21 +168,12 @@ STRIPE_PRICE_ID          # Stripe price ID (optional)
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth'
-import { notesService } from '@/lib/grpc/client'
+import { getGrpcApiKey, notesService } from '@/lib/grpc/client'
 
 const createNoteSchema = z.object({
   content: z.string().min(1, 'Content is required'),
   tags: z.array(z.string()).default([]),
 })
-
-// Helper to get service API key
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error('GRPC_API_KEY environment variable is required')
-  }
-  return key
-}
 
 // Helper to require authenticated user
 async function requireUser() {

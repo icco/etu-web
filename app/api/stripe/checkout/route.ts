@@ -1,20 +1,12 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
-import { authService, notesService } from "@/lib/grpc/client"
+import { authService, getGrpcApiKey, notesService } from "@/lib/grpc/client"
 import { stripe, STRIPE_PRICE_ID } from "@/lib/stripe"
 import { isSameOrigin } from "@/lib/security"
 import logger from "@/lib/logger"
 import { createSubscriptionCheckout, ExistingSubscriptionError } from "@/lib/stripe-checkout"
 import { hasPaidAccess } from "@/lib/paid-access"
 import { assertStripeCheckoutAllowed, PlayManagedError } from "@/lib/play-billing"
-
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
-}
 
 export async function POST(request: Request) {
   const authUrl = process.env.AUTH_URL

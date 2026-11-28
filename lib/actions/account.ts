@@ -4,7 +4,7 @@ import { headers } from "next/headers"
 import { Code } from "@connectrpc/connect"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
-import { accountService, authService, GrpcError, userSettingsService } from "@/lib/grpc/client"
+import { accountService, authService, getGrpcApiKey, GrpcError, userSettingsService } from "@/lib/grpc/client"
 import { clientIpFromHeaders } from "@/lib/client-ip"
 import logger from "@/lib/logger"
 
@@ -16,8 +16,7 @@ export async function deleteAccount(formData: FormData) {
     return { error: "Enter your password and confirm permanent deletion" }
   }
   try {
-    const apiKey = process.env.GRPC_API_KEY
-    if (!apiKey) throw new Error("GRPC_API_KEY environment variable is required")
+    const apiKey = getGrpcApiKey()
     const verified = await authService.authenticate({ email: session.user.email, password, clientIp: clientIpFromHeaders(await headers()) }, apiKey)
     if (!verified.success || verified.user?.id !== session.user.id) return { error: "Current password is incorrect" }
     const result = await accountService.deleteAccount({ userId: session.user.id, password }, apiKey)
@@ -36,8 +35,7 @@ export async function updateAiPreference(aiEnabled: boolean) {
   if (!session?.user?.id) return { error: "Not authenticated" }
   if (typeof aiEnabled !== "boolean") return { error: "Invalid AI preference" }
   try {
-    const apiKey = process.env.GRPC_API_KEY
-    if (!apiKey) throw new Error("GRPC_API_KEY environment variable is required")
+    const apiKey = getGrpcApiKey()
     await userSettingsService.updateUserSettings({ userId: session.user.id, aiEnabled }, apiKey)
     revalidatePath("/settings/account")
     return { success: true }

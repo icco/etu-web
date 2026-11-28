@@ -1,9 +1,10 @@
+import { cache } from "react"
 import NextAuth, { AuthError, CredentialsSignin } from "next-auth"
 import { Code } from "@connectrpc/connect"
 import Credentials from "next-auth/providers/credentials"
 import { z } from "zod"
 import { authConfig } from "./auth.config"
-import { apiKeysService, authService, GrpcError, timestampToDate, userSettingsService } from "./grpc/client"
+import { apiKeysService, authService, getGrpcApiKey, GrpcError, timestampToDate, userSettingsService } from "./grpc/client"
 import { clientIpFromHeaders } from "./client-ip"
 import logger from "./logger"
 
@@ -12,14 +13,6 @@ declare module "next-auth" {
     sessionKey?: string
     sessionKeyId?: string
   }
-}
-
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
 }
 
 export class RateLimitedSignin extends CredentialsSignin {
@@ -136,9 +129,12 @@ async function getProfileImageUrl(key: string): Promise<string | null> {
   }
 }
 
+// Every auth() call re-verifies the session key with the backend, so read it once per request.
+export const getSession = cache(() => auth())
+
 // Helper to get current user with subscription info
-export async function getCurrentUser() {
-  const session = await auth()
+export const getCurrentUser = cache(async () => {
+  const session = await getSession()
   if (!session?.user?.id) return null
 
   try {
@@ -170,4 +166,4 @@ export async function getCurrentUser() {
     logger.error({ error }, "Get current user error")
     return null
   }
-}
+})

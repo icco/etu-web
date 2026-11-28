@@ -1,17 +1,9 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
-import { authService } from "@/lib/grpc/client"
+import { authService, getGrpcApiKey } from "@/lib/grpc/client"
 import { stripe, STRIPE_PORTAL_CONFIGURATION_ID } from "@/lib/stripe"
 import { isSameOrigin } from "@/lib/security"
 import logger from "@/lib/logger"
-
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
-}
 
 export async function POST(request: Request) {
   const authUrl = process.env.AUTH_URL

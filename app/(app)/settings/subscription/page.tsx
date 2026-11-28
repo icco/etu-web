@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { getCurrentUser } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { notesService } from "@/lib/grpc/client"
+import { getGrpcApiKey, notesService } from "@/lib/grpc/client"
 import { hasPaidAccess } from "@/lib/paid-access"
 import { SubscriptionView } from "./subscription-view"
 
@@ -13,8 +13,7 @@ export default async function SubscriptionPage() {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
 
-  const apiKey = process.env.GRPC_API_KEY
-  if (!apiKey) throw new Error("GRPC_API_KEY environment variable is required")
+  const apiKey = getGrpcApiKey()
   const isPlay = user.billingProvider === "play"
   const playManaged = isPlay && await hasPaidAccess(user.id, apiKey, notesService)
 

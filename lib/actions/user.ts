@@ -3,17 +3,10 @@
 import { z } from "zod"
 import { auth } from "@/lib/auth"
 import { Code } from "@connectrpc/connect"
-import { GrpcError, userSettingsService, type ImageUpload } from "@/lib/grpc/client"
+import { getGrpcApiKey, GrpcError, userSettingsService, type ImageUpload } from "@/lib/grpc/client"
 import { revalidatePath } from "next/cache"
 import logger from "@/lib/logger"
-
-function getGrpcApiKey(): string {
-  const key = process.env.GRPC_API_KEY
-  if (!key) {
-    throw new Error("GRPC_API_KEY environment variable is required")
-  }
-  return key
-}
+import { ALLOWED_IMAGE_MIME_TYPES, estimateBase64Size, MAX_IMAGE_BYTES } from "@/lib/uploads"
 
 const updateNameSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name is too long"),
@@ -91,27 +84,6 @@ export async function updateNotionKey(formData: FormData) {
   }
 }
 
-const ALLOWED_IMAGE_MIME_TYPES = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "image/gif",
-])
-
-const MAX_PROFILE_IMAGE_BYTES = 5 * 1024 * 1024 // 5 MiB
-
-function estimateBase64Size(base64: string): number {
-  const len = base64.length
-  if (len === 0) return 0
-  let padding = 0
-  if (base64.endsWith("==")) {
-    padding = 2
-  } else if (base64.endsWith("=")) {
-    padding = 1
-  }
-  return (len * 3) / 4 - padding
-}
-
 export async function uploadProfileImage(data: { data: string; mimeType: string }) {
   const session = await auth()
   if (!session?.user?.id) {
@@ -123,7 +95,7 @@ export async function uploadProfileImage(data: { data: string; mimeType: string 
   }
 
   const estimatedBytes = estimateBase64Size(data.data)
-  if (estimatedBytes > MAX_PROFILE_IMAGE_BYTES) {
+  if (estimatedBytes > MAX_IMAGE_BYTES) {
     return { error: "Image exceeds maximum size of 5MB" }
   }
 
