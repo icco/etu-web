@@ -3,15 +3,11 @@
 import { z } from "zod"
 import { revalidatePath } from "next/cache"
 import { requireSubscribedUser } from "@/lib/access"
-import { auth } from "@/lib/auth"
 import {
   getGrpcApiKey,
   notesService,
   tagsService,
   statsService,
-  accountService,
-  type Note as GrpcNote,
-  timestampToDate,
   type ImageUpload,
   type AudioUpload,
 } from "@/lib/grpc/client"
@@ -258,90 +254,6 @@ export async function getTags(): Promise<Tag[]> {
     name: tag.name,
     count: tag.count,
   }))
-}
-
-export async function getStats() {
-  const userId = await requireUser()
-
-  // Get notes to calculate stats
-  // NOTE: This fetches up to 10,000 notes client-side. For users with more notes,
-  // stats will be incomplete. Consider implementing a backend stats endpoint
-  // if this becomes a problem.
-  const response = await notesService.listNotes(
-    {
-      userId,
-      limit: 10000,
-      offset: 0,
-    },
-    getGrpcApiKey()
-  )
-
-  const tagsResponse = await tagsService.listTags(
-    {
-      userId,
-    },
-    getGrpcApiKey()
-  )
-
-  // Count words
-  const totalWords = response.notes.reduce((acc, note) => {
-    return acc + note.content.split(/\s+/).filter((w) => w.length > 0).length
-  }, 0)
-
-  // Find first note date
-  let firstNoteDate: Date | null = null
-  if (response.notes.length > 0) {
-    const sorted = [...response.notes].sort((a, b) => {
-      const dateA = timestampToDate(a.createdAt)
-      const dateB = timestampToDate(b.createdAt)
-      return dateA.getTime() - dateB.getTime()
-    })
-    firstNoteDate = timestampToDate(sorted[0].createdAt)
-  }
-
-  return {
-    totalNotes: response.total,
-    totalTags: tagsResponse.tags.length,
-    totalWords,
-    firstNoteDate,
-  }
-}
-
-export async function exportAllNotes() {
-  const session = await auth()
-  if (!session?.user?.id) throw new Error("Unauthorized")
-  const userId = session.user.id
-  const notes: GrpcNote[] = []
-  for await (const item of accountService.exportData({ userId }, getGrpcApiKey())) {
-    if (item.note) notes.push(item.note)
-  }
-
-  // Format notes for export (convert Dates to ISO strings)
-  const exportData = {
-    exportDate: new Date().toISOString(),
-    userId,
-    totalNotes: notes.length,
-    notes: notes.map((note) => {
-      const converted = toNote(note)
-      return {
-        id: converted.id,
-        content: converted.content,
-        tags: converted.tags,
-        createdAt: converted.createdAt.toISOString(),
-        updatedAt: converted.updatedAt.toISOString(),
-        images: converted.images.map((img) => ({
-          ...img,
-          createdAt: img.createdAt?.toISOString(),
-        })),
-        audios: converted.audios.map((audio) => ({
-          ...audio,
-          createdAt: audio.createdAt?.toISOString(),
-        })),
-      }
-    }),
-  }
-
-  return exportData
 }
 
 /**

@@ -60,13 +60,3 @@ export async function deleteApiKey(id: string) {
   revalidatePath("/settings")
   return { success: true }
 }
-
-// Verify an API key and return the user ID
-export async function verifyApiKey(rawKey: string): Promise<string | null> {
-  try {
-    const response = await apiKeysService.verifyApiKey({ rawKey }, getGrpcApiKey())
-    return response.valid ? (response.userId ?? null) : null
-  } catch {
-    return null
-  }
-}

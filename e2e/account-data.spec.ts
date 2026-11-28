@@ -1,15 +1,4 @@
 import { test, expect } from "@playwright/test"
-import { readFile } from "node:fs/promises"
-
-test("notes-only download also includes more than 10000 notes", async ({ page }) => {
-  await page.request.post("/api/test/auth", { data: { email: "alice-export@example.com" } })
-  await page.goto("/settings/account")
-  const download = page.waitForEvent("download")
-  await page.getByRole("button", { name: "Export All Notes as JSON" }).click()
-  const path = await (await download).path()
-  const data = JSON.parse(await readFile(path!, "utf8"))
-  expect(data.notes).toHaveLength(10001)
-})
 
 test("full export is private and streams every note with media", async ({ request }) => {
   expect((await request.get("/api/account/export")).status()).toBe(401)
